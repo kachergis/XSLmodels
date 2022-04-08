@@ -27,33 +27,73 @@ To allow for designs that present an unequal number of words and objects on each
 
 Whether you already have human data from an experiment that you would like to fit models to, or if you would like to simply evaluate model performance on an given experiment's training trials, this vignette will show to 1) structure training trials, 2) examine the structure of an experiment, 3) run model(s) through the training trials, and 4) specify how the model(s) should be tested.
 
-## 1. Structure of training trials
+## 1. Structure of an experimental condition
 
+get_example_ambiguous_condition() and get_example_unambiguous_condition() return simple example experimental conditions, which consist of a list of training *trials*, an optional vector *perf* containing the per-word performance of people on the test trials, and an optional list of test trials, enumerating each to-be-tested word and the set of referents to be presented for choosing among. 
+The list of training trials is further composed of a list of the words presented on each trial, and a list of the referents (*objs*) presented on each trial.
 
-```{r, fig.show='hold'}
+```{r, echo=T}
+ag <- get_example_ambiguous_condition()
 
+ag
 ```
 
-## 2. Examining an experiment's structure
+Shown above, the example ambiguous condition has three training trials (`ag$trials`). 
+On the first trial words 1 and 2 appear (`ag$trials$words[[1]]`) alongside referents 1 and 2 (`ag$trials$objs[[1]]`; order of words/referents within a trial is irrelevant).
 
-One common way to summarize the structure of a cross-situational word learning experiment is to make a heatmap of a matrix of the word-object co-occurrences.
+## 2. Viewing an experiment's structure
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+One common way to summarize the structure of a cross-situational word learning experiment is to make a matrix of the word-object co-occurrences, which can be visualized with a heatmap to show the strength of association between each word and object.
+create_cooc_matrix() will return a word x object matrix showing the tallied co-occurrences of each word with each object across all of the training trials.
+
+```{r}
+create_cooc_matrix(ag$trials)
 ```
+
 
 ## 3. Run model(s) through a set of training trials
 
 ```{r run-models}
-
+run_model(ag, "kachergis", c(.1, 1, .98))
+# the "source" strategy I was using to load the named model() will no longer work...
+# what's the proper solution in a package? a list of models, with each model's function?
 ```
+
 
 ## 4. Evaluating model performance
 
 Models return both a word-object matrix of associations (or 'hypotheses', i.e. binary-valued associations), as well as the conditional probability of selecting the intended referent, given each word (i.e., P(referent | word)).
 
 ```{r}
+## TESTING
+#pv = run_stochastic_model(conds, "trueswell2012", c(.1, .5)) # SSE=1.18
+#gt = run_stochastic_model(conds, "guess-and-test", c(.1, .5)) # SSE=1.14
+#pt = run_stochastic_model(conds, "pursuit_detailed", c(.2, .3, .05)) # SSE=4.06
+
+#tl = fit_model("tilles", conds[[1]], c(1e-5,1e-5,1e-5), c(1,1,1)) # run_model
+
+
+
+# temporary (until we finish full fits)
+#group_fits[["trueswell2012"]] = list(pars = c(0.113666, 0.266792)) # SSE=.879
+#group_fits[["guess-and-test"]] = list(pars = c(0.691312, 0.991726)) # SSE=.884
+#group_fits[["pursuit_detailed"]] = list(pars = c(0.088324, 0.409523, 0.000059)) # SSE = 0.996
+#group_fits[["kachergis_sampling"]] = list(pars = c(0.15553, 11.04866, 0.99260)) # SSE = 0.407
+#gfd = get_model_dataframe(group_fits, combined_data) # 726 items per model
+#save(group_fits, gfd, file="fits/group_fits.Rdata")
 
 ```
 
+
+## 5. Included experimental conditions
+
+A dataset of `r length(names(XSLmodels::combined_data))` experimental conditions is included in the package in XSLmodels::combined_data.
+Below, we show this data can be used to optimize parameters for existing models in the package.
+
+```{r}
+models = c("kachergis", "fazly", "strength", "uncertainty", 
+           "novelty", "Bayesian_decay", "rescorla_wagner")
+stochastic_models = c("guess-and-test","pursuit","trueswell2012","kachergis_sampling")
+
+```
 
