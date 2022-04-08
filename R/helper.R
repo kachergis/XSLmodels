@@ -2,7 +2,7 @@
 
 #' Creates co-occurrence matrix given training trials.
 #'
-#' Given a training order (list of words and objects per trial), returns a matrix of 
+#' Given a training order (list of words and objects per trial), returns a matrix of
 #' tallied word-object co-occurrences across the trials.
 #'
 #' @return A list of trials (with nested words and objects per trial) and perf (P(correct referent | word))
@@ -13,8 +13,10 @@ create_cooc_matrix <- function(train) {
   M = matrix(0, nrow=Nwords, ncol=Nobjs)
   rownames(M) = sort(unique(unlist(train$words)))
   colnames(M) = sort(unique(unlist(train$objs)))
-  # iterate over training scenes, M[train$words[i], grain$objs[i]] = M[train$words[i], grain$objs[i]] + 1
-  
+  # iterate over training trials
+  for(i in 1:length(train$words)) {
+    M[train$words[[i]], train$objs[[i]]] = M[train$words[[i]], train$objs[[i]]] + 1
+  }
   return(M)
 }
 

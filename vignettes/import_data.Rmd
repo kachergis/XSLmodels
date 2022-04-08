@@ -25,23 +25,35 @@ Cross-situational word learning experiments are assumed to have a training phase
 For the training phase, participants (and models) are presented with a subset of words and referents (i.e. objects) on each trial.
 To allow for designs that present an unequal number of words and objects on each trial, we use a list format.
 
-If you have data from an experiment that you would like to fit models to, or if you have 
+Whether you already have human data from an experiment that you would like to fit models to, or if you would like to simply evaluate model performance on an given experiment's training trials, this vignette will show to 1) structure training trials, 2) examine the structure of an experiment, 3) run model(s) through the training trials, and 4) specify how the model(s) should be tested.
 
-## Figures
+## 1. Structure of training trials
 
-The figure sizes have been customised so that you can easily put two images side-by-side. 
 
 ```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+
 ```
 
+## 2. Examining an experiment's structure
 
+One common way to summarize the structure of a cross-situational word learning experiment is to make a heatmap of a matrix of the word-object co-occurrences.
 
 ```{r, echo=FALSE, results='asis'}
 knitr::kable(head(mtcars, 10))
 ```
 
-Also a quote using `>`:
+## 3. Run model(s) through a set of training trials
+
+```{r run-models}
+
+```
+
+## 4. Evaluating model performance
+
+Models return both a word-object matrix of associations (or 'hypotheses', i.e. binary-valued associations), as well as the conditional probability of selecting the intended referent, given each word (i.e., P(referent | word)).
+
+```{r}
+
+```
 
 
