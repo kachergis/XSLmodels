@@ -13,7 +13,7 @@ data_dir = "data/"
 #' @return Returns model association matrix after training, conditional probability of selecting correct referent given each word, and sum of squared error (SSE)
 #' @export
 run_model <- function(conds, model_name, parameters, SSE_only=F, print_perf=F) {
-  source(here::here(paste0(model_dir,model_name,".R")))
+  source(here::here(paste0(model_dir,model_name,".R"))) # sourcing not allowed in packages
   if(!is.null(conds$train)) {
     mod = list(perf = model(parameters, ord=conds$train)$perf)
     SSE = sum( (mod$perf - conds$HumanItemAcc)^2 )
