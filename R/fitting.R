@@ -9,8 +9,15 @@ data_dir = "data/"
 
 #' Run specified model on provided condition(s)
 #'
+#' This function runs a specified word learning model on a set of provided conditions. It calculates the model's performance, the sum of squared errors (SSE), and optionally, the conditional probability of selecting the correct referent for each word.
 #'
-#' @return Returns model association matrix after training, conditional probability of selecting correct referent given each word, and sum of squared error (SSE)
+#' @param conds A list representing the conditions under which the model is run. Each condition should include training data (`train`) and human item accuracy (`HumanItemAcc`).
+#' @param model_name A string specifying the name of the model to run.
+#' @param parameters A list of parameters to be used by the model.
+#' @param SSE_only Logical; if TRUE, only the SSE will be returned.
+#' @param print_perf Logical; if TRUE, model performance and SSE will be printed.
+#'
+#' @return A list containing the model's association matrix after training, conditional probability of selecting the correct referent for each word, and the sum of squared error (SSE). If `SSE_only` is TRUE, only the SSE is returned.
 #' @export
 run_model <- function(conds, model_name, parameters, SSE_only=F, print_perf=F) {
   source(here::here(paste0(model_dir,model_name,".R"))) # sourcing not allowed in packages
@@ -50,6 +57,18 @@ run_model <- function(conds, model_name, parameters, SSE_only=F, print_perf=F) {
   return(mod)
 }
 
+
+#' Fit Model to Conditions Using Differential Evolution
+#'
+#' This function fits a model to provided conditions using the Differential Evolution optimization algorithm. It optimizes the model parameters to minimize the sum of squared errors (SSE) between the model's predictions and human accuracy data.
+#'
+#' @param model_name A string specifying the name of the model to be fitted.
+#' @param conds A list representing the conditions under which the model is fit.
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return An object of class `DEoptim` representing the fitting result, which includes the best set of parameters found and the corresponding SSE value.
+#' @export
 fit_model <- function(model_name, conds, lower, upper) {
   fit = DEoptim::DEoptim(run_model, lower=lower, upper=upper,
                          DEoptim::DEoptim.control(reltol=.001, NP=100, itermax=100),
@@ -57,6 +76,17 @@ fit_model <- function(model_name, conds, lower, upper) {
   return(fit)
 }
 
+
+#' Dummy Function for Stochastic Simulation
+#'
+#' This function serves as a placeholder for running stochastic simulations. It calls the `model` function with provided parameters and a specific order, returning the model's performance.
+#'
+#' @param n Integer, representing the number of simulations to run.
+#' @param parameters A list of parameters to be used by the model.
+#' @param ord The order in which the model operates.
+#'
+#' @return A numeric value representing the model's performance.
+#' @export
 stochastic_dummy <- function(n, parameters, ord) {
   return(model(parameters, ord)$perf)
 }
@@ -70,6 +100,23 @@ stochastic_traj_dummy <- function(n, parameters, ord) {
 }
 
 
+#' Run Stochastic Model on Provided Conditions
+#'
+#' This function runs a stochastic version of the specified word learning model on a set of provided conditions. It simulates the model multiple times and aggregates the results. The function can return either a response matrix, model performance, or sum of squared errors (SSE).
+#'
+#' @param conds A list representing the conditions under which the model is run. This could include training and testing data, along with human item accuracy (`HumanItemAcc`).
+#' @param model_name A string specifying the name of the stochastic model to run.
+#' @param parameters A list of parameters to be used by the stochastic model.
+#' @param SSE_only Logical; if TRUE, only the SSE will be returned.
+#' @param print_perf Logical; if TRUE, model performance and SSE will be printed.
+#' @param get_resp_matrix Logical; if TRUE, the function returns the response matrix instead of the standard performance metrics.
+#' @param Nsim Integer; the number of simulations to run for the stochastic model.
+#'
+#' @return Depending on the parameters, the function can return different types of outputs:
+#' - If `get_resp_matrix` is TRUE, it returns a response matrix aggregated over all simulations.
+#' - If `SSE_only` is TRUE, it returns only the SSE.
+#' - Otherwise, it returns a list containing model performance across conditions and the SSE.
+#' @export
 run_stochastic_model <- function(conds, model_name, parameters, SSE_only=F, print_perf=F, get_resp_matrix=F, Nsim=500) {
   source(here::here(paste0(model_dir,"stochastic/",model_name,".R")))
   # fitting a single condition
@@ -124,7 +171,17 @@ run_stochastic_model <- function(conds, model_name, parameters, SSE_only=F, prin
 }
 
 
-
+#' Fit Stochastic Model to Conditions Using Differential Evolution
+#'
+#' This function fits a stochastic model to provided conditions using the Differential Evolution optimization algorithm. It aims to optimize the model parameters to minimize the sum of squared errors (SSE) between the model's predictions and human accuracy data.
+#'
+#' @param model_name A string specifying the name of the stochastic model to be fitted.
+#' @param conds A list representing the conditions under which the model is fit. This typically includes training data and expected outcomes.
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return An object of class `DEoptim` representing the fitting result. This includes the best set of parameters found and the corresponding SSE value.
+#' @export
 fit_stochastic_model <- function(model_name, conds, lower, upper) {
   fit = DEoptim::DEoptim(run_stochastic_model, lower=lower, upper=upper,
                          DEoptim::DEoptim.control(reltol=.001, NP=100, itermax=30),
@@ -133,7 +190,16 @@ fit_stochastic_model <- function(model_name, conds, lower, upper) {
 }
 
 
-# for group fits (all conditions per model)
+#' Create a Data Frame from Model Fits
+#'
+#' This function generates a data frame summarizing the fits of models to various conditions. It compiles information such as model performance, human performance, and subject count for each condition, creating a comprehensive overview suitable for analysis and visualization.
+#'
+#' @param fits A list of model fitting results, where each element corresponds to a different model. The elements are objects resulting from the optimization process (e.g., using `DEoptim`).
+#' @param conds A list representing the conditions for which the models were fitted. Each element in the list should correspond to a condition and include relevant data such as human item accuracy (`HumanItemAcc`).
+#' @param cvdat An optional list of cross-validation data. If provided, this data is used instead of the data in `conds`. Default is an empty vector, indicating that `conds` will be used.
+#'
+#' @return A `tibble` (data frame) where each row represents a model-condition pair and includes columns for the model name, condition number, condition details, model performance, human performance, and subject count.
+#' @export
 get_model_dataframe <- function(fits, conds, cvdat=c()) {
   mdf = tidyr::tibble()
   for(model_name in names(fits)) {
@@ -167,6 +233,15 @@ get_model_dataframe <- function(fits, conds, cvdat=c()) {
 }
 
 
+#' Generate Data Frame for Model Fits by Condition
+#'
+#' This function creates a data frame summarizing the fits of models for each specific condition. It consolidates data such as model performance, human performance, and number of subjects for each condition, enabling detailed analysis and comparison of model fits across different conditions.
+#'
+#' @param fits A list of model fitting results by condition, where each top-level element corresponds to a different model and each nested element represents a specific condition.
+#' @param conds A list representing the conditions for which the models were fitted, including data such as human item accuracy (`HumanItemAcc`).
+#'
+#' @return A `tibble` (data frame) where each row represents a specific model-condition pair, including columns for the model name, condition number, detailed condition information, model performance, human performance, and number of subjects.
+#' @export
 get_model_dataframe_cond_fits <- function(fits, conds) {
   mdf = tidyr::tibble()
   SSE = 0
@@ -199,7 +274,17 @@ get_model_dataframe_cond_fits <- function(fits, conds) {
 
 
 
-# use for fitting given model to each condition
+#' Fit Model to Each Condition Individually
+#'
+#' This function applies the `fit_model` function to each specified condition individually. It iteratively fits a given model to each condition and compiles the fitting results.
+#'
+#' @param mname A string specifying the name of the model to be fitted to each condition.
+#' @param conds A list where each element represents a different condition with its respective data.
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return A list of fitting results, where each element corresponds to a different condition. The fitting results are objects returned from the `fit_model` function.
+#' @export
 fit_by_cond <- function(mname, conds, lower, upper) {
   mod_fits = list()
   for(cname in names(conds)) {
@@ -210,6 +295,17 @@ fit_by_cond <- function(mname, conds, lower, upper) {
 }
 
 
+#' Fit Stochastic Model to Each Condition Individually
+#'
+#' This function applies the `fit_stochastic_model` function to each specified condition individually. It iteratively fits a stochastic version of the given model to each condition and aggregates the fitting results.
+#'
+#' @param mname A string specifying the name of the stochastic model to be fitted to each condition.
+#' @param conds A list where each element represents a different condition with its respective data.
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return A list of fitting results, where each element corresponds to a different condition. The fitting results are objects returned from the `fit_stochastic_model` function.
+#' @export
 fit_stochastic_by_cond <- function(mname, conds, lower, upper) {
   mod_fits = list()
   for(cname in names(conds)) {
@@ -221,7 +317,15 @@ fit_stochastic_by_cond <- function(mname, conds, lower, upper) {
 
 
 
-# given a vector of indices and a list, remove all indexed items
+#' Split Data into Training and Testing Sets Based on Indices
+#'
+#' This function divides a given set of conditions into training and testing sets. The division is based on a provided vector of indices, which specify the conditions to be used for testing.
+#'
+#' @param test_inds A numeric vector of indices indicating which elements in `conds` should be used for the test set.
+#' @param conds A list of conditions, where each condition is represented as a separate element.
+#'
+#' @return A list with two elements: `train` and `test`. Each element is a list of conditions, where `train` includes the conditions not indexed by `test_inds`, and `test` includes the conditions indexed by `test_inds`.
+#' @export
 get_train_test_split <- function(test_inds, conds) {
   dat = list(train = conds, test = list())
   for(i in test_inds) {
@@ -232,8 +336,17 @@ get_train_test_split <- function(test_inds, conds) {
 }
 
 
-# run fit_model / fit_stochastic_model for each of 5 subsets of combined_data conditions
-# save the parameters...and whole dataframe?
+#' Perform Cross-Validation on Group Fits of a Model
+#'
+#' This function runs cross-validation for group fits of a specified model using a set of combined data conditions. It supports both standard and stochastic models and performs fitting for each fold in the cross-validation process. The function records both the training accuracy and the testing results for each fold.
+#'
+#' @param model_name A string specifying the name of the model to be cross-validated.
+#' @param combined_data A list of combined data conditions used for cross-validation.
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return A list containing cross-validation results, including fitted parameters, training accuracy, and a data frame of test results for each fold.
+#' @export
 cross_validated_group_fits <- function(model_name, combined_data, lower, upper) {
   #model_name = "kachergis"
   dat = list()
