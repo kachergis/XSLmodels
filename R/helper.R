@@ -1,11 +1,18 @@
 
 
-#' Creates co-occurrence matrix given training trials.
+#' Creates Co-occurrence Matrix from Training Trials
 #'
-#' Given a training order (list of words and objects per trial), returns a matrix of
-#' tallied word-object co-occurrences across the trials.
+#' Given a training order (list of words and objects per trial), this function returns a matrix
+#' tallying word-object co-occurrences across the trials. This matrix can be used to analyze
+#' the frequency with which certain words and objects appear together during the training phase.
 #'
-#' @return A list of trials (with nested words and objects per trial) and perf (P(correct referent | word))
+#' @param train A list representing the training data, where each element is a trial that includes
+#' both words and objects. The structure is expected to have sub-elements `words` and `objs`
+#' for each trial.
+#'
+#' @return A matrix where each element represents the count of co-occurrences between a word
+#' (rows) and an object (columns). The row and column names correspond to the unique words and
+#' objects found in the training data, respectively.
 #' @export
 create_cooc_matrix <- function(train) {
   Nwords = length(unique(unlist(train$words)))
@@ -20,8 +27,24 @@ create_cooc_matrix <- function(train) {
   return(M)
 }
 
-# DELETE, OR NEEDED?
-# given a model knowledge matrix, retrieve Luce choice (proportion correct) per item
+
+#' Calculate Luce Choice (Proportion Correct) for Each Item in a Model Knowledge Matrix
+#'
+#' This function computes the Luce choice, or the proportion of correct selections,
+#' for each item in a given model knowledge matrix. It assesses the probability of
+#' correctly identifying each referent based on the knowledge matrix, providing a
+#' measure of model performance per item.
+#'
+#' @param m A square matrix representing the model's knowledge, where rows
+#' correspond to words and columns correspond to referents. The diagonal
+#' elements represent correct associations, and off-diagonal elements represent
+#' incorrect associations.
+#'
+#' @return A named numeric vector where each element corresponds to an
+#' item in the matrix. The value of each element represents the proportion of
+#' correct selections (Luce choice) for that item, calculated as the ratio of the
+#' correct association (diagonal element) to the total associations for that item.
+#' @export
 get_perf <- function(m) {
   perf <- rep(0, nrow(m))
   names(perf) <- rownames(m)

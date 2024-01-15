@@ -9,7 +9,7 @@ models <- vector(mode = "list", length = length(modelFiles))
 names(models) <- gsub("\\.R$", "", modelFiles)
 
 for(i in seq(along = modelFiles)) {
-  source(modelFiles[i])
+  source(paste0("models/",modelFiles[i]))
   modelInfo <- lapply(modelInfo, rlang::zap_srcref)
   models[[i]] <- modelInfo
   rm(modelInfo)

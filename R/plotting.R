@@ -1,10 +1,19 @@
 
-#' Given sequence of training trials, creates animated plot of co-occurrence matrix.
+#' Create Animated Plot of Co-Occurrence Matrix from Training Trials
 #'
-#' Given a training order (list of words and objects per trial), returns a data frame of
-#' tallied word-object co-occurrences across the trials. Save animation to file fname if defined.
+#' This function takes a sequence of training trials, each consisting of words
+#' and objects, and creates an animated plot of the word-object co-occurrence matrix.
+#' The plot evolves over each trial, visually representing the accumulation of
+#' co-occurrences. The animation is saved to a file if a filename is provided.
 #'
-#' @return A long dataframe of each trial, word, object, and co-occurrence count
+#' @param trials A list representing the training data, where each element is a
+#' trial containing lists of words (`words`) and objects (`objs`).
+#' @param fname A string specifying the filename where the animation should be saved.
+#' If left as an empty string (''), no file will be saved.
+#'
+#' @return A long-format data frame where each row corresponds to a trial and
+#' includes columns for trial number, word, object, and the count of co-occurrences
+#' up to that trial.
 #' @export
 plot_training_trials <- function(trials, fname='') {
   # need to translate to long format: trial, word, object, coocs
