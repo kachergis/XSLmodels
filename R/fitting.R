@@ -20,7 +20,7 @@ data_dir = "data/"
 #' @return A list containing the model's association matrix after training, conditional probability of selecting the correct referent for each word, and the sum of squared error (SSE). If `SSE_only` is TRUE, only the SSE is returned.
 #' @export
 run_model <- function(conds, model_name, parameters, SSE_only=F, print_perf=F) {
-  source(here::here(paste0(model_dir,model_name,".R"))) # sourcing not allowed in packages
+  model <- models[[model_name]]$model # if stochastic_model model_name = paste0("stochastic/",model_name)
   if(!is.null(conds$train)) {
     mod = list(perf = model(parameters, ord=conds$train)$perf)
     SSE = sum( (mod$perf - conds$HumanItemAcc)^2 )

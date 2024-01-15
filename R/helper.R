@@ -61,3 +61,22 @@ get_perf <- function(m) {
   }
   return(perf)
 }
+
+
+get_test_study_ord = function(simple=T) {
+  if(simple) {
+    design = matrix(c(1,2, 1,3), nrow=2, ncol=2, byrow=T)
+  } else {
+    design = matrix(c(1,2,3, 1,4,5, 2,3,4, 5,6,1), nrow=4, ncol=3, byrow=T)
+  }
+  ord = list(words=design, objs=design)
+  return(ord)
+}
+
+
+shannon.entropy <- function(p) {
+  if (min(p) < 0 || sum(p) <= 0)
+    return(NA)
+  p.norm <- p[p>0]/sum(p)
+  -sum(log2(p.norm)*p.norm)
+}
