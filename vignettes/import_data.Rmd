@@ -33,7 +33,7 @@ get_example_ambiguous_condition() and get_example_unambiguous_condition() return
 The list of training trials is further composed of a list of the words presented on each trial, and a list of the referents (*objs*) presented on each trial.
 
 ```{r, echo=T}
-ag <- get_example_ambiguous_condition()
+ag <- XSLmodels::get_example_ambiguous_condition()
 
 ag
 ```
@@ -47,14 +47,14 @@ One common way to summarize the structure of a cross-situational word learning e
 create_cooc_matrix() will return a word x object matrix showing the tallied co-occurrences of each word with each object across all of the training trials.
 
 ```{r}
-create_cooc_matrix(ag$trials)
+XSLmodels::create_cooc_matrix(ag$trials)
 ```
 
 
 ## 3. Run model(s) through a set of training trials
 
 ```{r run-models}
-run_model(ag, "kachergis", c(.1, 1, .98))
+XSLmodels::run_model(ag, "kachergis", c(.1, 1, .98))
 # the "source" strategy I was using to load the named model() will no longer work...
 # what's the proper solution in a package? a list of models, with each model's function?
 ```
