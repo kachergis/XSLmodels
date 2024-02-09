@@ -5,8 +5,8 @@
 # George Kachergis May 15, 2023
 
 modelInfo <- list(
-  label <- "Multi-sampling associative model",
-  model <- function(params, ord=c(), reps=1, K=1) {
+  label = "Multi-sampling associative model",
+  model = function(params, ord=c(), reps=1, K=1) {
     #K = of assocs to update per word
     X <- params[1] # total associative weight to distribute per trial
     B <- params[2] # associative weight to distribute each sample

@@ -11,7 +11,7 @@
 
 modelInfo <- list(
   label = "Rescorla-Wagner (1972) error-driven associative model",
-  model <- function(params, ord=c(), reps=1, test_noise=0) {
+  model = function(params, ord=c(), reps=1, test_noise=0) {
     C = params[2] # decay
     lambda = params[3] # maximum associative value that a CS can achieve - should be larger than learning rate
     beta = params[1]*lambda # learning rate -- a proportion of lambda

@@ -2,7 +2,7 @@
 
 modelInfo <- list(
   label = "decay",
-  model <- function(params, ord, reps=1) {
+  model = function(params, ord, reps=1) {
     C = params # decay
     voc = unique(unlist(ord$words))
     ref = unique(unlist(ord$objs[!is.na(ord$objs)]))

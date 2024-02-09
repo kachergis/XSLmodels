@@ -13,6 +13,8 @@ vignette: >
 
 
 ```{r setup, include = FALSE}
+library(XSLmodels)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"

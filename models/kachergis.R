@@ -10,7 +10,7 @@
 
 modelInfo <- list(
   label = "Kachergis et al. 2012 uncertainty- and familiarity-biased associative model",
-  update_known <- function(m, tr_w, tr_o, startval = .01) {
+  update_known = function(m, tr_w, tr_o, startval = .01) {
     tr_assocs = m[tr_w, tr_o]
     tr_assocs[which(tr_assocs==0)] = startval
     m[tr_w, tr_o] = tr_assocs
@@ -32,7 +32,7 @@ modelInfo <- list(
 
     return(m)
   },
-  model <- function(params, ord=c(), start_matrix=c(), reps=1, test_noise=0) {
+  model = function(params, ord=c(), start_matrix=c(), reps=1, test_noise=0) {
     X <- params[1] # associative weight to distribute
     B <- params[2] # weighting of uncertainty vs. familiarity
     C <- params[3] # decay

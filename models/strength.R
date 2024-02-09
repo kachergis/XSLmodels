@@ -3,8 +3,8 @@
 # George Kachergis  george.kachergis@gmail.com
 
 modelInfo <- list(
-  label <- "Familiarity-biased associative variant of Kachergis et al. 2012 model",
-  update_known <- function(m, tr_w, tr_o, startval = .01) {
+  label = "Familiarity-biased associative variant of Kachergis et al. 2012 model",
+  update_known = function(m, tr_w, tr_o, startval = .01) {
     tr_assocs = m[tr_w, tr_o]
     tr_assocs[which(tr_assocs==0)] = startval
     m[tr_w, tr_o] = tr_assocs
@@ -26,7 +26,7 @@ modelInfo <- list(
 
     return(m)
   },
-  model <- function(params, ord=c(), reps=1, test_noise=0) {
+  model = function(params, ord=c(), reps=1, test_noise=0) {
     X <- params[1] # associative weight to distribute
     C <- params[2] # decay
 

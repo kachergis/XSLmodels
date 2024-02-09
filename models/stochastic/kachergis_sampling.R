@@ -3,8 +3,8 @@
 
 
 modelInfo <- list(
-  label <- "k-sampling variant of Kachergis et al. 2012 Familiarity- and uncertainty-biased associative model",
-  update_known <- function(m, tr_w, tr_o, startval = .01) {
+  label = "k-sampling variant of Kachergis et al. 2012 Familiarity- and uncertainty-biased associative model",
+  update_known = function(m, tr_w, tr_o, startval = .01) {
     tr_assocs = m[tr_w, tr_o]
     tr_assocs[which(tr_assocs==0)] = startval
     m[tr_w, tr_o] = tr_assocs
@@ -27,7 +27,7 @@ modelInfo <- list(
 
     return(m)
   },
-  model <- function(params, ord=c(), reps=1, K=1) {
+  model = function(params, ord=c(), reps=1, K=1) {
     #K = of assocs to update per word
     X <- params[1] # associative weight to distribute
     B <- params[2] # weighting of uncertainty vs. familiarity

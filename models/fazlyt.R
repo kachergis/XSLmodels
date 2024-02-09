@@ -6,7 +6,7 @@
 # (best-fitting pars with threshold: c(0.077884, 5.553602, 0.188449) group SSE=.73)
 
 modelInfo <- list(label = "Fazly et al. 2010 probablistic associative model, with threshold",
-model <- function(params, ord=c(), reps=1) {
+model = function(params, ord=c(), reps=1) {
   lambda <- params[1] # small smoothing factor (1e-5)
   beta <- params[2] # upper bound on number of symbol types to expect? (8500)
   theta <- params[3] # threshold for knowledge (.7)

@@ -3,7 +3,7 @@
 
 modelInfo <- list(
   label = "Bayesian decay",
-  model <- function(params, ord=c(), reps=1, verbose=F) {
+  model = function(params, ord=c(), reps=1, verbose=F) {
 	  # Define noise probability (when alpha = 0, Bayesian model is a deterministic 'ideal observer')
 	  alpha <- params[1] # 0.1, 0.5, 0.9 decay for word/object non-co-occurrence
 	  delta <- params[2] # Multiplier for word/object co-occurrence (set to 1 for no increase)
@@ -70,7 +70,7 @@ modelInfo <- list(
 	  return(want)
 	  },
   # Define a simple likelihood function that only updates appropriate rows and columns
-  likelihoodFun <- function(words, objs, alpha, delta) {
+  likelihoodFun = function(words, objs, alpha, delta) {
     ## With alpha=0, this enforces a mutual exclusivity constraint...
     mat = outer(words,objs) + outer(!words,!objs)
     ## Can relax mutual exclusivity contraint by increasing alpha or allowing for one of the following

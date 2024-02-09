@@ -10,8 +10,8 @@
 # similar to Blythe, Smith, and Smith's guess-and-test model
 
 modelInfo <- list(
-  label <- "Trueswell & Gleitman 2011 guess-and-test model",
-  model <- function(params, ord=c(), reps=1, verbose=F) {
+  label = "Trueswell & Gleitman 2011 guess-and-test model",
+  model = function(params, ord=c(), reps=1, verbose=F) {
     f <- params[1] # forget at retrieval
     sa <- params[2] # prob of storage (slow learning down)
 

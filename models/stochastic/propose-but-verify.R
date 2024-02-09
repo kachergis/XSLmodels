@@ -13,8 +13,8 @@
 
 
 modelInfo <- list(
-  label <- "Trueswell et al. 2013 propose-but-verify model",
-  model <- function(params, ord=c(), reps=1, verbose=F) {
+  label = "Trueswell et al. 2013 propose-but-verify model",
+  model = function(params, ord=c(), reps=1, verbose=F) {
     if(verbose) print(params)
     #print(ord)
     alpha = params[1] # prob to remember first guess

@@ -2,8 +2,8 @@
 # George Kachergis  george.kachergis@gmail.com  September 16, 2013
 
 modelInfo <- list(
-  label <- "Tilles and Fontanari (2013) reinforcement model",
-  model <- function(params, ord=c()) {
+  label = "Tilles and Fontanari (2013) reinforcement model",
+  model = function(params, ord=c()) {
     X <- params[1] # reinforcement parameter for stimuli in current context
     B <- params[2] # inference parameter, regulating ME and prior info integration
     # (applies either to known words that do not appear in the current context or to new words in the current context)

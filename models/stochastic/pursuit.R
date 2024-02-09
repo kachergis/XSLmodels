@@ -21,8 +21,8 @@
 #params = c(.2, .6, .05)
 
 modelInfo <- list(
-  label <- "Stevens et al. 2014 pursuit model",
-  model <- function(params, ord=c(), start_matrix=c(), verbose=F) {
+  label = "Stevens et al. 2014 pursuit model",
+  model = function(params, ord=c(), start_matrix=c(), verbose=F) {
     gamma = params[1] # learning rate
     thresh = params[2] # threshold (prob) to move an association to the known lexicon
     lambda = params[3] # smoothing prob
