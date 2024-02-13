@@ -25,3 +25,6 @@ for(i in seq(along = modelFiles)) {
 
 usethis::use_data(models, overwrite = TRUE)
 #save(models, file="data/models.rds", version=2)
+
+
+# ToDo: find the combined_data creating code and put it here

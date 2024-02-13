@@ -4,28 +4,6 @@
 
 modelInfo <- list(
   label <- "Novelty- and familiarity-biased associative variant of Kachergis et al. 2012 model",
-  update_known <- function(m, tr_w, tr_o, startval = .01) {
-    tr_assocs = m[tr_w, tr_o]
-    tr_assocs[which(tr_assocs==0)] = startval
-    m[tr_w, tr_o] = tr_assocs
-
-    # for any other experienced word (not on this trial), fill in startval
-
-    fam_objs = which(colSums(m)>0)
-    fam_words = which(rowSums(m)>0)
-
-    for(w in tr_w) {
-      zeros = which(m[w,fam_objs]==0)
-      m[w,zeros] = startval
-    }
-
-    for(o in tr_o) {
-      zeros = which(m[fam_words,o]==0)
-      m[zeros,o] = startval
-    }
-
-    return(m)
-  },
   model <- function(params, ord=c(), start_matrix=c(), reps=1, test_noise=0) {
     X <- params[1] # associative weight to distribute
     B <- params[2] # weighting of uncertainty vs. familiarity

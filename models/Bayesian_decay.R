@@ -1,6 +1,19 @@
 # Bayesian model of cross situational learning
 # originally conceived by Stephen Denton, Apr. 20, 2010
 
+# Define a simple likelihood function that only updates appropriate rows and columns
+likelihoodFun = function(words, objs, alpha, delta) {
+  ## With alpha=0, this enforces a mutual exclusivity constraint...
+  mat = outer(words,objs) + outer(!words,!objs)
+  ## Can relax mutual exclusivity contraint by increasing alpha or allowing for one of the following
+  ## 1) Objects can have multiple words applied to them
+  # mat = outer(words,objs) + outer(!words,ones)
+  ## 2) Words can refer to multiple objects
+  # mat = outer(words,objs) + outer(ones,!objs)
+  likelihood = alpha^(1-mat) + (delta-1) * outer(words,objs)
+  return(likelihood)
+}
+
 modelInfo <- list(
   label = "Bayesian decay",
   model = function(params, ord=c(), reps=1, verbose=F) {
@@ -69,16 +82,5 @@ modelInfo <- list(
 	  want = list(perf=perf, matrix=pWgO, traj=traj)
 	  return(want)
 	  },
-  # Define a simple likelihood function that only updates appropriate rows and columns
-  likelihoodFun = function(words, objs, alpha, delta) {
-    ## With alpha=0, this enforces a mutual exclusivity constraint...
-    mat = outer(words,objs) + outer(!words,!objs)
-    ## Can relax mutual exclusivity contraint by increasing alpha or allowing for one of the following
-    ## 1) Objects can have multiple words applied to them
-    # mat = outer(words,objs) + outer(!words,ones)
-    ## 2) Words can refer to multiple objects
-    # mat = outer(words,objs) + outer(ones,!objs)
-    likelihood = alpha^(1-mat) + (delta-1) * outer(words,objs)
-    return(likelihood)
-  }
+  likelihoodFun = likelihoodFun
 )

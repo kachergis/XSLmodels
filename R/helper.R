@@ -74,9 +74,38 @@ get_test_study_ord = function(simple=T) {
 }
 
 
+#' Calculates Shannon entropy of a supplied vector, after normalizing it
+#'
 shannon.entropy <- function(p) {
   if (min(p) < 0 || sum(p) <= 0)
     return(NA)
   p.norm <- p[p>0]/sum(p)
   -sum(log2(p.norm)*p.norm)
+}
+
+
+#' Utility function for several models that fills in a given co-occurrence matrix
+#' m with startval, for cells of m that were 0 before
+#'
+update_known = function(m, tr_w, tr_o, startval = .01) {
+  tr_assocs = m[tr_w, tr_o]
+  tr_assocs[which(tr_assocs==0)] = startval
+  m[tr_w, tr_o] = tr_assocs
+
+  # for any other experienced word (not on this trial), fill in startval
+
+  fam_objs = which(colSums(m)>0)
+  fam_words = which(rowSums(m)>0)
+
+  for(w in tr_w) {
+    zeros = which(m[w,fam_objs]==0)
+    m[w,zeros] = startval
+  }
+
+  for(o in tr_o) {
+    zeros = which(m[fam_words,o]==0)
+    m[zeros,o] = startval
+  }
+
+  return(m)
 }
