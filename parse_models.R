@@ -16,4 +16,4 @@ for(i in seq(along = modelFiles)) {
 }
 
 
-save(models, file="data/models.RData", version=2)
+save(models, file="data/models.rda", version=2)
