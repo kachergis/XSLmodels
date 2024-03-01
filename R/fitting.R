@@ -15,46 +15,21 @@
 #' @export
 
 #' @export
-xsl_run <- function(model, data, reps = 1, sse_only = FALSE, verbose = FALSE) {
+xsl_run <- function(model, data, reps = 1, verbose = FALSE) {
   stopifnot("xslMod" %in% class(model))
-  stopifnot("xslData" %in% class(data))
+  if ("xslData" %in% class(data)) data <- list(data)
+  stopifnot(all(map_lgl(data, \(d) "xslData" %in% class(d))))
 
   model_fun <- model$model
   model_params <- model$params
 
-  if (!is.null(data$train)) {
-    # mod = list(perf = model(parameters, ord=data$train)$perf)
-    mod <- list(perf = model_fun(model_params, data = data$train, reps = reps)$perf)
-    SSE <- sum( (mod$perf - data$accuracy)^2 )
-  } else {
-    mod <- list()
-    SSE <- 0
-    unweighted_SSE <- 0
-    totSs <- 0
-    for (i in 1:length(data)) {
-      # mp = model(parameters, data[[i]]$train)
-      mp <- model_fun(model_params, data[[i]]$train)
-      if (!is.null(data[[i]]$test)) {
-        mperf <- mafc_test(mp$matrix, data[[i]]$test)
-        mod[[names(data)[i]]] <- mperf
-      } else {
-        mperf <- mp$perf
-        mod[[names(data)[i]]] <- mperf
-      }
-      SSE <- SSE + data[[i]]$n_subj * sum( (mperf - data[[i]]$accuracy)^2 )
-      unweighted_SSE <- unweighted_SSE + sum( (mperf - data[[i]]$accuracy)^2 )
-      totSs <- totSs + data[[i]]$n_subj
-    }
-    SSE <- SSE / totSs
-  }
-  if (verbose) {
-    message(mod)
-    message(paste("SSE:", SSE))
-  }
-  mod$SSE <- SSE
+  fits <- map(data, \(d) model_fun(model_params, d$train, reps = reps)) # TODO train vs test
+  sse_terms <- map2_dbl(data, fits, \(d, f) sum(f$perf - d$accuracy) ^ 2)
+  unweighted_sse <- sum(sse_terms)
+  subj <- map_int(data, \(d) d$n_subj)
+  sse <- sum(sse_terms * subj) / sum(subj)
 
-  if (sse_only) return(SSE)
-  return(mod)
+  list(fits = fits, sse = sse, unweighted_sse = unweighted_sse)
 }
 
 # xsl_fit <- function(model, data, ...) {
@@ -79,9 +54,7 @@ xsl_fit <- function(model, data, lower, upper) {
   stopifnot("xslMod" %in% class(model))
   stopifnot("xslData" %in% class(data))
 
-  run_wrapper <- function(params) {
-    xsl_run(update_params(model, params), data, sse_only = TRUE)
-  }
+  run_wrapper <- \(params) xsl_run(update_params(model, params), data)$sse
   DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper,
                    DEoptim::DEoptim.control(reltol = .001, NP = 100, itermax = 100))
 }

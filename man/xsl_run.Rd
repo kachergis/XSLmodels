@@ -4,7 +4,7 @@
 \alias{xsl_run}
 \title{Run XSL model}
 \usage{
-xsl_run(model, data, reps = 1, sse_only = FALSE, verbose = FALSE)
+xsl_run(model, data, reps = 1, verbose = FALSE)
 }
 \arguments{
 \item{model}{An object of class xslMod.}

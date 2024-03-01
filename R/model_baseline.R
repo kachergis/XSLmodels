@@ -24,7 +24,7 @@ baseline_model <- function(params, data, reps) {
     }
     perf[rep,] = get_perf(m)
   }
-  list(perf=perf, matrix=m, traj=traj)
+  xslFit(perf = perf, matrix = m, traj = traj)
 }
 
 #' @export

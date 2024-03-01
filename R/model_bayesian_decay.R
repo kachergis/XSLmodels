@@ -7,8 +7,7 @@ likelihoodFun = function(words, objects, alpha, delta) {
   # mat = outer(words,objects) + outer(!words,ones)
   ## 2) Words can refer to multiple objects
   # mat = outer(words,objects) + outer(ones,!objects)
-  likelihood = alpha^(1-mat) + (delta-1) * outer(words,objects)
-  return(likelihood)
+  alpha^(1-mat) + (delta-1) * outer(words,objects)
 }
 
 bayesian_decay_model <- function(params, data, reps) {
@@ -74,7 +73,7 @@ bayesian_decay_model <- function(params, data, reps) {
   #chProb = exp(chDec*pWgO) / outer(ones,colSums(exp(chDec*pWgO)))
   #cat(diag(chProb))
 
-  list(perf=perf, matrix=pWgO, traj=traj)
+  xslFit(perf = perf, matrix = m, traj = traj)
 }
 
 #' @export
