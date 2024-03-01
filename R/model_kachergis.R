@@ -1,11 +1,14 @@
-# kachergis_model <- function(params, ord = c(), start_matrix = c(), reps = 1, test_noise = 0) {
+# kachergis_model <- function(params, data = c(), start_matrix = c(), reps = 1, test_noise = 0) {
 kachergis_model <- function(params, data) {
-  X <- params$X # associative weight to distribute
-  B <- params$B # weighting of uncertainty vs. familiarity
-  C <- params$C # decay
+  X <- params["X"] # associative weight to distribute
+  B <- params["B"] # weighting of uncertainty vs. familiarity
+  C <- params["C"] # decay
+  start_matrix <- NULL # TODO
+  reps <- 1 # TODO
+  test_noise <- 0 # TODO
 
-  voc = unique(unlist(ord$words))
-  ref = unique(unlist(ord$objs[!is.na(ord$objs)]))
+  voc = unique(unlist(data$words))
+  ref = unique(unlist(data$objects[!is.na(data$objects)]))
   voc_sz = length(voc) # vocabulary size
   ref_sz = length(ref) # number of objects
   traj = list()
@@ -19,13 +22,13 @@ kachergis_model <- function(params, data) {
   perf = matrix(0, reps, voc_sz) # a row for each block
   # training
   for(rep in 1:reps) { # for trajectory experiments, train multiple times
-    for(t in 1:length(ord$words)) {
+    for(t in 1:length(data$words)) {
       #print(format(m, digits=3))
 
-      tr_w = unlist(ord$words[t])
+      tr_w = unlist(data$words[t])
       tr_w = tr_w[!is.na(tr_w)]
       tr_w = tr_w[tr_w != ""]
-      tr_o = unlist(ord$objs[t])
+      tr_o = unlist(data$objects[t])
       tr_o = tr_o[!is.na(tr_o)]
 
       m = update_known(m, tr_w, tr_o) # what's been seen so far?
@@ -48,7 +51,7 @@ kachergis_model <- function(params, data) {
       # update associations on this trial
       m[tr_w,tr_o] = m[tr_w,tr_o] + (X * assocs * (ent_w %*% t(ent_o))) / denom
 
-      index = (rep-1)*length(ord$words) + t  # index for learning trajectory
+      index = (rep-1)*length(data$words) + t  # index for learning trajectory
       traj[[index]] = m
     }
     m_test = m+test_noise # test noise constant k

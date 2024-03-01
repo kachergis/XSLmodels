@@ -5,18 +5,16 @@
 \alias{xsl_run.xslMod}
 \title{Fit XSL model}
 \usage{
-xsl_run(model, conds, ...)
+xsl_run(model, data, ...)
 
-\method{xsl_run}{xslMod}(model, conds, stochastic = FALSE, sse_only = FALSE, verbose = FALSE)
+\method{xsl_run}{xslMod}(model, data, sse_only = FALSE, verbose = FALSE)
 }
 \arguments{
+\item{model}{An object of class xslMod.}
+
+\item{data}{An object of class xslData.}
+
 \item{sse_only}{Logical; if TRUE, only the SSE will be returned.}
-
-\item{model_name}{An object of class xslMod.}
-
-\item{conditions}{A list representing the conditions under which the model is
-run. Each condition should include training data (\code{train}) and human item
-accuracy (\code{HumanItemAcc}).}
 
 \item{print_perf}{Logical; if TRUE, model performance and SSE will be
 printed.}
