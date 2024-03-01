@@ -1,5 +1,4 @@
-decay_model <- function(params, data, reps) {
-  C = params[["C"]] # decay
+baseline_model <- function(params, data, reps) {
   voc = unique(unlist(data$words))
   ref = unique(unlist(data$objects[!is.na(data$objects)]))
   voc_sz = length(voc) # vocabulary size
@@ -18,7 +17,6 @@ decay_model <- function(params, data, reps) {
       tr_o = unlist(data$objects[t])
       tr_o = tr_o[!is.na(tr_o)]
 
-      m = m*C # bestvalit: 0.618814 bestmemit:    0.990905
       m[tr_w,tr_o] = m[tr_w,tr_o] + 1
 
       index = (rep-1)*length(data$words) + t # index for learning trajectory
@@ -26,15 +24,15 @@ decay_model <- function(params, data, reps) {
     }
     perf[rep,] = get_perf(m)
   }
-  want = list(perf=perf, matrix=m, traj=traj)
-  return(want)
+  list(perf=perf, matrix=m, traj=traj)
 }
 
-decay <- function(C) {
+#' @export
+baseline <- function() {
   xslMod(
-    name = "decay",
-    description = "Simple cooccurrence-counting baseline model",
-    model = decay_model,
-    params = c(C = C)
+    name = "baseline",
+    description = "Simple co-occurrence baseline model",
+    model = baseline_model,
+    params = c()
   )
 }

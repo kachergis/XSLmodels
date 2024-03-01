@@ -1,10 +1,9 @@
 # kachergis_model <- function(params, data = c(), start_matrix = c(), reps = 1, test_noise = 0) {
-kachergis_model <- function(params, data) {
+kachergis_model <- function(params, data, reps) {
   X <- params["X"] # associative weight to distribute
   B <- params["B"] # weighting of uncertainty vs. familiarity
   C <- params["C"] # decay
   start_matrix <- NULL # TODO
-  reps <- 1 # TODO
   test_noise <- 0 # TODO
 
   voc = unique(unlist(data$words))

@@ -14,7 +14,7 @@ xsl_run <- function(model, data, ...) {
 
 #' @rdname xsl_run
 #' @export
-xsl_run.xslMod <- function(model, data, sse_only = FALSE, verbose = FALSE) {
+xsl_run.xslMod <- function(model, data, reps = 1, sse_only = FALSE, verbose = FALSE) {
   message(paste("Running model", model$name))
 
   model_fun <- model$model
@@ -22,7 +22,7 @@ xsl_run.xslMod <- function(model, data, sse_only = FALSE, verbose = FALSE) {
 
   if (!is.null(data$train)) {
     # mod = list(perf = model(parameters, ord=data$train)$perf)
-    mod <- list(perf = model_fun(model_params, data = data$train)$perf)
+    mod <- list(perf = model_fun(model_params, data = data$train, reps = reps)$perf)
     SSE <- sum( (mod$perf - data$accuracy)^2 )
   } else {
     mod <- list()
