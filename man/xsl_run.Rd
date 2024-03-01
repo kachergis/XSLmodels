@@ -2,17 +2,16 @@
 % Please edit documentation in R/fitting.R
 \name{xsl_run}
 \alias{xsl_run}
-\alias{xsl_run.xslMod}
-\title{Fit XSL model}
+\title{Run XSL model}
 \usage{
-xsl_run(model, data, ...)
-
-\method{xsl_run}{xslMod}(model, data, sse_only = FALSE, verbose = FALSE)
+xsl_run(model, data, reps = 1, sse_only = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{model}{An object of class xslMod.}
 
 \item{data}{An object of class xslData.}
+
+\item{reps}{Number of times to repeat training (defaults to 1).}
 
 \item{sse_only}{Logical; if TRUE, only the SSE will be returned.}
 
@@ -23,5 +22,5 @@ printed.}
 TODO
 }
 \description{
-Fit XSL model
+Run XSL model
 }

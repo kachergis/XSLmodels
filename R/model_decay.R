@@ -26,8 +26,7 @@ decay_model <- function(params, data, reps) {
     }
     perf[rep,] = get_perf(m)
   }
-  want = list(perf=perf, matrix=m, traj=traj)
-  return(want)
+  list(perf=perf, matrix=m, traj=traj)
 }
 
 decay <- function(C) {

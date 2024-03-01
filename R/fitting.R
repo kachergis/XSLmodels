@@ -1,21 +1,23 @@
-#' Fit XSL model
+# xsl_run <- function(model, data, ...) {
+#   UseMethod("xsl_run")
+# }
+
+#' Run XSL model
 #'
 #' @param model An object of class xslMod.
 #' @param data An object of class xslData.
+#' @param reps Number of times to repeat training (defaults to 1).
 #' @param sse_only Logical; if TRUE, only the SSE will be returned.
 #' @param print_perf Logical; if TRUE, model performance and SSE will be
 #'   printed.
 #'
 #' @return TODO
 #' @export
-xsl_run <- function(model, data, ...) {
-  UseMethod("xsl_run")
-}
 
-#' @rdname xsl_run
 #' @export
-xsl_run.xslMod <- function(model, data, reps = 1, sse_only = FALSE, verbose = FALSE) {
-  message(paste("Running model", model$name))
+xsl_run <- function(model, data, reps = 1, sse_only = FALSE, verbose = FALSE) {
+  stopifnot("xslMod" %in% class(model))
+  stopifnot("xslData" %in% class(data))
 
   model_fun <- model$model
   model_params <- model$params
@@ -53,4 +55,33 @@ xsl_run.xslMod <- function(model, data, reps = 1, sse_only = FALSE, verbose = FA
 
   if (sse_only) return(SSE)
   return(mod)
+}
+
+# xsl_fit <- function(model, data, ...) {
+#   UseMethod("xsl_fit")
+# }
+
+#' Fit Model to Conditions Using Differential Evolution
+#'
+#' This function fits a model to provided conditions using the Differential
+#' Evolution optimization algorithm. It optimizes the model parameters to
+#' minimize the sum of squared errors (SSE) between the model's predictions and
+#' human accuracy data.
+#'
+#' @inheritParams xsl_run
+#' @param lower Numeric vector of lower bounds for the model's parameters.
+#' @param upper Numeric vector of upper bounds for the model's parameters.
+#'
+#' @return An object of class `DEoptim` representing the fitting result, which
+#'   includes the best set of parameters found and the corresponding SSE value.
+#' @export
+xsl_fit <- function(model, data, lower, upper) {
+  stopifnot("xslMod" %in% class(model))
+  stopifnot("xslData" %in% class(data))
+
+  run_wrapper <- function(params) {
+    xsl_run(update_params(model, params), data, sse_only = TRUE)
+  }
+  DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper,
+                   DEoptim::DEoptim.control(reltol = .001, NP = 100, itermax = 100))
 }

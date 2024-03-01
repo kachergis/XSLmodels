@@ -25,3 +25,13 @@ new_xslMod <- function(x = list()) {
   stopifnot(is.list(x))
   structure(x, class = c("xslMod", "list"))
 }
+
+#' @export
+update_params <- function(xsl_mod, params) {
+  stopifnot(length(xsl_mod$params) == length(params))
+  stopifnot(all(names(xsl_mod$params) == names(params)))
+
+  names(params) <- names(xsl_mod$params)
+  xsl_mod$params <- params
+  xsl_mod
+}

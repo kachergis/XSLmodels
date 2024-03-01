@@ -56,8 +56,7 @@ kachergis_model <- function(params, data, reps) {
     m_test = m+test_noise # test noise constant k
     perf[rep,] = get_perf(m_test)
   }
-  want = list(perf=perf, matrix=m, traj=traj)
-  return(want)
+  list(perf=perf, matrix=m, traj=traj)
 }
 
 #' Kachergis 2012
