@@ -19,7 +19,7 @@ baseline_model <- function(params, data, reps) {
 
       m[tr_w,tr_o] = m[tr_w,tr_o] + 1
 
-      index = (rep-1)*length(data$words) + t # index for learning trajectory
+      index = (rep-1) * length(data$words) + t # index for learning trajectory
       traj[[index]] = m
     }
     perf[rep,] = get_perf(m)

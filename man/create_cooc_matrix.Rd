@@ -7,17 +7,19 @@
 create_cooc_matrix(train)
 }
 \arguments{
-\item{train}{A list representing the training data, where each element is a trial that includes
-both words and objects. The structure is expected to have sub-elements \code{words} and \code{objs}
-for each trial.}
+\item{train}{A list representing the training data, where each element is a
+trial that includes both words and objects. The structure is expected to
+have sub-elements \code{words} and \code{objs} for each trial.}
 }
 \value{
-A matrix where each element represents the count of co-occurrences between a word
-(rows) and an object (columns). The row and column names correspond to the unique words and
-objects found in the training data, respectively.
+A matrix where each element represents the count of co-occurrences
+between a word (rows) and an object (columns). The row and column names
+correspond to the unique words and objects found in the training data,
+respectively.
 }
 \description{
-Given a training order (list of words and objects per trial), this function returns a matrix
-tallying word-object co-occurrences across the trials. This matrix can be used to analyze
-the frequency with which certain words and objects appear together during the training phase.
+Given a training order (list of words and objects per trial), this function
+returns a matrix tallying word-object co-occurrences across the trials. This
+matrix can be used to analyze the frequency with which certain words and
+objects appear together during the training phase.
 }
