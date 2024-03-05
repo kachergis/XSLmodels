@@ -6,6 +6,9 @@
 \usage{
 shannon_entropy(p)
 }
+\arguments{
+\item{p}{Numeric vector of probabilities}
+}
 \description{
 Calculates Shannon entropy of a supplied vector, after normalizing it
 }

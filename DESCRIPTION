@@ -9,16 +9,19 @@ Authors@R:
 Description: This package has a collection of cognitive models of
   cross-situational word learning models, as well as methods and datasets for
   optimizing them, and plotting the results.
-License: `use_gpl3_license()`
 Encoding: UTF-8
+Depends: R (>= 2.10)
+Imports:
+  DEoptim,
+  purrr,
+  tidyr
+Suggests: 
+  knitr,
+  rmarkdown,
+  testthat (>= 3.0.0)
+VignetteBuilder: knitr
+LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.0
-Suggests: 
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0)
-VignetteBuilder: knitr
-Depends: 
-    R (>= 2.10)
-LazyData: true
 Config/testthat/edition: 3
+License: GPL (>= 3)

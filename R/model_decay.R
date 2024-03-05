@@ -1,5 +1,7 @@
-decay_model <- function(params, data, reps) {
+decay_model <- function(params, data, control) {
   C <- params[["C"]] # decay
+  reps <- control[["reps"]]
+
   voc <- unique(unlist(data$words))
   ref <- unique(unlist(data$objects[!is.na(data$objects)]))
   voc_sz <- length(voc) # vocabulary size
@@ -29,11 +31,18 @@ decay_model <- function(params, data, reps) {
   xslFit(perf = perf, matrix = m, traj = traj)
 }
 
+#' Decay model
+#'
+#' @param C decay
+#'
+#' @return An object of class xslMod
+#' @export
 decay <- function(C) {
   xslMod(
     name = "decay",
     description = "Simple cooccurrence-counting baseline model",
     model = decay_model,
-    params = c(C = C)
+    params = c(C = C),
+    stochastic = FALSE
   )
 }

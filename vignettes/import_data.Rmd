@@ -16,6 +16,7 @@ vignette: >
 library(XSLmodels)
 
 knitr::opts_chunk$set(
+  eval = FALSE, # temporary until vignette updated
   collapse = TRUE,
   comment = "#>"
 )
@@ -89,10 +90,10 @@ Models return both a word-object matrix of associations (or 'hypotheses', i.e. b
 
 ## 5. Included experimental conditions
 
-A dataset of `r length(names(XSLmodels::combined_data))` experimental conditions is included in the package in XSLmodels::combined_data.
-Below, we show this data can be used to optimize parameters for existing models in the package.
-
 ```{r}
+# A dataset of `r length(names(XSLmodels::combined_data))` experimental conditions is included in the package in XSLmodels::combined_data.
+# Below, we show this data can be used to optimize parameters for existing models in the package.
+
 assoc_model_names = c("kachergis", "fazly", "strength", "uncertainty", 
            "novelty", "Bayesian_decay", "rescorla_wagner")
 stochastic_model_names = c("guess-and-test","pursuit","trueswell2012","kachergis_sampling")

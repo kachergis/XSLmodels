@@ -4,22 +4,17 @@
 \alias{xsl_run}
 \title{Run XSL model}
 \usage{
-xsl_run(model, data, reps = 1, verbose = FALSE)
+xsl_run(model, data, control = xsl_control())
 }
 \arguments{
 \item{model}{An object of class xslMod.}
 
-\item{data}{An object of class xslData.}
+\item{data}{An object (or list of objects) of class xslData.}
 
-\item{reps}{Number of times to repeat training (defaults to 1).}
-
-\item{sse_only}{Logical; if TRUE, only the SSE will be returned.}
-
-\item{print_perf}{Logical; if TRUE, model performance and SSE will be
-printed.}
+\item{control}{Control arguments returned by \code{xsl_control()}.}
 }
 \value{
-TODO
+List of fits, sse, unweighted_sse
 }
 \description{
 Run XSL model

@@ -3,11 +3,12 @@
 #' @name xslData-class
 #' @rdname xslData-class
 #'
-#' @param train
-#' @param test
-#' @param accuracy
-#' @param n_subj
-#' @param label
+#' @param train Training data
+#' @param test Test data
+#' @param accuracy Accuracy data
+#' @param n_subj Number of subjects
+#' @param label Label
+#' @param condition Condition
 #'
 #' @return An object of class xslMod
 #' @export
@@ -33,9 +34,10 @@ validate_xslData <- function(x) {
   x
 }
 
-#' Constructor for xsl_model S3 class
+#' Constructor for xslData S3 class
 #'
-#' @rdname xslMod-class
+#' @rdname xslData-class
+#' @param x List with elements train, test, accuracy, n_subj, label, condition
 #'
 #' @export
 new_xslData <- function(x = list()) {

@@ -3,6 +3,7 @@
 \name{xslData-class}
 \alias{xslData-class}
 \alias{xslData}
+\alias{new_xslData}
 \title{xslData S3 class}
 \usage{
 xslData(
@@ -13,13 +14,29 @@ xslData(
   label = character(),
   condition = character()
 )
+
+new_xslData(x = list())
 }
 \arguments{
-\item{label}{}
+\item{train}{Training data}
+
+\item{test}{Test data}
+
+\item{accuracy}{Accuracy data}
+
+\item{n_subj}{Number of subjects}
+
+\item{label}{Label}
+
+\item{condition}{Condition}
+
+\item{x}{List with elements train, test, accuracy, n_subj, label, condition}
 }
 \value{
 An object of class xslMod
 }
 \description{
 xslData S3 class
+
+Constructor for xslData S3 class
 }

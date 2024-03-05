@@ -1,10 +1,10 @@
-# kachergis_model <- function(params, data = c(), start_matrix = c(), reps = 1, test_noise = 0) {
-kachergis_model <- function(params, data, reps) {
+kachergis_model <- function(params, data, control) {
   X <- params[["X"]] # associative weight to distribute
   B <- params[["B"]] # weighting of uncertainty vs. familiarity
   C <- params[["C"]] # decay
-  start_matrix <- NULL # TODO
-  test_noise <- 0 # TODO
+  reps <- control[["reps"]]
+  start_matrix <- control[["start_matrix"]]
+  test_noise <- control[["test_noise"]]
 
   voc <- unique(unlist(data$words))
   ref <- unique(unlist(data$objects[!is.na(data$objects)]))
@@ -53,7 +53,7 @@ kachergis_model <- function(params, data, reps) {
       index <- (rep-1)*length(data$words) + t  # index for learning trajectory
       traj[[index]] <- m
     }
-    m_test <- m+test_noise # test noise constant k
+    m_test <- m + test_noise # test noise constant k
     perf[rep,] <- get_perf(m_test)
   }
   xslFit(perf = perf, matrix = m, traj = traj)
@@ -61,19 +61,20 @@ kachergis_model <- function(params, data, reps) {
 
 #' Kachergis 2012
 #'
+#' Kachergis et al. 2012 uncertainty- and familiarity-biased associative model
+#'
 #' @param X Associative weight to distribute
 #' @param B Weighting of uncertainty vs. familiarity
 #' @param C Decay
-#' @param stochastic
 #'
 #' @return An object of class xslMod
 #' @export
-kachergis <- function(X, B, C, stochastic = FALSE) {
+kachergis <- function(X, B, C) {
   xslMod(
     name = "kachergis",
     description = "Kachergis et al. 2012 uncertainty- and familiarity-biased associative model",
     model = kachergis_model,
     params = c(X = X, B = B, C = C),
-    stochastic = stochastic
+    stochastic = FALSE
   )
 }

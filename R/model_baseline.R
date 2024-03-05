@@ -1,4 +1,6 @@
-baseline_model <- function(params, data, reps) {
+baseline_model <- function(params, data, control) {
+  reps <- control[["reps"]]
+
   voc = unique(unlist(data$words))
   ref = unique(unlist(data$objects[!is.na(data$objects)]))
   voc_sz = length(voc) # vocabulary size
@@ -27,12 +29,16 @@ baseline_model <- function(params, data, reps) {
   xslFit(perf = perf, matrix = m, traj = traj)
 }
 
+#' Baseline model
+#'
+#' @return An object of class xslMod
 #' @export
 baseline <- function() {
   xslMod(
     name = "baseline",
     description = "Simple co-occurrence baseline model",
     model = baseline_model,
-    params = c()
+    params = c(),
+    stochastic = FALSE
   )
 }

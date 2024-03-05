@@ -1,2 +1,16 @@
-^XSLmodels\.Rproj$
+^renv$
+^renv\.lock$
+^.*\.Rproj$
 ^\.Rproj\.user$
+^LICENSE\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
+^RELEASE\.R$
+
+data-raw
+animations
+examples.R

@@ -4,7 +4,7 @@
 \alias{kachergis}
 \title{Kachergis 2012}
 \usage{
-kachergis(X, B, C, stochastic = FALSE)
+kachergis(X, B, C)
 }
 \arguments{
 \item{X}{Associative weight to distribute}
@@ -12,12 +12,10 @@ kachergis(X, B, C, stochastic = FALSE)
 \item{B}{Weighting of uncertainty vs. familiarity}
 
 \item{C}{Decay}
-
-\item{stochastic}{}
 }
 \value{
 An object of class xslMod
 }
 \description{
-Kachergis 2012
+Kachergis et al. 2012 uncertainty- and familiarity-biased associative model
 }

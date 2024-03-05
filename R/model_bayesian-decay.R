@@ -10,11 +10,13 @@ bd_likelihood <- function(words, objects, alpha, delta) {
   alpha ^ (1 - mat) + (delta - 1) * outer(words, objects)
 }
 
-bayesian_decay_model <- function(params, data, reps) {
+bayesian_decay_model <- function(params, data, control) {
   # Define noise probability (when alpha = 0, Bayesian model is a deterministic 'ideal observer')
   alpha <- params[["alpha"]] # 0.1, 0.5, 0.9 decay for word/object non-co-occurrence
   delta <- params[["delta"]] # Multiplier for word/object co-occurrence (set to 1 for no increase)
   chDec <- params[["chDec"]] # Decision parameter (e.g., 1)
+  reps <- control[["reps"]]
+
   voc <- unique(unlist(data$words))
   ref <- unique(unlist(data$objects[!is.na(data$objects)]))
   voc_sz <- length(voc) # vocabulary size
@@ -62,12 +64,20 @@ bayesian_decay_model <- function(params, data, reps) {
   xslFit(perf = perf, matrix = pWgO, traj = traj)
 }
 
+#' Bayesian decay model
+#'
+#' @param alpha Decay for word/object non-co-occurrence (0.1, 0.5, 0.9)
+#' @param delta Multiplier for word/object co-occurrence (1 for no increase)
+#' @param chDec Decision parameter (e.g., 1)
+#'
+#' @return An object of class xslMod
 #' @export
 bayesian_decay <- function(alpha, delta, chDec) {
   xslMod(
     name = "bayesian_decay",
     description = "Bayesian model of cross situational learning (originally conceived by Stephen Denton, Apr. 20, 2010)",
     model = bayesian_decay_model,
-    params = c(alpha = alpha, delta = delta, chDec = chDec)
+    params = c(alpha = alpha, delta = delta, chDec = chDec),
+    stochastic = FALSE
   )
 }

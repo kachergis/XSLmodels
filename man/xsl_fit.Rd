@@ -2,26 +2,40 @@
 % Please edit documentation in R/fitting.R
 \name{xsl_fit}
 \alias{xsl_fit}
-\title{Fit Model to Conditions Using Differential Evolution}
+\title{Fit XSL model using differential evolution}
 \usage{
-xsl_fit(model, data, lower, upper)
+xsl_fit(
+  model,
+  data,
+  lower,
+  upper,
+  by_data = FALSE,
+  control = xsl_control(),
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+)
 }
 \arguments{
 \item{model}{An object of class xslMod.}
 
-\item{data}{An object of class xslData.}
+\item{data}{An object (or list of objects) of class xslData.}
 
 \item{lower}{Numeric vector of lower bounds for the model's parameters.}
 
 \item{upper}{Numeric vector of upper bounds for the model's parameters.}
+
+\item{by_data}{Logical indicating whether to fit to each entry in data
+separately.}
+
+\item{control}{Control parameters passed to \code{xsl_run()}.}
+
+\item{deoptim_control}{Control parameters passed to \code{DEoptim()}.}
 }
 \value{
 An object of class \code{DEoptim} representing the fitting result, which
 includes the best set of parameters found and the corresponding SSE value.
 }
 \description{
-This function fits a model to provided conditions using the Differential
-Evolution optimization algorithm. It optimizes the model parameters to
-minimize the sum of squared errors (SSE) between the model's predictions and
-human accuracy data.
+Fits a model to provided data using the Differential Evolution optimization
+algorithm. It optimizes the model parameters to minimize the sum of squared
+errors (SSE) between the model's predictions and human accuracy data.
 }

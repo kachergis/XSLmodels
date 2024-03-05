@@ -5,10 +5,16 @@
 \alias{xslFit}
 \title{xslFit S3 class}
 \usage{
-xslFit(perf = matrix(), matrix = matrix(), traj = list())
+xslFit(perf = matrix(), matrix = matrix(), traj = list(), sse = double())
 }
 \arguments{
-\item{traj}{}
+\item{perf}{Perf}
+
+\item{matrix}{Matrix}
+
+\item{traj}{Traj}
+
+\item{sse}{SSE}
 }
 \value{
 An object of class xslFit

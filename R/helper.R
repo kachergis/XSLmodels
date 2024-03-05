@@ -27,56 +27,21 @@ create_cooc_matrix <- function(train) {
   return(M)
 }
 
-
-#' Calculate Luce Choice (Proportion Correct) for Each Item in a Model Knowledge
-#' Matrix
-#'
-#' This function computes the Luce choice, or the proportion of correct
-#' selections, for each item in a given model knowledge matrix. It assesses the
-#' probability of correctly identifying each referent based on the knowledge
-#' matrix, providing a measure of model performance per item.
-#'
-#' @param m A square matrix representing the model's knowledge, where rows
-#'   correspond to words and columns correspond to referents. The diagonal
-#'   elements represent correct associations, and off-diagonal elements
-#'   represent incorrect associations.
-#'
-#' @return A named numeric vector where each element corresponds to an item in
-#'   the matrix. The value of each element represents the proportion of correct
-#'   selections (Luce choice) for that item, calculated as the ratio of the
-#'   correct association (diagonal element) to the total associations for that
-#'   item.
-#' @export
-get_perf <- function(m) {
-  perf <- rep(0, nrow(m))
-  names(perf) <- rownames(m)
-  for (ref in colnames(m)) {
-    if (!(ref %in% rownames(m))) {
-      next
-    }
-    correct <- m[ref, ref]
-    total <- sum(m[ref,])
-    if (total == 0) {
-      next
-    }
-    perf[ref] <- correct / total
-  }
-  return(perf)
-}
-
-get_test_study_ord <- function(simple = TRUE) {
-  if (simple) {
-    design <- matrix(c(1,2, 1,3), nrow = 2, ncol = 2, byrow = TRUE)
-  } else {
-    design <- matrix(c(1,2,3, 1,4,5, 2,3,4, 5,6,1), nrow = 4, ncol = 3,
-                     byrow = TRUE)
-  }
-  ord <- list(words = design, objs = design)
-  return(ord)
-}
+# get_test_study_ord <- function(simple = TRUE) {
+#   if (simple) {
+#     design <- matrix(c(1,2, 1,3), nrow = 2, ncol = 2, byrow = TRUE)
+#   } else {
+#     design <- matrix(c(1,2,3, 1,4,5, 2,3,4, 5,6,1), nrow = 4, ncol = 3,
+#                      byrow = TRUE)
+#   }
+#   ord <- list(words = design, objs = design)
+#   return(ord)
+# }
 
 
 #' Calculates Shannon entropy of a supplied vector, after normalizing it
+#'
+#' @param p Numeric vector of probabilities
 shannon_entropy <- function(p) {
   if (min(p) < 0 || sum(p) <= 0) return(NA)
   p.norm <- p[p > 0] / sum(p)
@@ -84,8 +49,15 @@ shannon_entropy <- function(p) {
 }
 
 
-#' Utility function for several models that fills in a given co-occurrence matrix
-#' m with startval, for cells of m that were 0 before
+#' Update known
+#'
+#' Utility function for several models that fills in a given co-occurrence
+#' matrix m with startval, for cells of m that were 0 before
+#'
+#' @param m Co-occurrence matrix
+#' @param tr_w Words
+#' @param tr_o Objects
+#' @param startval Starting value
 update_known <- function(m, tr_w, tr_o, startval = .01) {
   tr_assocs <- m[tr_w, tr_o]
   tr_assocs[which(tr_assocs == 0)] <- startval
