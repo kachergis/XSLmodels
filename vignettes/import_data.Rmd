@@ -74,14 +74,22 @@ XSLmodels::create_cooc_matrix(ag$trials)
 ```
 
 
-## 3. Run model(s) through a set of training trials
+## 3. Run model with given parameters through a single dataset and pull SSE.
 
 ```{r run-models}
-xsl_run(kachergis(X = .1, C = 1, B = .98), data = ag)
+run1 <- xsl_run(kachergis(X = .1, C = 1, B = .98), data = xsl_datasets[[1]])
+run1$sse
+```
+
+## 4. Run a model with given parameters through multiple datasets and pull SSE.
+
+```{r}
+run3 <- xsl_run(kachergis(X = .1, C = 1, B = .98), data = xsl_datasets[1:3])
+run3$sse
 ```
 
 
-## 4. Evaluating model performance
+## 5. Evaluating model performance
 
 Models return both a word-object matrix of associations (or 'hypotheses', i.e. binary-valued associations), as well as the conditional probability of selecting the intended referent, given each word (i.e., P(referent | word)).
 
@@ -92,8 +100,6 @@ Models return both a word-object matrix of associations (or 'hypotheses', i.e. b
 #pt = run_stochastic_model(conds, "pursuit_detailed", c(.2, .3, .05)) # SSE=4.06
 
 #tl = fit_model("tilles", conds[[1]], c(1e-5,1e-5,1e-5), c(1,1,1)) # run_model
-
-
 
 # temporary (until we finish full fits)
 #group_fits[["trueswell2012"]] = list(pars = c(0.113666, 0.266792)) # SSE=.879
@@ -108,9 +114,10 @@ Models return both a word-object matrix of associations (or 'hypotheses', i.e. b
 
 ## 5. Included experimental conditions
 
+A dataset combining `r length(xsl_datasets)` experimental conditions is included in the package in `xsl_datasets`.
+Below, we show this data can be used to optimize parameters for existing models in the package.
+
 ```{r}
-# A dataset of `r length(names(XSLmodels::combined_data))` experimental conditions is included in the package in XSLmodels::combined_data.
-# Below, we show this data can be used to optimize parameters for existing models in the package.
 
 assoc_model_names = c("kachergis", "fazly", "strength", "uncertainty", 
            "novelty", "Bayesian_decay", "rescorla_wagner")
