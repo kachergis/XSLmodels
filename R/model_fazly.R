@@ -15,8 +15,8 @@ fazly_model = function(params, data, control) {
   #start_matrix <- control[["start_matrix"]]
   #test_noise <- control[["test_noise"]]
 
-  voc = unique(unlist(ord$words))
-  ref = unique(unlist(ord$objs[!is.na(ord$objs)]))
+  voc = unique(unlist(data$words))
+  ref = unique(unlist(data$objs[!is.na(data$objs)]))
   voc_sz = length(voc) # vocabulary size
   ref_sz = length(ref) # number of objects
   traj = list()
@@ -37,12 +37,12 @@ fazly_model = function(params, data, control) {
   #assm <- matrix(0, voc_sz+1, ref_sz) # track assoc scores SEPARATELY
   # training
   for(rep in 1:reps) { # for trajectory experiments, train multiple times
-    for(t in 1:length(ord$words)) {
+    for(t in 1:length(data$words)) {
 
-      tr_w = unlist(ord$words[t])
+      tr_w = unlist(data$words[t])
       tr_w = tr_w[!is.na(tr_w)]
       tr_w = tr_w[tr_w != ""]
-      tr_o = unlist(ord$objs[t])
+      tr_o = unlist(data$objs[t])
       tr_o = tr_o[!is.na(tr_o)]
       tr_o = tr_o[tr_o != ""]
 
@@ -71,14 +71,13 @@ fazly_model = function(params, data, control) {
           probs[w,] = (assoc[w,] + lambda) / denom
           t_unseen[w] = lambda / denom
         }
-      #index = (rep-1)*nrow(ord$trials$words) + t # index for learning trajectory
+      #index = (rep-1)*nrow(data$trials$words) + t # index for learning trajectory
       index = t
       traj[[index]] = probs
     }
     perf[rep,] = get_perf(probs)
   }
-  want = list(perf=perf, matrix=probs, traj=traj)
-  return(want)
+  xslFit(perf = perf, matrix = probs, traj = traj)
 }
 
 #' Fazly et al. 2010 probablistic associative model
@@ -90,7 +89,7 @@ fazly_model = function(params, data, control) {
 #'
 #' @return An object of class xslMod
 #' @export
-fazly <- function(lambda, beta, alpha, epsilon) {
+fazly <- function(lambda, beta, alpha = 10, epsilon = 0.001) {
   xslMod(
     name = "fazly",
     description = "Fazly et al. 2010 probablistic associative model",
