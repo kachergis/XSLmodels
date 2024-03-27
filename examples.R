@@ -2,9 +2,9 @@ ex <- xsl_datasets[[10]]
 
 xsl_run(baseline(), ex)
 xsl_run(decay(C = .98), ex)
-xsl_run(decay(C = .98), ex, reps = 3)
+xsl_run(decay(C = .98), ex, reps = 3) # unused argument (reps = 3)
 xsl_run(kachergis(X = .1, C = 1, B = .98), data = ex)
-xsl_run(kachergis(X = .1, C = 1, B = .98), data = ex, reps = 3)
+xsl_run(kachergis(X = .1, C = 1, B = .98), data = ex, reps = 3) # unused argument (reps = 3)
 xsl_run(bayesian_decay(alpha = 0.5, delta = 1, chDec = 1), data = ex)
 
 xsl_run(baseline(), xsl_datasets[1:3])
