@@ -20,7 +20,7 @@
 
 #params = c(.2, .6, .05)
 
-model = function(params, data, control) {
+pursuit_model = function(params, data, control) {
     gamma = params[["gamma"]] # learning rate
     thresh = params[["threshold"]] # threshold (prob) to move an association to the known lexicon
     lambda = params[["lambda"]] # smoothing probability
@@ -30,7 +30,7 @@ model = function(params, data, control) {
     verbose <- control[["verbose"]]
 
     voc = unique(unlist(data$words))
-    ref = unique(unlist(data$objs[!is.na(data$objs)]))
+    ref = unique(unlist(data$objects[!is.na(data$objects)]))
     voc_sz = length(voc) # vocabulary size
     ref_sz = length(ref) # number of objects
 
@@ -53,7 +53,7 @@ model = function(params, data, control) {
       tr_w = unlist(data$words[t])
       tr_w = tr_w[!is.na(tr_w)]
       tr_w = tr_w[tr_w != ""]
-      tr_o = unlist(data$objs[t])
+      tr_o = unlist(data$objects[t])
       tr_o = tr_o[!is.na(tr_o)]
       if(length(tr_o) == 0) {
         index = t
