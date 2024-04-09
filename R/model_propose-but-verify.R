@@ -101,7 +101,7 @@ PBV_model = function(params, data, control) {
 #'
 #' @return An object of class xslMod
 #' @export
-PBV_model <- function(alpha, alpha_increase) {
+PBV <- function(alpha, alpha_increase) {
   xslMod(
     name = "PBV",
     description = "Trueswell et al. 2013 propose-but-verify (PBV) model",
