@@ -14,6 +14,7 @@ xsl_run <- function(model, data, control = xsl_control()) {
   model_fun <- model$model
   model_params <- model$params
 
+  n_sim <- control$n_sim
   if (!model$stochastic) n_sim <- 1
   fits <- map(data, function(dat) {
     sims <- map(1:n_sim, \(i) model_fun(params = model_params,
