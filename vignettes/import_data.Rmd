@@ -1,12 +1,12 @@
 ---
-title: "Importing a Dataset and Fitting Models"
-author: "George Kachergis"
+title: "Overview of `XSLmodels`: Importing Cross-situational Datasets and Fitting Models"
+author: "George Kachergis & Mika Braginsky"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
         fig_caption: yes
 vignette: >
-  %\VignetteIndexEntry{Importing a Dataset and Fitting Models}
+  %\VignetteIndexEntry{Importing Cross-situational Datasets and Fitting Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,9 +22,13 @@ knitr::opts_chunk$set(
 )
 ```
 
+The main goal of the `XSLmodels` package is to enable researchers to run and optimize a collection of cross-situational word learning (XSL) models on one or more datasets from cross-situational word learning experiments--and relevant corpora. This vignette provides an overview of the structure and definition of XSL datasets -- covering both datasets provided in the packages, and how to import your own data -- and then turns to discussing how to run, optimize, and even create your own XSL model.
+
+# Defining and structure of cross-situational learning (XSL) datasets.
+
 Whether you already have human data from an experiment that you would like to fit models to, or if you would like to simply evaluate model performance on a given experiment's training trials, this vignette will show to 1) structure training trials, 2) examine the structure of an experiment, 3) run model(s) through the training trials, and 4) specify how the model(s) should be tested.
 
-## Importing a Dataset
+## 0. Importing a Dataset
 
 Cross-situational word learning (XSL) datasets are defined with the `xslData` class, which require defining minimally a training phase and a testing phase.
 Each trial of the training phase presents participants (or models) with one or more words and one or more referents (i.e. objects).
@@ -73,8 +77,31 @@ create_cooc_matrix() will return a word x object matrix showing the tallied co-o
 XSLmodels::create_cooc_matrix(ag$trials)
 ```
 
+## 3. Included experimental conditions
 
-## 3. Run model with given parameters through a single dataset and pull SSE.
+A dataset combining `r length(xsl_datasets)` experimental conditions is included in the package in `xsl_datasets`.
+For example, here is a summary of one experimental condition in the dataset: an asymmetric (3x4; i.e. 3 words and 4 objects per trial) condition with 36 training trials, 18 words and 18 objects with corresponding mean accuracies from 25 subjects.
+(Note that `test trials: 0` indicates that this condition used 18AFC test trials, on which all referents are given for each tested word. Conditions which show a subset of the trained word-referent pairs (e.g. 4AFC) specify a list of referents shown on for each tested word.)
+
+```{r, example-xsl-dataset}
+print(xsl_datasets[[1]])
+```
+
+The properties condition can be accessed and examined in detail:
+
+```{r}
+# properties of an experimental condition:
+names(xsl_datasets[[1]])
+# e.g., mean accuracy for each tested word (i.e., P(choosing correct referent | word)):
+xsl_datasets[[1]]$accuracy
+```
+
+
+# Running, fitting, and defining XSL models.
+
+## 4. Run model with given parameters through a single dataset and pull SSE.
+
+Now that the definition and structure of the datasets is clear, we will turn to running and fitting models, before finally discussing the structure of an `xslMod`, and how to extend an existing model or create a new one.
 
 ```{r run-models}
 run1 <- xsl_run(kachergis(X = .1, C = 1, B = .98), data = xsl_datasets[[1]])
@@ -95,13 +122,18 @@ Models return both a word-object matrix of associations (or 'hypotheses', i.e. b
 
 ```{r}
 ## TESTING
-#pv = run_stochastic_model(conds, "trueswell2012", c(.1, .5)) # SSE=1.18
-#gt = run_stochastic_model(conds, "guess-and-test", c(.1, .5)) # SSE=1.14
-#pt = run_stochastic_model(conds, "pursuit_detailed", c(.2, .3, .05)) # SSE=4.06
+pv <- xsl_run(PBV(alpha = .1, alpha_increase = .5), data = xsl_datasets[1:3]) 
+# Caused by error in `params[["gamma"]]`:
+# ! subscript out of bounds
+
+gt <- xsl_run(guess_and_test(f = .1, sa = .5), data = xsl_datasets[1:3]) # SSE=1.14
+
+pt <- xsl_run(pursuit(gamma = .2, threshold = .3, lambda = .05), data = xsl_datasets[1:3]) # SSE=4.06
 
 #tl = fit_model("tilles", conds[[1]], c(1e-5,1e-5,1e-5), c(1,1,1)) # run_model
 
-# temporary (until we finish full fits)
+# question: do we want a new wrapper for xsl_run that fits each condition separately?
+pbv_per_exp <- purrr::map(xsl_datasets, xsl_fit(guess_and_test()))
 #group_fits[["trueswell2012"]] = list(pars = c(0.113666, 0.266792)) # SSE=.879
 #group_fits[["guess-and-test"]] = list(pars = c(0.691312, 0.991726)) # SSE=.884
 #group_fits[["pursuit_detailed"]] = list(pars = c(0.088324, 0.409523, 0.000059)) # SSE = 0.996
@@ -112,9 +144,9 @@ Models return both a word-object matrix of associations (or 'hypotheses', i.e. b
 ```
 
 
-## 5. Included experimental conditions
 
-A dataset combining `r length(xsl_datasets)` experimental conditions is included in the package in `xsl_datasets`.
+ 
+
 Below, we show this data can be used to optimize parameters for existing models in the package.
 
 ```{r}
@@ -124,4 +156,5 @@ assoc_model_names = c("kachergis", "fazly", "strength", "uncertainty",
 stochastic_model_names = c("guess-and-test","pursuit","trueswell2012","kachergis_sampling")
 
 ```
+
 
