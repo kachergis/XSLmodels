@@ -95,9 +95,8 @@ PBV_model = function(params, data, control) {
 
 #' Trueswell et al. 2013 propose-but-verify model
 #'
-#' @param gamma learning rate
-#' @param threshold threshold (probability) to move an association to the known lexicon
-#' @param lambda smoothing probability
+#' @param alpha initial association strength
+#' @param alpha_increase learning rate
 #'
 #' @return An object of class xslMod
 #' @export
@@ -105,7 +104,7 @@ PBV <- function(alpha, alpha_increase) {
   xslMod(
     name = "PBV",
     description = "Trueswell et al. 2013 propose-but-verify (PBV) model",
-    model = pursuit_model,
+    model = PBV_model,
     params = c(alpha = alpha, alpha_increase = alpha_increase),
     stochastic = TRUE
   )

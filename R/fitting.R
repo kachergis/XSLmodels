@@ -44,9 +44,9 @@ xsl_run <- function(model, data, control = xsl_control()) {
 #' @return List of arguments
 #' @export
 xsl_control <- function(reps = 1, start_matrix = c(),
-                        test_noise = 0, n_sim = 500) {
+                        test_noise = 0, n_sim = 500, verbose = FALSE) {
   list(reps = reps, start_matrix = start_matrix,
-       test_noise = test_noise, n_sim = n_sim)
+       test_noise = test_noise, n_sim = n_sim, verbose = verbose)
 }
 
 #' Fit XSL model using differential evolution

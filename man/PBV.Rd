@@ -7,11 +7,9 @@
 PBV(alpha, alpha_increase)
 }
 \arguments{
-\item{gamma}{learning rate}
+\item{alpha}{initial association strength}
 
-\item{threshold}{threshold (probability) to move an association to the known lexicon}
-
-\item{lambda}{smoothing probability}
+\item{alpha_increase}{learning rate}
 }
 \value{
 An object of class xslMod

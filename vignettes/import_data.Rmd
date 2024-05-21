@@ -16,7 +16,7 @@ vignette: >
 library(XSLmodels)
 
 knitr::opts_chunk$set(
-  eval = FALSE, # temporary until vignette updated
+  eval = TRUE, # temporary until vignette updated
   collapse = TRUE,
   comment = "#>"
 )
@@ -133,7 +133,12 @@ pt <- xsl_run(pursuit(gamma = .2, threshold = .3, lambda = .05), data = xsl_data
 #tl = fit_model("tilles", conds[[1]], c(1e-5,1e-5,1e-5), c(1,1,1)) # run_model
 
 # question: do we want a new wrapper for xsl_run that fits each condition separately?
-pbv_per_exp <- purrr::map(xsl_datasets, xsl_fit(guess_and_test()))
+gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
+                       lower = c(0,0), upper = c(1,1), by_data = T, xsl_datasets[1:3])
+
+# group fit (jointly fit all passed datasets):
+gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
+                       lower = c(0,0), upper = c(1,1), by_data = F, xsl_datasets[1:3])
 #group_fits[["trueswell2012"]] = list(pars = c(0.113666, 0.266792)) # SSE=.879
 #group_fits[["guess-and-test"]] = list(pars = c(0.691312, 0.991726)) # SSE=.884
 #group_fits[["pursuit_detailed"]] = list(pars = c(0.088324, 0.409523, 0.000059)) # SSE = 0.996

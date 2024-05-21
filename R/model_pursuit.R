@@ -105,7 +105,7 @@ pursuit_model = function(params, data, control) {
 
     if(verbose) print(m)
     #want = list(perf=diag(Pm_w), matrix=Pm_w, compScore=compScore)
-    xslFit(perf = as.numeric(resp_prob), matrix = lexicon+1e-12, compScore=as.numeric(compScore), traj = traj)
+    xslFit(perf = as.numeric(resp_prob), matrix = lexicon+1e-12, traj = traj) # other: compScore=as.numeric(compScore),
   }
 
 #' Stevens et al. 2014 pursuit model
