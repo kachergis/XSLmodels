@@ -10,7 +10,7 @@ xsl_fit(
   lower,
   upper,
   by_data = FALSE,
-  control = xsl_control(),
+  control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
 )
 }

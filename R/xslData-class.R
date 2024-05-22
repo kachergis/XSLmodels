@@ -10,7 +10,7 @@
 #' @param label Label
 #' @param condition Condition
 #'
-#' @return An object of class xslMod
+#' @return An object of class xslData
 #' @export
 xslData <- function(train = list(), test = list(), accuracy = numeric(),
                     n_subj = numeric(), label = character(),

@@ -16,7 +16,6 @@ vignette: >
 library(XSLmodels)
 
 knitr::opts_chunk$set(
-  eval = TRUE, # temporary until vignette updated
   collapse = TRUE,
   comment = "#>"
 )
@@ -43,10 +42,8 @@ This sample size and accuracy can then be compared to model performance, and if 
 Below we show how to define a new dataset.
 
 ```{r, echo=T}
-xslData(train = list(words = list(c(1, 2), 
-                                  c(2, 3)),
-                     objects = list(c(1, 2),
-                                    c(2, 3))),
+xslData(train = list(words = list(c(1, 2), c(2, 3)),
+                     objects = list(c(1, 2), c(2, 3))),
         test = list(1:3, 1:3, 1:3),
         accuracy = c(.3, .7, .5)) # length(unique(unlist(x$train$words))) == length(x$accuracy) is not TRUE
 # need to define accuracy -- should we make it optional?
@@ -60,8 +57,7 @@ get_example_ambiguous_condition() and get_example_unambiguous_condition() return
 The list of training trials is further composed of a list of the words presented on each trial, and a list of the referents (*objs*) presented on each trial.
 
 ```{r, echo=T}
-ag <- XSLmodels::get_example_ambiguous_condition()
-
+ag <- get_example_ambiguous_condition()
 ag
 ```
 
@@ -74,7 +70,7 @@ One common way to summarize the structure of a cross-situational word learning e
 create_cooc_matrix() will return a word x object matrix showing the tallied co-occurrences of each word with each object across all of the training trials.
 
 ```{r}
-XSLmodels::create_cooc_matrix(ag$trials)
+create_cooc_matrix(ag$trials)
 ```
 
 ## 3. Included experimental conditions
@@ -84,7 +80,7 @@ For example, here is a summary of one experimental condition in the dataset: an 
 (Note that `test trials: 0` indicates that this condition used 18AFC test trials, on which all referents are given for each tested word. Conditions which show a subset of the trained word-referent pairs (e.g. 4AFC) specify a list of referents shown on for each tested word.)
 
 ```{r, example-xsl-dataset}
-print(xsl_datasets[[1]])
+xsl_datasets[[1]]
 ```
 
 The properties condition can be accessed and examined in detail:
@@ -132,13 +128,15 @@ pt <- xsl_run(pursuit(gamma = .2, threshold = .3, lambda = .05), data = xsl_data
 
 #tl = fit_model("tilles", conds[[1]], c(1e-5,1e-5,1e-5), c(1,1,1)) # run_model
 
-# question: do we want a new wrapper for xsl_run that fits each condition separately?
-gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
-                       lower = c(0,0), upper = c(1,1), by_data = T, xsl_datasets[1:3])
+# TODO: these currently take too long for vignette
+# # question: do we want a new wrapper for xsl_run that fits each condition separately?
+# gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
+#                        lower = c(0,0), upper = c(1,1), by_data = T, xsl_datasets[1:3])
+# 
+# # group fit (jointly fit all passed datasets):
+# gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
+#                        lower = c(0,0), upper = c(1,1), by_data = F, xsl_datasets[1:3])
 
-# group fit (jointly fit all passed datasets):
-gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5), 
-                       lower = c(0,0), upper = c(1,1), by_data = F, xsl_datasets[1:3])
 #group_fits[["trueswell2012"]] = list(pars = c(0.113666, 0.266792)) # SSE=.879
 #group_fits[["guess-and-test"]] = list(pars = c(0.691312, 0.991726)) # SSE=.884
 #group_fits[["pursuit_detailed"]] = list(pars = c(0.088324, 0.409523, 0.000059)) # SSE = 0.996
@@ -155,11 +153,8 @@ gnt_per_exp <- xsl_fit(guess_and_test(f = .1, sa = .5),
 Below, we show this data can be used to optimize parameters for existing models in the package.
 
 ```{r}
-
-assoc_model_names = c("kachergis", "fazly", "strength", "uncertainty", 
-           "novelty", "Bayesian_decay", "rescorla_wagner")
-stochastic_model_names = c("guess-and-test","pursuit","trueswell2012","kachergis_sampling")
-
+assoc_model_names <- c("kachergis", "fazly", "strength", "uncertainty", 
+                      "novelty", "Bayesian_decay", "rescorla_wagner")
+stochastic_model_names <- c("guess-and-test", "pursuit",
+                            "trueswell2012", "kachergis_sampling")
 ```
-
-

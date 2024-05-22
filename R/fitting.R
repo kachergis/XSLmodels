@@ -6,7 +6,7 @@
 #'
 #' @return List of fits, sse, unweighted_sse
 #' @export
-xsl_run <- function(model, data, control = xsl_control()) {
+xsl_run <- function(model, data, control = xslControl()) {
   stopifnot("xslMod" %in% class(model))
   if ("xslData" %in% class(data)) data <- list(data)
   stopifnot(all(map_lgl(data, \(d) "xslData" %in% class(d))))
@@ -34,20 +34,6 @@ xsl_run <- function(model, data, control = xsl_control()) {
   list(fits = fits, sse = sse, unweighted_sse = unweighted_sse)
 }
 
-#' Control arguments for `xsl_run()`
-#'
-#' @param reps Number of times to repeat training
-#' @param start_matrix Starting matrix
-#' @param test_noise Test noise
-#' @param n_sim Number of simulations for stochastic models
-#'
-#' @return List of arguments
-#' @export
-xsl_control <- function(reps = 1, start_matrix = c(),
-                        test_noise = 0, n_sim = 500, verbose = FALSE) {
-  list(reps = reps, start_matrix = start_matrix,
-       test_noise = test_noise, n_sim = n_sim, verbose = verbose)
-}
 
 #' Fit XSL model using differential evolution
 #'
@@ -67,7 +53,7 @@ xsl_control <- function(reps = 1, start_matrix = c(),
 #'   includes the best set of parameters found and the corresponding SSE value.
 #' @export
 xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
-                    control = xsl_control(),
+                    control = xslControl(),
                     deoptim_control = DEoptim::DEoptim.control(reltol = .001,
                                                                NP = 100,
                                                                itermax = 100)) {

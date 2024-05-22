@@ -33,7 +33,7 @@ new_xslData(x = list())
 \item{x}{List with elements train, test, accuracy, n_subj, label, condition}
 }
 \value{
-An object of class xslMod
+An object of class xslData
 }
 \description{
 xslData S3 class
