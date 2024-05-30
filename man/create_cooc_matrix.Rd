@@ -2,14 +2,14 @@
 % Please edit documentation in R/helper.R
 \name{create_cooc_matrix}
 \alias{create_cooc_matrix}
-\title{Creates Co-occurrence Matrix from Training Trials}
+\title{Creates co-occurrence matrix from training trials}
 \usage{
 create_cooc_matrix(train)
 }
 \arguments{
 \item{train}{A list representing the training data, where each element is a
 trial that includes both words and objects. The structure is expected to
-have sub-elements \code{words} and \code{objs} for each trial.}
+have sub-elements \code{words} and \code{objects} for each trial.}
 }
 \value{
 A matrix where each element represents the count of co-occurrences
@@ -22,4 +22,7 @@ Given a training order (list of words and objects per trial), this function
 returns a matrix tallying word-object co-occurrences across the trials. This
 matrix can be used to analyze the frequency with which certain words and
 objects appear together during the training phase.
+}
+\examples{
+create_cooc_matrix(xsl_datasets[[1]]$train)
 }

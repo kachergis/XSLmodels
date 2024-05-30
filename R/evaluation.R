@@ -1,5 +1,5 @@
-#' Calculate Luce Choice (Proportion Correct) for Each Item in a Model Knowledge
-#' Matrix
+#' Calculate Luce choice (proportion correct) for each item in a model knowledge
+#' matrix
 #'
 #' This function computes the Luce choice, or the proportion of correct
 #' selections, for each item in a given model knowledge matrix. It assesses the
@@ -17,9 +17,13 @@
 #'   correct association (diagonal element) to the total associations for that
 #'   item.
 #' @export
+#'
+#' @examples
+#' x <- xsl_run(baseline(), get_example_ambiguous_condition())
+#' mat <- x$fits[[1]]$matrix
+#' get_perf(mat)
 get_perf <- function(m) {
-  perf <- rep(0, nrow(m))
-  names(perf) <- rownames(m)
+  perf <- rep(0, nrow(m)) |> set_names(rownames(m))
   for (ref in colnames(m)) {
     if (!(ref %in% rownames(m))) {
       next
@@ -42,7 +46,7 @@ get_perf <- function(m) {
 #' word and a set of referents of size less than the width of the model memory
 #' matrix.
 #'
-#' @param mperf A matrix representing model memory with words as rows and
+#' @param m A matrix representing model memory with words as rows and
 #'   referents as columns.
 #' @param test A list representing the test trials, each containing a word and
 #'   its associated referents.
@@ -50,19 +54,25 @@ get_perf <- function(m) {
 #' @return A vector with the probability of choosing the correct object, given
 #'   each word.
 #' @export
-mafc_test <- function(mperf, test) {
+#'
+#' @examples
+#' dat <- xsl_datasets[[10]]
+#' x <- xsl_run(baseline(), dat)
+#' mat <- x$fits[[1]]$matrix
+#' mafc_test(mat, dat$test)
+mafc_test <- function(m, test) {
   trials <- length(test$words)
-  perf = rep(0, trials)
-  for(i in 1:trials) {
-    w = test$words[[i]]
-    denom = sum(mperf[w, test$objects[[i]]])
-    perf[i] = mperf[w,w] / denom
+  perf <- rep(0, trials)
+  for (i in seq_along(trials)) {
+    w <- test$words[[i]]
+    denom <- sum(m[w, test$objects[[i]]])
+    perf[i] <- m[w,w] / denom
   }
   return(perf)
 }
 
 
-#' Get True Positives (TP), Given a Knowledge Matrix and a Gold Lexicon
+#' Get true positives (TP), given a knowledge matrix and a gold-standard lexicon
 #'
 #' This function iterates over words in a given gold lexicon and accumulates the
 #' associative strength (can be integral e.g. 1, or real-valued) in the
@@ -77,31 +87,37 @@ mafc_test <- function(mperf, test) {
 #'
 #' @return A single value with the expected number of true positives.
 #' @export
+#'
+#' @examples
+#' dat <- xsl_datasets[[10]]
+#' x <- xsl_run(baseline(), dat)
+#' mat <- x$fits[[1]]$matrix
+#' lex <- list(words = rep(1:18), objects = rep(1:18))
+#' get_tp(mat, lex)
 get_tp <- function(m, gold_lexicon) {
-  count = 0
+  count <- 0
   if (length(gold_lexicon) > 0) {
-    for (i in 1:length(gold_lexicon[["word"]])) {
-      word = gold_lexicon[["word"]][i]
-      ref = gold_lexicon[["object"]][i]
-      if (!(word %in% rownames(m)) | !(ref %in% colnames(m))) {
+    for (i in seq_along(gold_lexicon[["words"]])) {
+      word <- gold_lexicon[["words"]][i]
+      ref <- gold_lexicon[["objects"]][i]
+      if (!(word %in% rownames(m)) || !(ref %in% colnames(m))) {
         next
       }
-      count = count + m[word, ref]
+      count <- count + m[word, ref]
     }
-    return(count)
   } else {
     for (ref in colnames(m)) {
       if (!(ref %in% rownames(m))) {
         next
       }
-      count = count + m[ref, ref]
+      count <- count + m[ref, ref]
     }
-    return(count)
   }
+  return(count)
 }
 
-#' Calculate F-score, Precision, Recall, and Specificity for a Knowledge Matrix
-#' at a Given Threshold
+#' Calculate F-score, precision, recall, and specificity for a knowledge matrix
+#' at a given threshold
 #'
 #' This function calculates the F-score, precision, recall, and specificity for
 #' a given knowledge matrix at a specified threshold. It uses the concept of
@@ -110,58 +126,53 @@ get_tp <- function(m, gold_lexicon) {
 #' evaluating the performance of a model in terms of its ability to correctly
 #' identify associations between words and referents.
 #'
-#' @param thresh A numeric value representing the threshold for considering an
-#'   association between a word and a referent as positive.
-#' @param mat A matrix representing the knowledge matrix with words as rows and
+#' @param m A matrix representing the knowledge matrix with words as rows and
 #'   referents as columns.
-#' @param fscore_only Logical; if TRUE, only the F-score is returned. If FALSE,
-#'   a data frame with precision, recall, specificity, and F-score for each
-#'   threshold is returned.
+#' @param threshold A numeric value representing the threshold for considering
+#'   an association between a word and a referent as positive.
 #' @param gold_lexicon Optional; a data frame or list where each row/element
 #'   represents a word-object pair in the gold lexicon. If provided, it is used
 #'   to calculate true positives, false positives, and false negatives.
-#' @param verbose Logical; if TRUE, additional details about true positives,
-#'   false positives, and false negatives are printed.
 #'
-#' @return If `fscore_only` is TRUE, returns a single numeric value representing
-#'   the F-score. If `fscore_only` is FALSE, returns a tibble (data frame) with
-#'   columns for threshold, precision, recall, specificity, and F-score at each
-#'   threshold.
+#' @return A tibble with columns for threshold, precision, recall, specificity,
+#'   and F-score.
 #' @export
-get_fscore <- function(thresh, mat, fscore_only=T, gold_lexicon = c(), verbose=F) {
-  tmat <- mat >= thresh
-  tp = get_tp(tmat, gold_lexicon) # correct referents selected
-  words = gold_lexicon[["word"]]
-  words = words[words %in% rownames(tmat)]
-  objects = gold_lexicon[["object"]]
-  objects = objects[objects %in% colnames(tmat)]
-  if (length(gold_lexicon) > 0) {
-    fp = sum(tmat[words, objects]) - tp
-    fn = length(objects) - tp
+#'
+#' @examples
+#' dat <- xsl_datasets[[1]]
+#' x <- xsl_run(baseline(), dat)
+#' mat <- x$fits[[1]]$matrix
+#' lex <- list(words = rep(1:18), objects = rep(1:18))
+#' get_fscore(mat, 0.5, lex)
+get_fscore <- function(m, threshold, gold_lexicon = NULL) {
+  tmat <- m >= threshold
+  tp <- get_tp(tmat, gold_lexicon) # correct referents selected
+  words <- gold_lexicon[["words"]]
+  words <- words[words %in% rownames(tmat)]
+  objects <- gold_lexicon[["objects"]]
+  objects <- objects[objects %in% colnames(tmat)]
+  if (!is.null(gold_lexicon)) {
+    fp <- sum(tmat[words, objects]) - tp
+    fn <- length(objects) - tp
   } else {
-    fp = sum(tmat) - tp # incorrect referents selected: all selected referents - TPs
-    fn = ncol(tmat) - tp # correct referents missed: num of words - TPs
+    fp <- sum(tmat) - tp # incorrect referents selected: all selected referents - TPs
+    fn <- ncol(tmat) - tp # correct referents missed: num of words - TPs
   }
-  if(verbose) print(c(tp, fp, fn))
-  precision = tp / (tp + fp)
-  recall = tp / (tp + fn) # aka sensitivity / true positive rate
-  tn = sum(!tmat) - fn # all the 0s that should be 0s
-  specificity = tn / (tn + fp) # TN = 0 where should be 0
-  fscore = 2*precision*recall / (precision + recall)
-  if(is.nan(fscore)) fscore = 0 # if tp+fn=0 or tp+fp=0
-  if(fscore_only) {
-    return(fscore)
-  } else {
-    return(tidyr::tibble(thresh=thresh, precision=precision, recall=recall,
-                         fscore=fscore, specificity=specificity))
-  }
+  precision <- tp / (tp + fp)
+  recall <- tp / (tp + fn) # aka sensitivity / true positive rate
+  tn <- sum(!tmat) - fn # all the 0s that should be 0s
+  specificity <- tn / (tn + fp) # TN = 0 where should be 0
+  fscore <- 2 * precision * recall / (precision + recall)
+  if (is.nan(fscore)) fscore <- 0 # if tp+fn=0 or tp+fp=0
+  tibble::tibble(threshold = threshold, precision = precision, recall = recall,
+                 fscore = fscore, specificity = specificity)
 }
 
 
-#' Calculate Receiver Operating Characteristic (ROC) Scores for a Model
-#' Association Matrix
+#' Calculate receiver operating characteristic (ROC) scores for a model
+#' association Matrix
 #'
-#' This function computes Receiver Operating Characteristic (ROC) scores for a
+#' This function computes receiver operating characteristic (ROC) scores for a
 #' given model association matrix. It evaluates the performance of the model at
 #' various thresholds, providing metrics like f-scores, precision, and recall.
 #' The function can operate with a range of thresholds and optionally consider a
@@ -169,60 +180,52 @@ get_fscore <- function(thresh, mat, fscore_only=T, gold_lexicon = c(), verbose=F
 #' result is a comprehensive assessment of model performance over a continuum of
 #' classification thresholds.
 #'
-#' @param mdat A matrix representing the model association matrix with words as
-#'   rows and referents as columns.
-#' @param fscores_only Logical; if TRUE, only the f-scores are returned for each
-#'   threshold. If FALSE, a dataframe including precision, recall, and f-scores
-#'   for each threshold is returned.
-#' @param plot Logical; if TRUE, a plot of the ROC curve is generated and
-#'   displayed.
-#' @param gold_lexicon Optional; a data frame or list where each row/element
-#'   represents a word-object pair in the gold lexicon. If provided, it is used
-#'   for more accurate calculation of true positives, false positives, and false
-#'   negatives.
+#' @inheritParams get_fscore
+#' @param thresholds Vector of thresholds to use.
 #'
-#' @return A dataframe or tibble with columns for the threshold, f-score,
-#'   precision, and recall. If `fscores_only` is TRUE, only f-scores are
-#'   returned for each threshold from 0 to 1 in increments of 0.01. If
-#'   `fscores_only` is FALSE, the dataframe includes precision and recall along
-#'   with f-scores for each threshold.
+#' @return A tibble with columns for the threshold, f-score,
+#'   precision, and recall.
 #' @export
-get_roc <- function(mdat, fscores_only=T, plot=F, gold_lexicon = c()) {}
-#   #mat <- mdat / max(unlist(mdat)) # normalize so max value(s) in entire matrix are 1
-#   mat <- mdat / rowSums(mdat) # row-normalize matrix (better for all models?)
-#   threshes <- seq(0,1,.01)
-#   #fscores <- unlist(lapply(threshes, get_fscore, mat))
-#   prf <- dplyr::bind_rows(lapply(threshes, get_fscore, mat, fscore_only=F, gold_lexicon = gold_lexicon))
-#   if(plot) {
-#     g <- ggplot2::ggplot(data=prf, aes(x=1-specificity, y=recall)) + geom_line() +
-#       theme_classic() + xlim(0,1) + ylim(0,1)
-#     print(g)
-#   }
-#   if(fscores_only) {
-#     return(prf$fscore)
-#   } else {
-#     return(prf)
-#   }
-# }
-
-
-#' Get Maximum F-score from ROC Scores
 #'
-#' This function computes the maximum F-score from the Receiver Operating
-#' Characteristic (ROC) scores of a model. It leverages the `get_roc` function
+#' @examples
+#' dat <- xsl_datasets[[1]]
+#' x <- xsl_run(baseline(), dat)
+#' mat <- x$fits[[1]]$matrix
+#' lex <- list(words = rep(1:18), objects = rep(1:18))
+#' get_roc(mat, gold_lexicon = lex)
+#' plot_roc(mat, gold_lexicon = lex)
+#' get_roc_max(mat, gold_lexicon = lex)
+get_roc <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
+  #mat <- mdat / max(unlist(mdat)) # normalize so max value(s) in entire matrix are 1
+  mn <- m / rowSums(m) # row-normalize matrix (better for all models?)
+  map(thresholds, \(t) get_fscore(mn, t, gold_lexicon)) |> list_rbind()
+}
+
+#' Plot receiver operating characteristic (ROC) scores for a model
+#' association Matrix
+#'
+#' @rdname get_roc
+#' @export
+plot_roc <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
+  roc <- get_roc(m, thresholds, gold_lexicon)
+  ggplot(roc, aes(x = 1 - .data$specificity, y = .data$recall)) +
+    geom_line() +
+    xlim(0, 1) + ylim(0, 1)
+}
+
+#' Get maximum F-score from ROC scores
+#'
+#' This function computes the maximum F-score from the receiver operating
+#' characteristic (ROC) scores of a model. It leverages the `get_roc()` function
 #' to calculate the ROC scores and then extracts the highest F-score, providing
 #' a concise metric for the best classification performance of the model.
 #'
-#' @param mdat A matrix representing the model association matrix with words as
-#'   rows and referents as columns, used to calculate the ROC scores.
-#' @param gold_lexicon Optional; a data frame or list where each row/element
-#'   represents a word-object pair in the gold lexicon. If provided, it enhances
-#'   the accuracy of the ROC score calculations.
+#' @rdname get_roc
 #'
 #' @return A single numeric value representing the maximum F-score obtained from
 #'   the ROC scores of the model.
 #' @export
-get_roc_max <- function(mdat, gold_lexicon = c()) {
-  fscores <- get_roc(mdat, gold_lexicon = gold_lexicon)
-  return(max(fscores[!is.na(fscores)]))
+get_roc_max <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
+  fscores <- get_roc(m, thresholds = thresholds, gold_lexicon = gold_lexicon)$fscore
+  max(fscores[!is.na(fscores)])
 }

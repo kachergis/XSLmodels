@@ -7,9 +7,9 @@
 get_example_ambiguous_condition()
 }
 \value{
-An object of class xslData containing a list of training trials (with
-nested words and objects per trial) and accuracy (P(correct referent |
-word))
+An object of class \code{xslData} containing a list of training trials
+(with nested words and objects per trial) and accuracy (P(correct referent
+| word)).
 }
 \description{
 This function creates an example condition with two trials, and two
@@ -18,4 +18,7 @@ thus each word has a 50\% chance of being associated with the correct
 referent. The function returns a list of the trials with nested words and
 objects per trial, as well as a vector of the conditional probability of
 correctly selecting the correct referent given each word.
+}
+\examples{
+get_example_ambiguous_condition()
 }

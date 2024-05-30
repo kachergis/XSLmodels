@@ -2,8 +2,8 @@
 % Please edit documentation in R/evaluation.R
 \name{get_perf}
 \alias{get_perf}
-\title{Calculate Luce Choice (Proportion Correct) for Each Item in a Model Knowledge
-Matrix}
+\title{Calculate Luce choice (proportion correct) for each item in a model knowledge
+matrix}
 \usage{
 get_perf(m)
 }
@@ -25,4 +25,9 @@ This function computes the Luce choice, or the proportion of correct
 selections, for each item in a given model knowledge matrix. It assesses the
 probability of correctly identifying each referent based on the knowledge
 matrix, providing a measure of model performance per item.
+}
+\examples{
+x <- xsl_run(baseline(), get_example_ambiguous_condition())
+mat <- x$fits[[1]]$matrix
+get_perf(mat)
 }

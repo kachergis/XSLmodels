@@ -4,10 +4,10 @@
 \alias{mafc_test}
 \title{Evaluate m-alternative forced choice test}
 \usage{
-mafc_test(mperf, test)
+mafc_test(m, test)
 }
 \arguments{
-\item{mperf}{A matrix representing model memory with words as rows and
+\item{m}{A matrix representing model memory with words as rows and
 referents as columns.}
 
 \item{test}{A list representing the test trials, each containing a word and
@@ -22,4 +22,10 @@ This function evaluates a given set of test trials using the provided model
 memory matrix (word x referent). Each test trial is assumed to present one
 word and a set of referents of size less than the width of the model memory
 matrix.
+}
+\examples{
+dat <- xsl_datasets[[10]]
+x <- xsl_run(baseline(), dat)
+mat <- x$fits[[1]]$matrix
+mafc_test(mat, dat$test)
 }

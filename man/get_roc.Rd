@@ -2,40 +2,54 @@
 % Please edit documentation in R/evaluation.R
 \name{get_roc}
 \alias{get_roc}
-\title{Calculate Receiver Operating Characteristic (ROC) Scores for a Model
-Association Matrix}
+\alias{plot_roc}
+\alias{get_roc_max}
+\title{Calculate receiver operating characteristic (ROC) scores for a model
+association Matrix}
 \usage{
-get_roc(mdat, fscores_only = T, plot = F, gold_lexicon = c())
+get_roc(m, thresholds = seq(0, 1, 0.01), gold_lexicon = NULL)
+
+plot_roc(m, thresholds = seq(0, 1, 0.01), gold_lexicon = NULL)
+
+get_roc_max(m, thresholds = seq(0, 1, 0.01), gold_lexicon = NULL)
 }
 \arguments{
-\item{mdat}{A matrix representing the model association matrix with words as
-rows and referents as columns.}
+\item{m}{A matrix representing the knowledge matrix with words as rows and
+referents as columns.}
 
-\item{fscores_only}{Logical; if TRUE, only the f-scores are returned for each
-threshold. If FALSE, a dataframe including precision, recall, and f-scores
-for each threshold is returned.}
-
-\item{plot}{Logical; if TRUE, a plot of the ROC curve is generated and
-displayed.}
+\item{thresholds}{Vector of thresholds to use.}
 
 \item{gold_lexicon}{Optional; a data frame or list where each row/element
 represents a word-object pair in the gold lexicon. If provided, it is used
-for more accurate calculation of true positives, false positives, and false
-negatives.}
+to calculate true positives, false positives, and false negatives.}
 }
 \value{
-A dataframe or tibble with columns for the threshold, f-score,
-precision, and recall. If \code{fscores_only} is TRUE, only f-scores are
-returned for each threshold from 0 to 1 in increments of 0.01. If
-\code{fscores_only} is FALSE, the dataframe includes precision and recall along
-with f-scores for each threshold.
+A tibble with columns for the threshold, f-score,
+precision, and recall.
+
+A single numeric value representing the maximum F-score obtained from
+the ROC scores of the model.
 }
 \description{
-This function computes Receiver Operating Characteristic (ROC) scores for a
+This function computes receiver operating characteristic (ROC) scores for a
 given model association matrix. It evaluates the performance of the model at
 various thresholds, providing metrics like f-scores, precision, and recall.
 The function can operate with a range of thresholds and optionally consider a
 gold lexicon for calculating true and false positives and negatives. The
 result is a comprehensive assessment of model performance over a continuum of
 classification thresholds.
+
+This function computes the maximum F-score from the receiver operating
+characteristic (ROC) scores of a model. It leverages the \code{get_roc()} function
+to calculate the ROC scores and then extracts the highest F-score, providing
+a concise metric for the best classification performance of the model.
+}
+\examples{
+dat <- xsl_datasets[[1]]
+x <- xsl_run(baseline(), dat)
+mat <- x$fits[[1]]$matrix
+lex <- list(words = rep(1:18), objects = rep(1:18))
+get_roc(mat, gold_lexicon = lex)
+plot_roc(mat, gold_lexicon = lex)
+get_roc_max(mat, gold_lexicon = lex)
 }

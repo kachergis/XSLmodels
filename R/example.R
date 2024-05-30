@@ -7,10 +7,13 @@
 #' objects per trial, as well as a vector of the conditional probability of
 #' correctly selecting the correct referent given each word.
 #'
-#' @return An object of class xslData containing a list of training trials (with
-#'   nested words and objects per trial) and accuracy (P(correct referent |
-#'   word))
+#' @return An object of class `xslData` containing a list of training trials
+#'   (with nested words and objects per trial) and accuracy (P(correct referent
+#'   | word)).
 #' @export
+#'
+#' @examples
+#' get_example_ambiguous_condition()
 get_example_ambiguous_condition <- function() {
   xslData(train = list(words = list(c(1, 2), c(3, 4)),
                        objects = list(c(2, 1), c(3, 4))),
@@ -28,10 +31,13 @@ get_example_ambiguous_condition <- function() {
 #' the most frequently co-occurring referent for each word is selected then all
 #' three words would be learned.
 #'
-#' @return An object of class xslData containing a list of training trials (with
-#'   nested words and objects per trial) and accuracy (P(correct referent |
-#'   word))
+#' @return An object of class `xslData` containing a list of training trials
+#'   (with nested words and objects per trial) and accuracy (P(correct referent
+#'   | word)).
 #' @export
+#'
+#' @examples
+#' get_example_unambiguous_condition()
 get_example_unambiguous_condition <- function() {
   xslData(train = list(words = list(c(1, 2), c(1, 3), c(3, 2)),
                        objects = list(c(2, 1), c(1, 3), c(2, 3))),

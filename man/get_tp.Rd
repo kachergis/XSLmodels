@@ -2,7 +2,7 @@
 % Please edit documentation in R/evaluation.R
 \name{get_tp}
 \alias{get_tp}
-\title{Get True Positives (TP), Given a Knowledge Matrix and a Gold Lexicon}
+\title{Get true positives (TP), given a knowledge matrix and a gold-standard lexicon}
 \usage{
 get_tp(m, gold_lexicon)
 }
@@ -22,4 +22,11 @@ associative strength (can be integral e.g. 1, or real-valued) in the
 knowledge matrix for the intended referents (present in the gold lexicon).
 Returns the number of expected true positives (TP) for this gold lexicon and
 knowledge matrix.
+}
+\examples{
+dat <- xsl_datasets[[10]]
+x <- xsl_run(baseline(), dat)
+mat <- x$fits[[1]]$matrix
+lex <- list(words = rep(1:18), objects = rep(1:18))
+get_tp(mat, lex)
 }
