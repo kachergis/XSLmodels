@@ -6,8 +6,14 @@
 \usage{
 get_example_unambiguous_condition()
 }
+\value{
+An object of class xslData containing a list of training trials (with
+nested words and objects per trial) and accuracy (P(correct referent |
+word))
+}
 \description{
-This function creates an example condition with three trials and two word-object pairs
-per trial. Each word-object pair appears twice, and so if the most frequently co-occurring
-referent for each word is selected then all three words would be learned.
+This function creates an example condition with three trials and two
+word-object pairs per trial. Each word-object pair appears twice, and so if
+the most frequently co-occurring referent for each word is selected then all
+three words would be learned.
 }

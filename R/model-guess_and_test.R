@@ -23,18 +23,18 @@ guess_and_test_model <- function(params, data, control) {
   colnames(m) <- ref
   rownames(m) <- voc
   traj <- list()
-  perf <- matrix(0, nrow=reps, ncol=voc_sz) # a row for each block
-  freq <- rep(0,voc_sz) # number of occurrences per pair, so far
+  perf <- matrix(0, nrow = reps, ncol = voc_sz) # a row for each block
+  freq <- rep(0, voc_sz) # number of occurrences per pair, so far
   names(freq) <- voc
-  for(rep in 1:reps) {
-    for(t in 1:length(data$words)) {
+  for (rep in 1:reps) {
+    for (t in 1:length(data$words)) {
       tr_w <- unlist(data$words[t])
       tr_w <- tr_w[!is.na(tr_w)]
       tr_w <- tr_w[tr_w != ""]
       tr_o <- unlist(data$objects[t])
       tr_o <- tr_o[!is.na(tr_o)]
-      if(length(tr_o) == 0) {
-        index <- (rep-1)*length(data$words) + t
+      if (length(tr_o) == 0) {
+        index <- (rep - 1) * length(data$words) + t
         traj[[index]] <- m
         next
       }
@@ -42,45 +42,51 @@ guess_and_test_model <- function(params, data, control) {
       # forget randomly-selected hypotheses
       forget <- tr_w[which(runif(ppt) < f)]
       forget <- forget[!is.na(forget)]
-      m[forget,] <- m[forget,]*0
-      if(length(tr_w)==1) {
-        have_hypoths <- tr_w[which(sum(m[tr_w,])!=0)]
+      m[forget, ] <- m[forget, ] * 0
+      if (length(tr_w) == 1) {
+        have_hypoths <- tr_w[which(sum(m[tr_w, ]) != 0)]
       } else {
-        have_hypoths <- tr_w[which(rowSums(m[tr_w,])!=0)] # throw out inconsistent ones
+        have_hypoths <- tr_w[which(rowSums(m[tr_w, ]) != 0)] # throw out inconsistent ones
       }
       # issue is that there are duplicates in have_hypoths
-      for(w in have_hypoths) {
-        if(length(which(m[w,]==1))) { next }
-        if(!is.element(which(m[w,]==1), tr_o)) { m[w,] <- m[w,]*0 } # disconfirmed
+      for (w in have_hypoths) {
+        if (length(which(m[w, ] == 1))) next
+        if (!is.element(which(m[w, ] == 1), tr_o)) { m[w, ] <- m[w, ] * 0 } # disconfirmed
       }
 
       # make new hypotheses
-      if(length(tr_w)==1) {
-        need_hypoths <- tr_w[which(sum(m[tr_w,])==0)]
+      if (length(tr_w) == 1) {
+        need_hypoths <- tr_w[which(sum(m[tr_w, ]) == 0)]
       } else {
-        need_hypoths <- tr_w[which(rowSums(m[tr_w,])==0)]
+        need_hypoths <- tr_w[which(rowSums(m[tr_w, ]) == 0)]
       }
       store <- need_hypoths[which(runif(length(need_hypoths)) < sa)]
-      new_hyps <- sample(tr_o, length(store), replace=TRUE)
-      for(w in 1:length(store)) {
-        if(length(store) == 0) {next}
+      new_hyps <- sample(tr_o, length(store), replace = TRUE)
+      for (w in 1:length(store)) {
+        if (length(store) == 0) next
         m[need_hypoths[w], new_hyps[w]] <- 1 # was m[need_hypoths[w], store[w]]
       }
-      index <- (rep-1)*length(data$words) + t  # index for learning trajectory
+      index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
       traj[[index]] <- m
     }
-    perf[rep,] <- get_perf(m+1e-12)
+    perf[rep, ] <- get_perf(m + 1e-12)
   }
-  xslFit(perf = perf, matrix = m+1e-12, traj = traj)
+  xslFit(perf = perf, matrix = m + 1e-12, traj = traj)
 }
 
 #' Guess and test model
+#'
+#' Trueswell & Gleitman 2011 guess-and-test model
 #'
 #' @param f forget at retrieval
 #' @param sa prob of storage (slow learning down)
 #'
 #' @return An object of class xslMod
 #' @export
+#'
+#' @examples
+#' mod <- guess_and_test(f = .1, sa = .5)
+#' xsl_run(mod, get_example_ambiguous_condition())
 guess_and_test <- function(f, sa) {
   xslMod(
     name = "guess_and_test",

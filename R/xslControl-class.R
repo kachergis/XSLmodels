@@ -25,8 +25,8 @@ xslControl <- function(reps = 1, start_matrix = NULL, test_noise = 0,
 
 
 validate_xslControl <- function(x) {
-  stopifnot(all(names(x) %in% c("reps", "start_matrix", "test_noise", "n_sim",
-                                "verbose")))
+  stopifnot(all(names(x) %in%
+                  c("reps", "start_matrix", "test_noise", "n_sim", "verbose")))
 
   stopifnot(typeof(x$reps) %in% c("double", "integer"))
   stopifnot(round(x$reps) == x$reps)
@@ -35,7 +35,7 @@ validate_xslControl <- function(x) {
   stopifnot(is.null(x$start_matrix) || "matrix" %in% class(x$start_matrix))
 
   stopifnot(typeof(x$test_noise) %in% c("double", "integer"))
-  stopifnot(x$test_noise >= 0 && x$test_noise <= 1) # TODO: is this right?
+  stopifnot(x$test_noise >= 0 && x$test_noise <= 1)
 
   stopifnot(typeof(x$n_sim) %in% c("double", "integer"))
   stopifnot(round(x$n_sim) == x$n_sim)

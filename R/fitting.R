@@ -17,9 +17,8 @@ xsl_run <- function(model, data, control = xslControl()) {
   n_sim <- control$n_sim
   if (!model$stochastic) n_sim <- 1
   fits <- map(data, function(dat) {
-    sims <- map(1:n_sim, \(i) model_fun(params = model_params,
-                                        data = dat$train,
-                                        control = control))
+    sims <- map(1:n_sim,
+                \(i) model_fun(params = model_params, data = dat$train, control = control))
     mat <- reduce(transpose(sims)$matrix, `+`)
     perf <- if (!is.null(dat$test)) mafc_test(mat, dat$test) else get_perf(mat)
     sse <- sum((perf - dat$accuracy) ^ 2)
@@ -63,8 +62,7 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
 
   if (by_data) data_wrap <- data else data_wrap <- list(data)
   map(data_wrap, function(dat) {
-    run_wrapper <- \(params) xsl_run(model = update_params(model, params),
-                                     data = dat, control = control)$sse
+    run_wrapper <- \(params) xsl_run(model = update_params(model, params), data = dat, control = control)$sse
     DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
   })
 }

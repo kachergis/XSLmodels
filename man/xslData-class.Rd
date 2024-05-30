@@ -11,8 +11,8 @@ xslData(
   test = list(),
   accuracy = numeric(),
   n_subj = numeric(),
-  label = character(),
-  condition = character()
+  label = "",
+  condition = ""
 )
 
 new_xslData(x = list())

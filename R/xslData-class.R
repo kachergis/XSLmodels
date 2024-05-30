@@ -13,8 +13,7 @@
 #' @return An object of class xslData
 #' @export
 xslData <- function(train = list(), test = list(), accuracy = numeric(),
-                    n_subj = numeric(), label = character(),
-                    condition = character()) {
+                    n_subj = numeric(), label = "", condition = "") {
   validate_xslData(
     new_xslData(list(train = train, test = test, accuracy = accuracy,
                      n_subj = n_subj, label = label, condition = condition))
@@ -23,13 +22,17 @@ xslData <- function(train = list(), test = list(), accuracy = numeric(),
 }
 
 validate_xslData <- function(x) {
+  stopifnot(!is.null(names(x)))
   stopifnot(all(names(x) %in% c("train", "test", "accuracy", "n_subj", "label", "condition")))
+  stopifnot(!is.null(names(x$train)))
   stopifnot(all(names(x$train) %in% c("words", "objects")))
-  stopifnot(is.null(x$test) || all(names(x$test) %in% c("words", "objects")))
+  stopifnot(length(x$test) == 0 |
+              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects"))))
 
   stopifnot(length(x$train$words) == length(x$train$objects))
-  stopifnot(is.null(x$test) || length(x$test$words) == length(x$test$objects))
-  stopifnot(length(unique(unlist(x$train$words))) == length(x$accuracy))
+  stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
+  stopifnot(length(x$accuracy) == 0 |
+              length(x$accuracy) == length(unique(unlist(x$train$words))))
 
   x
 }
@@ -47,12 +50,12 @@ new_xslData <- function(x = list()) {
 
 #' @export
 print.xslData <- function(x, ...) {
-  cat(sprintf("xslData object with label %s and condition %s\n",
+  cat(sprintf('xslData object with label "%s" and condition "%s"\n',
               x$label, x$condition))
-  cat(sprintf("\t training trials: %s\n", length(x$train$words)))
-  cat(sprintf("\t test trials: %s\n", length(x$test$words)))
-  cat(sprintf("\t words: %s\n", length(unique(unlist(x$train$words)))))
-  cat(sprintf("\t objects: %s\n", length(unique(unlist(x$train$objects)))))
-  cat(sprintf("\t accuracies: %s\n", length(x$accuracy)))
-  cat(sprintf("\t subjects: %s\n", x$n_subj))
+  cat(sprintf("  training trials: %s\n", length(x$train$words)))
+  cat(sprintf("      test trials: %s\n", length(x$test$words)))
+  cat(sprintf("            words: %s\n", length(unique(unlist(x$train$words)))))
+  cat(sprintf("          objects: %s\n", length(unique(unlist(x$train$objects)))))
+  cat(sprintf("       accuracies: %s\n", length(x$accuracy)))
+  cat(sprintf("         subjects: %s\n", x$n_subj))
 }
