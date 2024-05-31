@@ -15,14 +15,18 @@ Encoding: UTF-8
 Depends: R (>= 2.10)
 Imports:
   DEoptim,
+  dplyr,
   ggplot2,
   purrr,
   rlang,
-  tibble
-Suggests: 
+  tibble,
+  tidyr
+Suggests:
+  gganimate,
   knitr,
   rmarkdown,
-  testthat (>= 3.0.0)
+  testthat (>= 3.0.0),
+  viridis
 VignetteBuilder: knitr
 LazyData: true
 Roxygen: list(markdown = TRUE)
