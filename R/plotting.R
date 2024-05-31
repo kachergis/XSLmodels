@@ -37,7 +37,7 @@ plot_training_trials <- function(train, filename = NULL) {
   for (t in seq_along(train$words)) {
     tr_w <- train$words[[t]]
     tr_o <- train$objects[[t]]
-    m[tr_w, tr_o] = m[tr_w, tr_o] + 1
+    m[tr_w, tr_o] <- m[tr_w, tr_o] + 1
     df_t <- matrix_to_long(m, t)
     df <- bind_rows(df, df_t)
   }
@@ -58,4 +58,3 @@ plot_training_trials <- function(train, filename = NULL) {
 
   as_tibble(df)
 }
-

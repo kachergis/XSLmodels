@@ -49,7 +49,7 @@ pursuit_model <- function(params, data, control) {
   names(freq) <- voc
   traj <- list()
 
-  for (t in 1:length(data$words)) {
+  for (t in seq_along(data$words)) {
     tr_w <- unlist(data$words[t])
     tr_w <- tr_w[!is.na(tr_w)]
     tr_w <- tr_w[tr_w != ""]
@@ -71,7 +71,7 @@ pursuit_model <- function(params, data, control) {
 
     # initialize...
     # 1) if w is novel, select one from available refs with minimum assoc to any other word
-    for (w in 1:length(novel)) {
+    for (w in seq_along(novel)) {
       if (length(novel) == 0) next
       # find max assoc for each referent (including to words not on trial?)
       max_assoc <- apply(as.matrix(m[, tr_o]), 2, max)
@@ -88,9 +88,9 @@ pursuit_model <- function(params, data, control) {
         m[w, hypo] <- m[w, hypo] * (1 - gamma) # disconfirmed
         # not on trial, so random new hypothesized referent
         new_hyp <- sample(tr_o, 1, replace = TRUE)
-        m[w,new_hyp] <- m[w,new_hyp] + gamma * (1 - m[w, new_hyp])
+        m[w, new_hyp] <- m[w, new_hyp] + gamma * (1 - m[w, new_hyp])
       } else {
-        m[w,hypo] <- m[w,hypo] + gamma * (1 - m[w, hypo]) # confirmed: strengthen
+        m[w, hypo] <- m[w, hypo] + gamma * (1 - m[w, hypo]) # confirmed: strengthen
       }
     }
 

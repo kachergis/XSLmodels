@@ -40,7 +40,7 @@ fazly_model <- function(params, data, control) {
   #assm <- matrix(0, voc_sz+1, ref_sz) # track assoc scores SEPARATELY
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
 
       tr_w <- unlist(data$words[t])
       tr_w <- tr_w[!is.na(tr_w)]
@@ -63,7 +63,7 @@ fazly_model <- function(params, data, control) {
         }
         sum_t <- sum(tr_probs[tr_w, f]) + alpha * epsilon
         for (w in tr_w) {
-          align[w,f] <- (tr_probs[w, f] + epsilon) / sum_t
+          align[w, f] <- (tr_probs[w, f] + epsilon) / sum_t
         }
       }
       assoc[tr_w, tr_o] <- assoc[tr_w, tr_o] + align[tr_w, tr_o]

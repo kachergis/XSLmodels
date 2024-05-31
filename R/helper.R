@@ -35,8 +35,8 @@ create_cooc_matrix <- function(train) {
 #' @param p Numeric vector of probabilities
 shannon_entropy <- function(p) {
   if (min(p) < 0 || sum(p) <= 0) return(NA)
-  p.norm <- p[p > 0] / sum(p)
-  -sum(log2(p.norm) * p.norm)
+  p_norm <- p[p > 0] / sum(p)
+  -sum(log2(p_norm) * p_norm)
 }
 
 
@@ -64,7 +64,7 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
   }
 
   for (o in tr_o) {
-    zeros <- which(m[fam_words,o] == 0)
+    zeros <- which(m[fam_words, o] == 0)
     m[zeros, o] <- startval
   }
 

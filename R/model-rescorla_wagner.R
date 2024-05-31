@@ -22,7 +22,7 @@ rescorla_wagner_model <- function(params, data, control) {
   perf <- matrix(0, reps, voc_sz) # a row for each block
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
 
       tr_w <- unlist(data$words[t])
       tr_w <- tr_w[!is.na(tr_w)]
@@ -40,7 +40,7 @@ rescorla_wagner_model <- function(params, data, control) {
         pred <- colSums(m[tr_w, tr_o])
       }
       delta <- alpha * beta * (lambda - pred)
-      m[tr_w,tr_o] = m[tr_w,tr_o] + delta
+      m[tr_w, tr_o] <- m[tr_w, tr_o] + delta
 
       m <- m * C
 

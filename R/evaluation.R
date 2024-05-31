@@ -29,7 +29,7 @@ get_perf <- function(m) {
       next
     }
     correct <- m[ref, ref]
-    total <- sum(m[ref,])
+    total <- sum(m[ref, ])
     if (total == 0) {
       next
     }
@@ -66,7 +66,7 @@ mafc_test <- function(m, test) {
   for (i in seq_along(trials)) {
     w <- test$words[[i]]
     denom <- sum(m[w, test$objects[[i]]])
-    perf[i] <- m[w,w] / denom
+    perf[i] <- m[w, w] / denom
   }
   return(perf)
 }

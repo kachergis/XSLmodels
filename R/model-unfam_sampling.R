@@ -18,14 +18,14 @@ uncfam_sampling_model <- function(params, data, control) {
   rownames(m) <- voc
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
-  mean_ent <- c()
+  # mean_ent <- c()
 
   # want an item x occurrence matrix, to be filled in during training
   freq <- rep(0, voc_sz) # number of occurrences per word, so far (to index the resps matrix)
   names(freq) <- voc
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
 
       #print(format(m, digits=3))
       tr_w <- unlist(data$words[t])
@@ -76,7 +76,7 @@ uncfam_sampling_model <- function(params, data, control) {
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
       traj[[index]] <- m
     }
-    perf[rep,] <- get_perf(m + 1e-9)
+    perf[rep, ] <- get_perf(m + 1e-9)
   }
   resp_prob <- get_perf(m)
 

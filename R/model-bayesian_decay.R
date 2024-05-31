@@ -14,7 +14,7 @@ bayesian_decay_model <- function(params, data, control) {
   # Define noise probability (when alpha = 0, Bayesian model is a deterministic 'ideal observer')
   alpha <- params[["alpha"]] # 0.1, 0.5, 0.9 decay for word/object non-co-occurrence
   delta <- params[["delta"]] # Multiplier for word/object co-occurrence (set to 1 for no increase)
-  chdec <- params[["chdec"]] # Decision parameter (e.g., 1)
+  # chdec <- params[["chdec"]] # Decision parameter (e.g., 1)
   reps <- control[["reps"]]
 
   voc <- unique(unlist(data$words))
@@ -34,7 +34,7 @@ bayesian_decay_model <- function(params, data, control) {
   rownames(pw_o) <- voc
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
       tr_w <- unlist(data$words[t])
       tr_w <- tr_w[!is.na(tr_w)]
       tr_w <- tr_w[tr_w != ""]

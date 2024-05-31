@@ -24,14 +24,14 @@ multi_sampling_model <- function(params, data, control) {
   rownames(m) <- voc
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
-  mean_ent <- c()
+  # mean_ent <- c()
 
   # want an item x occurrence matrix, to be filled in during training
   freq <- rep(0, voc_sz) # number of occurrences per word, so far (to index the resps matrix)
   names(freq) <- voc
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
 
       #print(format(m, digits=3))
       tr_w <- unlist(data$words[t])
@@ -62,7 +62,7 @@ multi_sampling_model <- function(params, data, control) {
       temp_wts <- matrix(0, voc_sz, ref_sz)
       colnames(temp_wts) <- ref
       rownames(temp_wts) <- voc
-      temp_wts[tr_w,tr_o] <- m[tr_w,tr_o] # use these weights to calculate entropy
+      temp_wts[tr_w, tr_o] <- m[tr_w, tr_o] # use these weights to calculate entropy
       nent <- ent_w %*% t(ent_o)
       temp_wts <- temp_wts * as.matrix(nent)
 

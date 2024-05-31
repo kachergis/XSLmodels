@@ -4,12 +4,12 @@
 \alias{tilles}
 \title{Tilles and Fontanari (2013) reinforcement model}
 \usage{
-tilles(X, B, alpha_0)
+tilles(x, b, alpha_0)
 }
 \arguments{
-\item{X}{Reinforcement parameter for stimuli in current context}
+\item{x}{Reinforcement parameter for stimuli in current context}
 
-\item{B}{Inference parameter, regulating ME and prior info integration
+\item{b}{Inference parameter, regulating ME and prior info integration
 (applies either to known words that do not appear in the current context or
 to new words in the current context)}
 
@@ -23,6 +23,6 @@ An object of class xslMod
 Tilles and Fontanari (2013) reinforcement model
 }
 \examples{
-mod <- tilles(X = 0.6, B = 0.8, alpha_0 = 0.85)
+mod <- tilles(x = 0.6, b = 0.8, alpha_0 = 0.85)
 xsl_run(mod, get_example_ambiguous_condition())
 }

@@ -2,8 +2,8 @@
 # George Kachergis  george.kachergis@gmail.com  September 16, 2013
 
 tilles_model <- function(params, data, control) {
-  X <- params[["X"]]
-  B <- params[["B"]]
+  x <- params[["x"]]
+  b <- params[["b"]]
   alpha_0 <- params[["alpha_0"]]
 
   # reps <- control[["reps"]]
@@ -33,8 +33,8 @@ tilles_model <- function(params, data, control) {
     tr_o <- as.integer(data$objects[[t]])
     tr_o <- tr_o[!is.na(tr_o)]
 
-    Nprev_w <- length(which(!novel_w)) # N_{t-1} for alpha_{t-1}
-    Nprev_o <- length(which(!novel_o))
+    # n_prev_w <- length(which(!novel_w)) # N_{t-1} for alpha_{t-1}
+    # n_prev_o <- length(which(!novel_o))
 
     # update rule for context omega_t depends on membership in
     # 1) words and referents appearing for first time on trial t, or
@@ -51,20 +51,20 @@ tilles_model <- function(params, data, control) {
     other_old_w <- setdiff(which(!novel_w), cur_old_w) # stimuli appearing before, but not currently
     novel_w[tr_w] <- FALSE
 
-    N <- length(which(!novel_o)) # number of distinct objects appearing up to and including N_t
+    n_o <- length(which(!novel_o)) # number of distinct objects appearing up to and including N_t
 
     # preprocessing of novel stimuli
     if (length(cur_novel_w) != 0) { # what if cur_novel_o / cur_old_o / other_old_o == NULL?
-      # m[cur_novel_w, cur_novel_o] <- B / length(cur_novel) + (1 - B) / N # Eqn 2
-      m[cur_novel_w, cur_novel_o] <- B / length(cur_novel_w) + (1 - B) / N # Eqn 2 TODO: check denom var
-      m[cur_novel_w, cur_old_o] <- (1 - B) / N # Eqn 3
-      m[cur_novel_w, other_old_o] <- (1 - B) / N # Eqn 4 (obj not appearing on current t, but earlier)
+      # m[cur_novel_w, cur_novel_o] <- b / length(cur_novel) + (1 - b) / n_o # Eqn 2
+      m[cur_novel_w, cur_novel_o] <- b / length(cur_novel_w) + (1 - b) / n_o # Eqn 2 TODO: check denom var
+      m[cur_novel_w, cur_old_o] <- (1 - b) / n_o # Eqn 3
+      m[cur_novel_w, other_old_o] <- (1 - b) / n_o # Eqn 4 (obj not appearing on current t, but earlier)
     }
 
     # alpha_{t-1} -- must be previous trial!
     alpha <- rep(NA, voc_sz) # length(tr)
     for (w in tr_w) { # 1:voc_sz
-      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - shannon_entropy(m[w,]) / log(N)) # eq 7 - Nprev?
+      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - shannon_entropy(m[w, ]) / log(n_o)) # eq 7 - Nprev?
     }
 
     # now for all stimuli on the current trial...
@@ -76,12 +76,12 @@ tilles_model <- function(params, data, control) {
     # slow iterative method; rowSums(m) = 1
     for (w in tr_w) {
       flux[w] <- sum(m[w, other_old_o]) / sum(m[w, tr_o]) # eq 5.1
-      r[w, tr_o] <- X * m[w, tr_o] * flux[w] # eq 5.2
-      m[w, tr_o] <- m[w, tr_o] + alpha[w] * r[w, tr_o] + (1 - alpha[w]) * (1 / N - m[w, tr_o]) # eq 8
-      m[w, other_old_o] <- m[w, other_old_o] - alpha[w] * X * m[w, other_old_o] + (1 - alpha[w]) * (1 / N - m[w, other_old_o]) # eq 9
+      r[w, tr_o] <- x * m[w, tr_o] * flux[w] # eq 5.2
+      m[w, tr_o] <- m[w, tr_o] + alpha[w] * r[w, tr_o] + (1 - alpha[w]) * (1 / n_o - m[w, tr_o]) # eq 8
+      m[w, other_old_o] <- m[w, other_old_o] - alpha[w] * x * m[w, other_old_o] + (1 - alpha[w]) * (1 / n_o - m[w, other_old_o]) # eq 9
     }
 
-    # X=1 transfers confidences for absent objects to the currently ones
+    # x=1 transfers confidences for absent objects to the currently ones
     # model also assumes that the more certain an association is, the more
     # efficiently that information should be used for reinforcement
     mt <- m
@@ -90,9 +90,9 @@ tilles_model <- function(params, data, control) {
     flux <- rep(0, voc_sz)
     r <- matrix(0, voc_sz, ref_sz)
     flux[other_old_w] <- rowSums(m[other_old_w, tr_o]) / rowSums(m[other_old_w, other_old_o]) # eq 11.1
-    r[other_old_w, other_old_o] <- B * mt[other_old_w, other_old_o] * flux[other_old_w] # eq 11.2
-    m[other_old_w, other_old_o] <- mt[other_old_w, other_old_o] + alpha[other_old_w] * r[other_old_w, other_old_o] + (1 - alpha[other_old_w]) * (1 / N - mt[other_old_w, other_old_o]) # eq 12
-    m[other_old_w, tr_o] <- mt[other_old_w, tr_o] - alpha[other_old_w] * B * mt[other_old_w,tr_o] + (1 - alpha[other_old_w]) * (1 / N - mt[other_old_w, tr_o]) # eq 13
+    r[other_old_w, other_old_o] <- b * mt[other_old_w, other_old_o] * flux[other_old_w] # eq 11.2
+    m[other_old_w, other_old_o] <- mt[other_old_w, other_old_o] + alpha[other_old_w] * r[other_old_w, other_old_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, other_old_o]) # eq 12
+    m[other_old_w, tr_o] <- mt[other_old_w, tr_o] - alpha[other_old_w] * b * mt[other_old_w, tr_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, tr_o]) # eq 13
 
     # compScore[t] <- sum(diag(m))
   }
@@ -104,8 +104,8 @@ tilles_model <- function(params, data, control) {
 
 #' Tilles and Fontanari (2013) reinforcement model
 #'
-#' @param X Reinforcement parameter for stimuli in current context
-#' @param B Inference parameter, regulating ME and prior info integration
+#' @param x Reinforcement parameter for stimuli in current context
+#' @param b Inference parameter, regulating ME and prior info integration
 #'   (applies either to known words that do not appear in the current context or
 #'   to new words in the current context)
 #' @param alpha_0 Baseline efficiency corresponding to maximal uncertainty about
@@ -115,14 +115,14 @@ tilles_model <- function(params, data, control) {
 #' @export
 #'
 #' @examples
-#' mod <- tilles(X = 0.6, B = 0.8, alpha_0 = 0.85)
+#' mod <- tilles(x = 0.6, b = 0.8, alpha_0 = 0.85)
 #' xsl_run(mod, get_example_ambiguous_condition())
-tilles <- function(X, B, alpha_0) {
+tilles <- function(x, b, alpha_0) {
   xslMod(
     name = "rescorla_wagner",
     description = "Tilles and Fontanari (2013) reinforcement model",
     model = tilles_model,
-    params = c(X = X, B = B, alpha_0 = alpha_0),
+    params = c(x = x, b = b, alpha_0 = alpha_0),
     stochastic = FALSE
   )
 }

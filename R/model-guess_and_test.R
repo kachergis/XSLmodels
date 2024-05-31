@@ -27,7 +27,7 @@ guess_and_test_model <- function(params, data, control) {
   freq <- rep(0, voc_sz) # number of occurrences per pair, so far
   names(freq) <- voc
   for (rep in 1:reps) {
-    for (t in 1:length(data$words)) {
+    for (t in seq_along(data$words)) {
       tr_w <- unlist(data$words[t])
       tr_w <- tr_w[!is.na(tr_w)]
       tr_w <- tr_w[tr_w != ""]
@@ -51,7 +51,7 @@ guess_and_test_model <- function(params, data, control) {
       # issue is that there are duplicates in have_hypoths
       for (w in have_hypoths) {
         if (length(which(m[w, ] == 1))) next
-        if (!is.element(which(m[w, ] == 1), tr_o)) { m[w, ] <- m[w, ] * 0 } # disconfirmed
+        if (!is.element(which(m[w, ] == 1), tr_o)) m[w, ] <- m[w, ] * 0 # disconfirmed
       }
 
       # make new hypotheses
@@ -62,7 +62,7 @@ guess_and_test_model <- function(params, data, control) {
       }
       store <- need_hypoths[which(runif(length(need_hypoths)) < sa)]
       new_hyps <- sample(tr_o, length(store), replace = TRUE)
-      for (w in 1:length(store)) {
+      for (w in seq_along(store)) {
         if (length(store) == 0) next
         m[need_hypoths[w], new_hyps[w]] <- 1 # was m[need_hypoths[w], store[w]]
       }
