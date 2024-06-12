@@ -107,3 +107,5 @@ uncfam_sampling <- function(X, B, C, K = 1) {
     stochastic = TRUE
   )
 }
+
+# TODO: X = chi, B = lambda, C = alpha, K = k

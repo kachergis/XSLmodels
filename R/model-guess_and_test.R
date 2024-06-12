@@ -96,3 +96,5 @@ guess_and_test <- function(f, sa) {
     stochastic = TRUE
   )
 }
+
+# TODO: sa = s_a

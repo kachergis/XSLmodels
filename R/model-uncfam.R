@@ -100,3 +100,5 @@ uncfam <- function(X, B, C, variant = c("entropy", "novelty",
     stochastic = FALSE
   )
 }
+
+# TODO: X = chi, B = lambda, C = alpha

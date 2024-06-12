@@ -111,3 +111,5 @@ multi_sampling <- function(C, X, B, K = 1) {
     stochastic = TRUE
   )
 }
+
+# TODO: X = chi, B = lambda, C = alpha, K = k

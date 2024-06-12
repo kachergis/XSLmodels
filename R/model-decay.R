@@ -50,3 +50,5 @@ decay <- function(C) {
     stochastic = FALSE
   )
 }
+
+# TODO: C = alpha

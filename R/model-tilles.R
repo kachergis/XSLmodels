@@ -126,3 +126,5 @@ tilles <- function(x, b, alpha_0) {
     stochastic = FALSE
   )
 }
+
+# TODO: x = chi, b = beta

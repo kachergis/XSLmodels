@@ -23,6 +23,8 @@
 #' mat <- x$fits[[1]]$matrix
 #' get_perf(mat)
 get_perf <- function(m) {
+  # TODO: implement exponentiated luce choice option
+  # same as diag(p_wgo)^chdec / colSums(p_wgo^chdec)
   perf <- rep(0, nrow(m)) |> set_names(rownames(m))
   for (ref in colnames(m)) {
     if (!(ref %in% rownames(m))) {
@@ -37,7 +39,6 @@ get_perf <- function(m) {
   }
   return(perf)
 }
-
 
 #' Evaluate m-alternative forced choice test
 #'
@@ -202,7 +203,7 @@ get_roc <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
 }
 
 #' Plot receiver operating characteristic (ROC) scores for a model
-#' association Matrix
+#' association matrix
 #'
 #' @rdname get_roc
 #' @export
