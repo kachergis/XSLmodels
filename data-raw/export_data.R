@@ -12,7 +12,7 @@ get_response_matrix <- function(dat) {
 
 # priming data (frequency..)
 load("priming_all_trajectory.Rdata") # each person does 4 consecutive blocks of the same training (and test)
-conds = unique(all$Exp) # 
+conds = unique(all$Exp) #
 # "4 Pairs/Trial, 6x" - orig_4x4
 # "3 Pairs/Trial 3,6,9x" - block2_3_6_9-3x3.txt
 # "4 Pairs/Trial 3,6,9x" = x8_369.txt
@@ -28,7 +28,7 @@ primedat <- all |> group_by(Exp, TotalFreq, Subject) |>
 x4 <- read.csv("x4-prob_6-26.txt", sep='\t') |>
   mutate(Subject = paste0("x4_",Subject))
 conds = unique(x4$Condition)
-# "1_80per"  "2_12-100per_6-50per"  "3_6-100per_12-66per"  "4_6-dist" 
+# "1_80per"  "2_12-100per_6-50per"  "3_6-100per_12-66per"  "4_6-dist"
 ord_files = c("80per.txt", "12-100per_6-50per.txt", "6-100per_12-66per.txt", "6-dist.txt")
 
 # generate info needed for xslData
@@ -58,7 +58,7 @@ get_asymmetric_trial_order <- function(fname) {
 
 x4.1 <- summarize_condition(subset(x4, Condition==conds[1]))
 xslData(
-  train = get_asymmetric_trial_order("orders/80per.txt"), 
+  train = get_asymmetric_trial_order("orders/80per.txt"),
   test = x4.1$test, # default to all objects - needs to be a list?
   accuracy = x4.1$accuracy,
   #response_matrix = x4.1$response_matrix,
@@ -84,7 +84,7 @@ xslData(
 
 x4.3 <- summarize_condition(subset(x4, Condition==conds[3]))
 xslData(
-  train = get_asymmetric_trial_order("orders/6-100per_12-66per.txt"), 
+  train = get_asymmetric_trial_order("orders/6-100per_12-66per.txt"),
   test = x4.3$test, # default to all objects
   accuracy = x4.3$accuracy,
   #response_matrix = x4.3$response_matrix,
@@ -97,20 +97,20 @@ xslData(
 
 x4.4 <- summarize_condition(subset(x4, Condition==conds[4]))
 xslData(
-  train = get_asymmetric_trial_order("orders/6-dist.txt"), 
+  train = get_asymmetric_trial_order("orders/6-dist.txt"),
   test = x4.4$test, # default to all objects
   accuracy = x4.4$accuracy,
   #response_matrix = x4.4$response_matrix,
   n_subj = x4.4$n_subj,
   #subj_perf_sd = x4.4$subj_perf_sd,
   label = character(),  # TODO
-  condition = "3x4 +6", # 
+  condition = "3x4 +6", #
   description = "3x4 with one addition item selected from a set of 6 novel objects (each repeated 6 times)"
 )
 
 
 
-x6 <- read.csv("agg_data/x6-tc_data9-9.txt", sep='\t') |> 
+x6 <- read.csv("agg_data/x6-tc_data9-9.txt", sep='\t') |>
   rename(Condition = ExperimentName,
          RT = TestSlide.RT,
          TestIndex = TestList.Sample) |> select(-SessionTime) |>
@@ -119,7 +119,7 @@ x6_80per <- subset(x6, Condition=="1_80per")
 x6_100per_6 <- subset(x6, Condition=="2_12-100per_6-50per")
 x6_100per_12 <- subset(x6, Condition=="3_6-100per_12-66per")
 # TODO: pool participants from this experiment with conditions from experiment 4
-conds = unique(x6$Condition) 
+conds = unique(x6$Condition)
 # TODO: what are conditions 1_, 2_, 3_ and 4_ ??
 
 x6.1 <- summarize_condition(subset(x6, Condition=="1_"))
@@ -136,24 +136,33 @@ xslData(
 )
 
 
-# x7 - see x7_analysis.r
+# x7-parameter - see x7_analysis.r
 x7 <- read.csv("x7-data-10-19corrected.txt", sep='\t') # 2844 rows
-x7.2 <- read.csv("agg_data/x7-data-10-19.txt", sep='\t') # 2340 
+x7.2 <- read.csv("agg_data/x7-data-10-19.txt", sep='\t') # 2340
 conds = unique(x7$Condition) # "1_1x4"  "2_1x3"  "3_3x3_1nsy"  "4_4x4_2nsy"
 # 1x4, 1x3, 3x3 with 1 noisy, 4x4 with 2 noisy
 
-# x8 - 
+
+# x8-diff-freq
 x8 <- read.csv("agg_data/x8_9-22-08.txt", sep='\t') |>
   rename(Condition = ExperimentName,
          RT = TestSlide.RT,
-         TestIndex = TestList.Sample) |> select(-SessionTime)
+         TestIndex = TestList.Sample) |> select(-SessionTime) |>
+  mutate(Experiment = "x8-diff-freq",
+         Subject = paste0("x8_",Subject))
 conds = unique(x8$Condition) # "1_"  "2_"  "3_"  "4_"
 # TODO: look up conditions
 
 
-# x9 - 
-x9 <- read.csv("agg_data/x9_10-19.txt", sep='\t')
-x9.2 <- read.csv("agg_data/x9_block1_10-19.txt", sep='\t')
+# x9-cont_div
+x9 <- read.csv("agg_data/x9_10-19.txt", sep='\t') |>
+  rename(Condition = ExperimentName)
+x9.2 <- read.csv("agg_data/x9_block1_10-19.txt", sep='\t') |>
+  rename(Condition = ExperimentName)
+# TODO: bind_rows(x9, x9.2) ??
+x9 <- x9 |>
+  mutate(Experiment = "x9-cont_div",
+         Subject = paste0("x9_",Subject))
 conds = unique(x9$ExperimentName) # "2_" "3_" "4_"
 x9_rmat <- list()
 x9_perf <- list()
@@ -161,19 +170,31 @@ for(cond in conds) {
   x9_rmat[[cond]] <- get_response_matrix(x9 |> filter(ExperimentName == cond))
   x9_perf[[cond]] <- diag(x9_rmat[[cond]]) / rowSums(x9_rmat[[cond]])
 }
-# TODO: look up conditions
-
-# x10
-x10 <- read.csv("x10-11-12.txt", sep='\t')
-conds = unique(x10$ExperimentName) # "2_" "3_" "4_"
-# TODO: look up conditions
+# 1_	recognition memory testing 9 words 9 objects
+# 2_	???
+# 3_	cont_div
+# 4_	orig_aut_order
 
 
-# x12
-x12 <- read.csv("x12-11-12.txt", sep='\t')
-conds = unique(x12$ExperimentName) # "1_" "2_" "3_" "4_"
-# TODO: look up conditions
+# x10-cont_div2
+x10 <- read.csv("agg_data/x10-11-12.txt", sep='\t') |>
+  rename(Condition = ExperimentName) |>
+  mutate(Subject = paste0("x10_",Subject),
+         order = ifelse(Condition=="2_", "3_6_9-3x3",
+                        ifelse(Condition=="3_", "cont_div6-12", # 3x3
+                               ifelse(Condition=="4_", "3x3_orig_order", NA))))
+conds = unique(x10$order)
 
+
+# x12-cont_div3
+x12 <- read.csv("agg_data/x12-11-12.txt", sep='\t') |>
+  rename(Condition = ExperimentName) |>
+  mutate(Subject = paste0("x12_",Subject),
+         order = ifelse(Condition=="1_", "block1_3_6_9-3x3-lo_cd",
+                        ifelse(Condition=="2_", "block2_3_6_9-3x3",
+                               ifelse(Condition=="3_", "block3_3_6_9_lo_medCD",
+                                      ifelse(Condition=="4_", "block4_369_39mx", NA)))))
+conds = unique(x12$order)
 
 
 
@@ -191,6 +212,6 @@ head(subset(x5, Condition=="5_2"))
 head(subset(x5, Condition=="5_3"))
 head(subset(x5, Condition=="5_4"))
 
-x5 |> ggplot(aes(x=Cooccurrences, y=Response)) + 
-  geom_jitter(alpha=.3) + facet_wrap(. ~ Condition) + 
+x5 |> ggplot(aes(x=Cooccurrences, y=Response)) +
+  geom_jitter(alpha=.3) + facet_wrap(. ~ Condition) +
   theme_classic()
