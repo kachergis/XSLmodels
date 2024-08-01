@@ -9,10 +9,8 @@ tilles_model <- function(params, data, control) {
   # reps <- control[["reps"]]
   # test_noise <- control[["test_noise"]]
 
-  # voc_sz <- max(unlist(data$words), na.rm = TRUE) # vocabulary size
-  # ref_sz <- max(unlist(data$objects), na.rm = TRUE) # number of objects
-  voc <- unique(unlist(data$words))
-  ref <- unique(unlist(data$objects[!is.na(data$objects)]))
+  voc <- sort(unique(unlist(data$words)))
+  ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
 

@@ -14,8 +14,8 @@ multi_sampling_model <- function(params, data, control) {
   # start_matrix <- control[["start_matrix"]]
   # verbose <- control[["verbose"]]
 
-  voc <- unique(unlist(data$words))
-  ref <- unique(unlist(data$objects[!is.na(data$objects)]))
+  voc <- sort(unique(unlist(data$words)))
+  ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
   traj <- list()

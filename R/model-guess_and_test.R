@@ -14,8 +14,8 @@ guess_and_test_model <- function(params, data, control) {
   sa <- params[["sa"]] # prob of storage (slow learning down)
   reps <- control[["reps"]]
 
-  voc <- unique(unlist(data$words))
-  ref <- unique(unlist(data$objects[!is.na(data$objects)]))
+  voc <- sort(unique(unlist(data$words)))
+  ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
   ppt <- length(data$words[[1]]) # pairs per trial ASSUMES num words = num objects per trial
