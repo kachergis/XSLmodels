@@ -92,7 +92,7 @@ guess_and_test <- function(f, sa) {
     name = "guess_and_test",
     description = "Trueswell & Gleitman 2011 guess-and-test model",
     model = guess_and_test_model,
-    params = c(f = f, sa = sa),
+    params = list(f = f, sa = sa),
     stochastic = TRUE
   )
 }

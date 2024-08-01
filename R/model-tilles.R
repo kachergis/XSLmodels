@@ -120,7 +120,7 @@ tilles <- function(x, b, alpha_0) {
     name = "rescorla_wagner",
     description = "Tilles and Fontanari (2013) reinforcement model",
     model = tilles_model,
-    params = c(x = x, b = b, alpha_0 = alpha_0),
+    params = list(x = x, b = b, alpha_0 = alpha_0),
     stochastic = FALSE
   )
 }

@@ -107,7 +107,7 @@ multi_sampling <- function(C, X, B, K = 1) {
     name = "multi_sampling",
     description = "Multi-sampling associative model",
     model = multi_sampling_model,
-    params = c(C = C, X = X, B = B, K = K),
+    params = list(C = C, X = X, B = B, K = K),
     stochastic = TRUE
   )
 }

@@ -20,13 +20,14 @@ xsl_run <- function(model, data, control = xslControl()) {
     sims <- map(1:n_sim,
                 \(i) model_fun(params = model_params, data = dat$train, control = control))
     mat <- reduce(transpose(sims)$matrix, `+`)
-    perf <- if (!is.null(dat$test)) mafc_test(mat, dat$test) else get_perf(mat)
+    perf <- if (!is.null(dat$test)) mafc_test(mat, dat$test) else get_perf(mat, d = model_params[["ch_dec"]])
     sse <- sum((perf - dat$accuracy) ^ 2)
-    list(sims = sims, perf = perf, matrix = mat, sse = sse)
+    list(sims = sims, perf = perf, matrix = mat, sse = sse, data = dat)
   })
 
   sse_terms <- unlist(transpose(fits)$sse)
-  unweighted_sse <- sum(sse_terms)
+  # unweighted_sse <- sum(sse_terms)
+  unweighted_sse <- mean(sse_terms)
   subj <- unlist(transpose(data)$n_subj)
   sse <- sum(sse_terms * subj) / sum(subj)
 

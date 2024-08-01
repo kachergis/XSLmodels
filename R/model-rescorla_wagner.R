@@ -74,7 +74,7 @@ rescorla_wagner <- function(C, alpha, beta, lambda) {
     name = "rescorla_wagner",
     description = "Rescorla-Wagner (1972) error-driven associative model",
     model = rescorla_wagner_model,
-    params = c(C = C, alpha = alpha, beta = beta, lambda = lambda),
+    params = list(C = C, alpha = alpha, beta = beta, lambda = lambda),
     stochastic = FALSE
   )
 }

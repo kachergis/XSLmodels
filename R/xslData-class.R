@@ -31,6 +31,7 @@ validate_xslData <- function(x) {
 
   stopifnot(length(x$train$words) == length(x$train$objects))
   stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
+  # TODO: check that each element of x$test$words is length 1
   stopifnot(length(x$accuracy) == 0 |
               length(x$accuracy) == length(unique(unlist(x$train$words))))
 

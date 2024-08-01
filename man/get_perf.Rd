@@ -5,13 +5,15 @@
 \title{Calculate Luce choice (proportion correct) for each item in a model knowledge
 matrix}
 \usage{
-get_perf(m)
+get_perf(m, d = NULL)
 }
 \arguments{
 \item{m}{A square matrix representing the model's knowledge, where rows
 correspond to words and columns correspond to referents. The diagonal
 elements represent correct associations, and off-diagonal elements
 represent incorrect associations.}
+
+\item{d}{Exponent for exponentiated choice rule}
 }
 \value{
 A named numeric vector where each element corresponds to an item in

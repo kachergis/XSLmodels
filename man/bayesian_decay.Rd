@@ -4,14 +4,14 @@
 \alias{bayesian_decay}
 \title{Bayesian decay model}
 \usage{
-bayesian_decay(alpha, delta, chdec)
+bayesian_decay(alpha, delta, ch_dec)
 }
 \arguments{
 \item{alpha}{Decay for word/object non-co-occurrence (0.1, 0.5, 0.9)}
 
 \item{delta}{Multiplier for word/object co-occurrence (1 for no increase)}
 
-\item{chdec}{Decision parameter (e.g., 1)}
+\item{ch_dec}{ecision parameter (e.g., 1)}
 }
 \value{
 An object of class xslMod
@@ -20,6 +20,6 @@ An object of class xslMod
 Bayesian decay model
 }
 \examples{
-mod <- bayesian_decay(alpha = 0.5, delta = 1, chdec = 1)
+mod <- bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 1)
 xsl_run(mod, get_example_ambiguous_condition())
 }

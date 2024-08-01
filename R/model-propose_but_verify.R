@@ -109,7 +109,7 @@ propose_but_verify <- function(alpha, alpha_increase) {
     name = "propose_but_verify",
     description = "Trueswell et al. 2013 propose-but-verify (PBV) model",
     model = propose_but_verify_model,
-    params = c(alpha = alpha, alpha_increase = alpha_increase),
+    params = list(alpha = alpha, alpha_increase = alpha_increase),
     stochastic = TRUE
   )
 }

@@ -10,6 +10,7 @@
 #'   correspond to words and columns correspond to referents. The diagonal
 #'   elements represent correct associations, and off-diagonal elements
 #'   represent incorrect associations.
+#' @param d Exponent for exponentiated choice rule
 #'
 #' @return A named numeric vector where each element corresponds to an item in
 #'   the matrix. The value of each element represents the proportion of correct
@@ -22,23 +23,36 @@
 #' x <- xsl_run(baseline(), get_example_ambiguous_condition())
 #' mat <- x$fits[[1]]$matrix
 #' get_perf(mat)
-get_perf <- function(m) {
-  # TODO: implement exponentiated luce choice option
-  # same as diag(p_wgo)^chdec / colSums(p_wgo^chdec)
-  perf <- rep(0, nrow(m)) |> set_names(rownames(m))
-  for (ref in colnames(m)) {
-    if (!(ref %in% rownames(m))) {
-      next
-    }
-    correct <- m[ref, ref]
-    total <- sum(m[ref, ])
-    if (total == 0) {
-      next
-    }
-    perf[ref] <- correct / total
-  }
-  return(perf)
+get_perf <- function(m, d = NULL) {
+  # if (is.null(d)) return(diag(m) / rowSums(m))
+  # ones <- rep(1, ncol(m))
+  # md <- m ^ d / outer(ones, colSums(m ^ d))
+  # diag(md)
+  if (is.null(d)) d <- 1
+  diag(m) ^ d / rowSums(m ^ d)
 }
+
+# power choice rule
+# diag(m ^ d / outer(ones, colSums(m ^ d)))
+# diag(m) ^ d / colSums(m ^ d)
+
+# get_perf <- function(m) {
+#   perf <- rep(0, nrow(m))
+#   names(perf) <- rownames(m)
+#   for (ref in colnames(m)) {
+#     if (!(ref %in% rownames(m))) {
+#       next
+#     }
+#     correct <- m[ref, ref]
+#     total <- sum(m[ref,])
+#     if (total == 0) {
+#       next
+#     }
+#     perf[ref] <- correct / total
+#   }
+#   return(perf)
+# }
+
 
 #' Evaluate m-alternative forced choice test
 #'
@@ -64,7 +78,7 @@ get_perf <- function(m) {
 mafc_test <- function(m, test) {
   trials <- length(test$words)
   perf <- rep(0, trials)
-  for (i in seq_along(trials)) {
+  for (i in 1:trials) {
     w <- test$words[[i]]
     denom <- sum(m[w, test$objects[[i]]])
     perf[i] <- m[w, w] / denom
