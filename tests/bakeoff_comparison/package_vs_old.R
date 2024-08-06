@@ -3,7 +3,7 @@ library(testthat)
 library(purrr)
 library(rlang)
 
-old <- readRDS("tests/orig_xsl-bakeoff_model_test_runs.rds")
+old <- readRDS("orig_xsl-bakeoff_model_test_runs.rds")
 
 model_map <- list(
   baseline = baseline(),
@@ -40,29 +40,39 @@ check_perf <- \(m) {
   which(perf_comp)
 }
 
-perf_comp <- check_perf("fazly")
-perf_comp <- check_perf("Bayesian_decay")
+check_perf("fazly")
+check_perf("Bayesian_decay")
 
-old$Bayesian_decay[[1]]
-new$Bayesian_decay$fits[[1]]$perf
-new$Bayesian_decay$fits[[1]]$sims[[1]]$perf
-get_perf(new$Bayesian_decay$fits[[1]]$matrix, 1)
+new$fazly$fits[[8]]$matrix
+
+
+ns <- map(xsl_datasets, \(xd) c(length(unique(unlist(xd$train$words))),
+                                length(unique(unlist(xd$train$objects))))) |>
+  set_names(map_chr(xsl_datasets, \(xd) xd$label))
+ns |> keep(\(x) x[1] != x[2]) # different num words and objects
+
+xsl_datasets |> keep(\(xd) !is.null(xd$test)) # have test data
+
+# old$Bayesian_decay[[1]]
+# new$Bayesian_decay$fits[[1]]$perf
+# new$Bayesian_decay$fits[[1]]$sims[[1]]$perf
+# get_perf(new$Bayesian_decay$fits[[1]]$matrix, 1)
 
 # runs[["fazly"]] <- run_model(combined_data, "fazly", c(1e-5, 8500), print_perf=F)
 # runs[["fazly"]]$params <- c(1e-5, 8500)
 
-old$fazly$`201`
-new$fazly$fits[[1]]$perf
+# old$fazly$`201`
+# new$fazly$fits[[1]]$perf
 
-xd <- list(words = xsl_datasets[[1]]$train$words,
-           objs = xsl_datasets[[1]]$train$objects)
-
-load("../xsl-bakeoff/data/combined_data.RData")
-old_fazly(old$fazly$params, combined_data[[1]]$train)$perf
-semiold_fazly(old$fazly$params, xd)$perf
-
-om <- old_fazly(old$fazly$params, xd)$matrix
-nm <- new$fazly$fits[[1]]$matrix
+# xd <- list(words = xsl_datasets[[1]]$train$words,
+#            objs = xsl_datasets[[1]]$train$objects)
+#
+# load("../xsl-bakeoff/data/combined_data.RData")
+# old_fazly(old$fazly$params, combined_data[[1]]$train)$perf
+# semiold_fazly(old$fazly$params, xd)$perf
+#
+# om <- old_fazly(old$fazly$params, xd)$matrix
+# nm <- new$fazly$fits[[1]]$matrix
 
 # TODO:
 # check unweighted SSE
