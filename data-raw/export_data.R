@@ -197,6 +197,23 @@ x12 <- read.csv("agg_data/x12-11-12.txt", sep='\t') |>
 conds = unique(x12$order)
 
 
+# filtering
+load("data-raw/data/filtering_data.RData")
+
+acc_s <- raw |>
+  rename(Condition = Cond) |>
+  mutate(order = paste0("filt",EarlyRepetitions,"E_", Late,"L")) |>
+  group_by(order, Word, AtoA, EarlyRepetitions, Late) |> # early,
+  summarise(Correct = mean(Correct), n=n())
+
+acc_s |> group_by(AtoA, EarlyRepetitions, Late) |>
+  summarise(correct = mean(Correct)) |>
+  ggplot(aes(x=EarlyRepetitions, y=correct, group=AtoA, color=AtoA)) + facet_wrap(vars(Late)) + geom_line() + theme_bw()
+
+conds = unique(raw$Condition)
+ord_files = unique(acc_s$order) # paste0(order, ".txt")
+
+
 
 # looks like this is the implicit learning experiment, asking for the number of cooccurrences of particular word-object combinations
 x5 <- read.csv("agg_data/x5-9-19.txt", sep='\t') |>
