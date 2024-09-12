@@ -1,7 +1,9 @@
 library(purrr)
 load("combined_data.rda")
+#load(here("data-raw","combined_data.rda"))
 
 # read in spreadsheet with citation and naming info, merge with training order files and (processed?) data..
+metadata <- read_csv(here("data-raw","XSL-dataset-fields.csv"))
 
 cds <- map2(combined_data, names(combined_data), function(cd, nm) {
   train <- list(words = map(cd$train$words, unname),
@@ -17,6 +19,8 @@ cds <- map2(combined_data, names(combined_data), function(cd, nm) {
           label = nm, condition = cd$Condition) # response_matrix = words x chosen object
   # citation
 })
+
+
 
 xsl_datasets <- unname(cds)
 usethis::use_data(xsl_datasets)
