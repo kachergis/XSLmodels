@@ -21,6 +21,7 @@ primedat <- all |> group_by(Exp, TotalFreq, Subject) |>
   summarise(perf = mean(Correct),
             n = n())
 # TODO: figure out how to store response_matrix trajectories (block x word x object?) and accuracy (block x word?)
+# for now, should just create a condition for each duration of training (1-4x copies of training trials)
 
 
 # x4 - 3x4 probabilistic subsets
@@ -28,8 +29,23 @@ primedat <- all |> group_by(Exp, TotalFreq, Subject) |>
 x4 <- read.csv("data-raw/agg_data/x4-prob_6-26.txt", sep='\t') |>
   mutate(Subject = paste0("x4_",Subject))
 conds = unique(x4$Condition)
-# "1_80per"  "2_12-100per_6-50per"  "3_6-100per_12-66per"  "4_6-dist"
+# "1_80per" - 3 words, 4 objects - each of the 18 objects appears 2 extra times (without it's word)
+# "2_12-100per_6-50per" - 3x4 with one additional item selected from 6, each repeated 6 times; 12 100%, 6 50%
+#  - 50% items are indices 13-18
+# "3_6-100per_12-66per" - 3x4 with one additional item selected from 12; (6 100%; 12 66%)
+#  - 12 66% items: 3, 4, 5, 6, 7, 8, 13, 14, 15 16, 17, 18
+# "4_6-dist"
 ord_files = c("80per.txt", "12-100per_6-50per.txt", "6-100per_12-66per.txt", "6-dist.txt")
+
+x6 <- read.csv("data-raw/agg_data/x6-tc_data9-9.txt", sep='\t') |>
+  rename(Condition = ExperimentName,
+         RT = TestSlide.RT,
+         TestIndex = TestList.Sample) |> select(-SessionTime) |>
+  mutate(Subject = paste0("x6_",Subject))
+
+x4 <- x4 |> bind_rows(x6 |>
+                        filter(Condition %in% c("1_80per", "2_12-100per_6-50per", "3_6-100per_12-66per")))
+
 
 # generate info needed for xslData
 summarize_condition <- function(dat) {
@@ -41,7 +57,7 @@ summarize_condition <- function(dat) {
     summarise(n = n(), # test items
               acc = mean(Correct))
   list(n_subj = length(unique(dat$Subject)),
-       subj_perf_sd = sd(sub_acc$acc),
+       subj_perf_sd = sd(sub_acc$acc), # TODO: add to xslData
        test = item_acc$CorrectAns,
        accuracy = item_acc$acc,
        response_matrix = response_matrix)
@@ -61,11 +77,11 @@ xslData(
   train = get_asymmetric_trial_order("data-raw/orders/80per.txt"),
   test = x4.1$test, # default to all objects - needs to be a list?
   accuracy = x4.1$accuracy,
-  #response_matrix = x4.1$response_matrix,
+  response_matrix = x4.1$response_matrix,
   n_subj = x4.1$n_subj,
   #subj_perf_sd = x4.1$subj_perf_sd,
-  label = character(),  # TODO
-  condition = character(),
+  label = "201",
+  condition = "3x4 6/8",
   description = "3x4, with one additional object per trial selected from all 18. A probabilistic condition with P(w|o) = .8 (6/8) for every pair."
 )
 
@@ -74,10 +90,10 @@ xslData(
   train = get_asymmetric_trial_order("data-raw/orders/12-100per_6-50per.txt"),
   test = x4.2$test, # default to all objects
   accuracy = x4.2$accuracy,
-  #response_matrix = x4.2$response_matrix,
+  response_matrix = x4.2$response_matrix,
   n_subj = x4.2$n_subj,
   #subj_perf_sd = x4.2$subj_perf_sd,
-  label = character(),  # TODO
+  label = "3x4 1/.5",
   condition = "12-100per_6-50per", # 3x4 ...
   description = "3x4 with one additional object selected from 6 objects, each repeated 6 times. Thus, 12 word-object pairs have P(w|o) = 1, while 6 pairs have P(w|o) = .5"
 )
@@ -87,10 +103,10 @@ xslData(
   train = get_asymmetric_trial_order("data-raw/orders/6-100per_12-66per.txt"),
   test = x4.3$test, # default to all objects
   accuracy = x4.3$accuracy,
-  #response_matrix = x4.3$response_matrix,
+  response_matrix = x4.3$response_matrix,
   n_subj = x4.3$n_subj,
   #subj_perf_sd = x4.3$subj_perf_sd,
-  label = character(), # TODO
+  label = "3x4 1/.66",
   condition = "6-100per_12-66per", # 3x4 ...
   description = "3x4 with one additional object selected from 12. 6 pairs have P(w|o) = 1, and 12 pairs have P(w|o) = .66."
 )
@@ -100,41 +116,74 @@ xslData(
   train = get_asymmetric_trial_order("data-raw/orders/6-dist.txt"),
   test = x4.4$test, # default to all objects
   accuracy = x4.4$accuracy,
-  #response_matrix = x4.4$response_matrix,
+  response_matrix = x4.4$response_matrix,
   n_subj = x4.4$n_subj,
   #subj_perf_sd = x4.4$subj_perf_sd,
-  label = character(),  # TODO
+  label = "3x4 +6o",
   condition = "3x4 +6", #
   description = "3x4 with one addition item selected from a set of 6 novel objects (each repeated 6 times)"
 )
 
 
-
-x6 <- read.csv("data-raw/agg_data/x6-tc_data9-9.txt", sep='\t') |>
-  rename(Condition = ExperimentName,
-         RT = TestSlide.RT,
-         TestIndex = TestList.Sample) |> select(-SessionTime) |>
-  mutate(Subject = paste0("x6_",Subject))
-x6_80per <- subset(x6, Condition=="1_80per")
-x6_100per_6 <- subset(x6, Condition=="2_12-100per_6-50per")
-x6_100per_12 <- subset(x6, Condition=="3_6-100per_12-66per")
-# TODO: pool participants from this experiment with conditions from experiment 4
 conds = unique(x6$Condition)
-# TODO: what are conditions 1_, 2_, 3_ and 4_ ??
+# conditions - reordering of original 4x4
+# Cond 1_ : Mean Temp Cont per Trial: 1.0
+# Cond 2_ : Mean Temp Cont per Trial: 1.40740740741
+# Cond 3_ : Mean Temp Cont per Trial: 0.666666666667
+# Cond 4_ : Mean Temp Cont per Trial: 0.333333333333
 
+# Cond 1_ : Original 4x4; Mean Temp Cont per Trial: 1.0
 x6.1 <- summarize_condition(subset(x6, Condition=="1_"))
 xslData(
-  train = get_asymmetric_trial_order(""), # TODO
+  train = get_asymmetric_trial_order("data-raw/orders/reord_orig_1.txt"),
   test = x6.1$test, # default to all objects - needs to be a list?
   accuracy = x6.1$accuracy,
-  #response_matrix = x4.1$response_matrix,
+  response_matrix = x6.1$response_matrix,
   n_subj = x6.1$n_subj,
   #subj_perf_sd = x6.1$subj_perf_sd,
-  label = character(),  # TODO
-  condition = character(),
-  #description = ""
+  label = character("4x4 1 overlap"),
+  condition = character("4x4 shuffle 1 pair overlap"),
+  description = "shuffled original 4x4 with mean trial-to-trial overlap of 1 pair"
 )
 
+x6.2 <- summarize_condition(subset(x6, Condition=="2_"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/reord_orig_2.txt"),
+  test = x6.2$test, # default to all objects - needs to be a list?
+  accuracy = x6.2$accuracy,
+  response_matrix = x6.2$response_matrix,
+  n_subj = x6.2$n_subj,
+  #subj_perf_sd = x6.2$subj_perf_sd,
+  label = character("4x4 1.4 overlaps"),
+  condition = character("4x4 shuffle 1.41 pairs overlap"),
+  description = "shuffled original 4x4 with mean trial-to-trial overlap of 1.41 pairs"
+)
+
+x6.3 <- summarize_condition(subset(x6, Condition=="3_"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/reord_orig_3.txt"),
+  test = x6.3$test,
+  accuracy = x6.3$accuracy,
+  response_matrix = x6.3$response_matrix,
+  n_subj = x6.3$n_subj,
+  #subj_perf_sd = x6.3$subj_perf_sd,
+  label = character("4x4 0.67 overlaps"),
+  condition = character("4x4 shuffle 0.67 pairs overlap"),
+  description = "shuffled original 4x4 with mean trial-to-trial overlap of 0.67 pairs"
+)
+
+x6.4 <- summarize_condition(subset(x6, Condition=="3_"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/reord_orig_4.txt"),
+  test = x6.4$test,
+  accuracy = x6.4$accuracy,
+  response_matrix = x6.4$response_matrix,
+  n_subj = x6.4$n_subj,
+  #subj_perf_sd = x6.2$subj_perf_sd,
+  label = character("4x4 0.33 overlaps"),
+  condition = character("4x4 shuffle 0.33 pairs overlap"),
+  description = "shuffled original 4x4 with mean trial-to-trial overlap of 0.33 pairs"
+)
 
 # x7-parameter - see x7_analysis.r
 x7 <- read.csv("data-raw/agg_data/x7-data-10-19corrected.txt", sep='\t') # 2844 rows

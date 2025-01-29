@@ -13,17 +13,20 @@
 #' @return An object of class xslData
 #' @export
 xslData <- function(train = list(), test = list(), accuracy = numeric(),
-                    n_subj = numeric(), label = "", condition = "") {
+                    n_subj = numeric(), label = "", condition = "",
+                    description = "", response_matrix = matrix()) {
   validate_xslData(
     new_xslData(list(train = train, test = test, accuracy = accuracy,
-                     n_subj = n_subj, label = label, condition = condition))
+                     n_subj = n_subj, label = label, condition = condition,
+                     description = description, response_matrix = response_matrix))
   )
 
 }
 
 validate_xslData <- function(x) {
   stopifnot(!is.null(names(x)))
-  stopifnot(all(names(x) %in% c("train", "test", "accuracy", "n_subj", "label", "condition")))
+  stopifnot(all(names(x) %in% c("train", "test", "accuracy", "n_subj", "label",
+                                "condition", "description", "response_matrix")))
   stopifnot(!is.null(names(x$train)))
   stopifnot(all(names(x$train) %in% c("words", "objects")))
   stopifnot(length(x$test) == 0 |
@@ -31,10 +34,14 @@ validate_xslData <- function(x) {
 
   stopifnot(length(x$train$words) == length(x$train$objects))
   stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
-  # TODO: check that each element of x$test$words is length 1
+  # testing a single word per trial
+  for(i in x$test$words) {
+    stopifnot(length(i) == 1)
+  }
   stopifnot(length(x$accuracy) == 0 |
               length(x$accuracy) == length(unique(unlist(x$train$words))))
-
+  stopifnot(nrow(response_matrix) == length(unique(unlist(x$train$words))))
+  stopifnot(ncol(response_matrix) == length(unique(unlist(x$train$objects))))
   x
 }
 
