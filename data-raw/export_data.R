@@ -11,7 +11,7 @@ get_response_matrix <- function(dat) {
 }
 
 # priming data (frequency..)
-load("priming_all_trajectory.Rdata") # each person does 4 consecutive blocks of the same training (and test)
+load("data-raw/data/priming_all_trajectory.Rdata") # each person does 4 consecutive blocks of the same training (and test)
 conds = unique(all$Exp) #
 # "4 Pairs/Trial, 6x" - orig_4x4
 # "3 Pairs/Trial 3,6,9x" - block2_3_6_9-3x3.txt
@@ -25,7 +25,7 @@ primedat <- all |> group_by(Exp, TotalFreq, Subject) |>
 
 # x4 - 3x4 probabilistic subsets
 # TODO: extract item groups based on x4_analysis_probabilistic_subset.r
-x4 <- read.csv("x4-prob_6-26.txt", sep='\t') |>
+x4 <- read.csv("data-raw/agg_data/x4-prob_6-26.txt", sep='\t') |>
   mutate(Subject = paste0("x4_",Subject))
 conds = unique(x4$Condition)
 # "1_80per"  "2_12-100per_6-50per"  "3_6-100per_12-66per"  "4_6-dist"
@@ -58,7 +58,7 @@ get_asymmetric_trial_order <- function(fname) {
 
 x4.1 <- summarize_condition(subset(x4, Condition==conds[1]))
 xslData(
-  train = get_asymmetric_trial_order("orders/80per.txt"),
+  train = get_asymmetric_trial_order("data-raw/orders/80per.txt"),
   test = x4.1$test, # default to all objects - needs to be a list?
   accuracy = x4.1$accuracy,
   #response_matrix = x4.1$response_matrix,
@@ -71,7 +71,7 @@ xslData(
 
 x4.2 <- summarize_condition(subset(x4, Condition==conds[2]))
 xslData(
-  train = get_asymmetric_trial_order("orders/12-100per_6-50per.txt"),
+  train = get_asymmetric_trial_order("data-raw/orders/12-100per_6-50per.txt"),
   test = x4.2$test, # default to all objects
   accuracy = x4.2$accuracy,
   #response_matrix = x4.2$response_matrix,
@@ -84,7 +84,7 @@ xslData(
 
 x4.3 <- summarize_condition(subset(x4, Condition==conds[3]))
 xslData(
-  train = get_asymmetric_trial_order("orders/6-100per_12-66per.txt"),
+  train = get_asymmetric_trial_order("data-raw/orders/6-100per_12-66per.txt"),
   test = x4.3$test, # default to all objects
   accuracy = x4.3$accuracy,
   #response_matrix = x4.3$response_matrix,
@@ -97,7 +97,7 @@ xslData(
 
 x4.4 <- summarize_condition(subset(x4, Condition==conds[4]))
 xslData(
-  train = get_asymmetric_trial_order("orders/6-dist.txt"),
+  train = get_asymmetric_trial_order("data-raw/orders/6-dist.txt"),
   test = x4.4$test, # default to all objects
   accuracy = x4.4$accuracy,
   #response_matrix = x4.4$response_matrix,
@@ -110,7 +110,7 @@ xslData(
 
 
 
-x6 <- read.csv("agg_data/x6-tc_data9-9.txt", sep='\t') |>
+x6 <- read.csv("data-raw/agg_data/x6-tc_data9-9.txt", sep='\t') |>
   rename(Condition = ExperimentName,
          RT = TestSlide.RT,
          TestIndex = TestList.Sample) |> select(-SessionTime) |>
@@ -137,27 +137,45 @@ xslData(
 
 
 # x7-parameter - see x7_analysis.r
-x7 <- read.csv("x7-data-10-19corrected.txt", sep='\t') # 2844 rows
-x7.2 <- read.csv("agg_data/x7-data-10-19.txt", sep='\t') # 2340
+x7 <- read.csv("data-raw/agg_data/x7-data-10-19corrected.txt", sep='\t') # 2844 rows
+x7.2 <- read.csv("data-raw/agg_data/x7-data-10-19.txt", sep='\t') # 2340
 conds = unique(x7$Condition) # "1_1x4"  "2_1x3"  "3_3x3_1nsy"  "4_4x4_2nsy"
 # 1x4, 1x3, 3x3 with 1 noisy, 4x4 with 2 noisy
 
 
 # x8-diff-freq
-x8 <- read.csv("agg_data/x8_9-22-08.txt", sep='\t') |>
+x8 <- read.csv("data-raw/agg_data/x8_9-22-08.txt", sep='\t') |>
   rename(Condition = ExperimentName,
          RT = TestSlide.RT,
          TestIndex = TestList.Sample) |> select(-SessionTime) |>
   mutate(Experiment = "x8-diff-freq",
          Subject = paste0("x8_",Subject))
-conds = unique(x8$Condition) # "1_"  "2_"  "3_"  "4_"
-# TODO: look up conditions
+conds = unique(x8$Condition)
+# "1_" = max temp cont and spat cont 1_max_temp_spat_cont_orig.txt (reorder of original 4x4)
+# "2_" = (3reps (10-18),9reps (1-9)) 2_x8_39.txt
+# "3_" = (3reps (1-6),6reps (7-12),9reps (13-18)) 3_x8_369.txt
+# "4_" = max temp cont 1_max_temp_spat_cont_orig.txt (but not spatial contiguity)
+# 33 participants, 18 responses
 
+# raw <- subset(raw, Condition=="1_" | Condition=="4_")
+raw <- subset(raw, Condition=="4_")
+attach(raw)
+# max temp cont degree of overlap analysis
+# a0rep <- subset(raw, (CorrectAns==2 | CorrectAns==5 | CorrectAns==7 | CorrectAns==11))
+# a1rep <- subset(raw, CorrectAns==11)
+# a2rep <- subset(raw, CorrectAns==4 | CorrectAns==5)
+# a3rep <- subset(raw, CorrectAns==3 | CorrectAns==7 | CorrectAns==8 | CorrectAns==9 | CorrectAns==10 | CorrectAns==12 | CorrectAns>13)
+# a4rep <- subset(raw, CorrectAns==1 | CorrectAns==6 | CorrectAns==13)
+# a5rep <- subset(raw, CorrectAns==2)
+
+get_response_matrix(x8 |> filter(Condition=="1_"))
+get_response_matrix(x8 |> filter(Condition=="2_"))
+get_response_matrix(x8 |> filter(Condition=="3_"))
 
 # x9-cont_div
-x9 <- read.csv("agg_data/x9_10-19.txt", sep='\t') |>
+x9 <- read.csv("data-raw/agg_data/x9_10-19.txt", sep='\t') |>
   rename(Condition = ExperimentName)
-x9.2 <- read.csv("agg_data/x9_block1_10-19.txt", sep='\t') |>
+x9.2 <- read.csv("data-raw/agg_data/x9_block1_10-19.txt", sep='\t') |>
   rename(Condition = ExperimentName)
 # TODO: bind_rows(x9, x9.2) ??
 x9 <- x9 |>
@@ -177,7 +195,7 @@ for(cond in conds) {
 
 
 # x10-cont_div2
-x10 <- read.csv("agg_data/x10-11-12.txt", sep='\t') |>
+x10 <- read.csv("data-raw/agg_data/x10-11-12.txt", sep='\t') |>
   rename(Condition = ExperimentName) |>
   mutate(Subject = paste0("x10_",Subject),
          order = ifelse(Condition=="2_", "3_6_9-3x3",
@@ -186,8 +204,9 @@ x10 <- read.csv("agg_data/x10-11-12.txt", sep='\t') |>
 conds = unique(x10$order)
 
 
+
 # x12-cont_div3
-x12 <- read.csv("agg_data/x12-11-12.txt", sep='\t') |>
+x12 <- read.csv("data-raw/agg_data/x12-11-12.txt", sep='\t') |>
   rename(Condition = ExperimentName) |>
   mutate(Subject = paste0("x12_",Subject),
          order = ifelse(Condition=="1_", "block1_3_6_9-3x3-lo_cd",
@@ -195,6 +214,17 @@ x12 <- read.csv("agg_data/x12-11-12.txt", sep='\t') |>
                                ifelse(Condition=="3_", "block3_3_6_9_lo_medCD",
                                       ifelse(Condition=="4_", "block4_369_39mx", NA)))))
 conds = unique(x12$order)
+
+x13 <- read.csv("x13_1-21.txt", sep='\t')
+# Conds: 1_ is 1olap2tr_contr
+#			   2_ is 1olap3tr_contr
+#			   3_ is 3_2olap2tr_contr
+#			   4_ is 3_6_9 medCD (3 & 9 freq co-occur) 3x3 369_39mx
+# for conditions 1,2,&3:
+# 1-6 get repeated with each other (2 it olap)
+#  7-12 can appear with 1-6 when they are repeated
+#  13-18 only appear on discontiguous trials
+
 
 
 # filtering
@@ -216,7 +246,7 @@ ord_files = unique(acc_s$order) # paste0(order, ".txt")
 
 
 # looks like this is the implicit learning experiment, asking for the number of cooccurrences of particular word-object combinations
-x5 <- read.csv("agg_data/x5-9-19.txt", sep='\t') |>
+x5 <- read.csv("data-raw/agg_data/x5-9-19.txt", sep='\t') |>
   rename(Condition = ExperimentName,
          RT = testWait.RT,
          Response = testWait.RESP,
