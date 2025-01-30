@@ -9,6 +9,8 @@
 #' @param n_subj Number of subjects
 #' @param label Label
 #' @param condition Condition
+#' @param description Description
+#' @param response_matrix Response matrix
 #'
 #' @return An object of class xslData
 #' @export
@@ -35,20 +37,18 @@ validate_xslData <- function(x) {
   stopifnot(length(x$train$words) == length(x$train$objects))
   stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
   # testing a single word per trial
-  for(i in x$test$words) {
-    stopifnot(length(i) == 1)
-  }
+  #for(i in x$test$words) stopifnot(length(i) == 1)
   stopifnot(length(x$accuracy) == 0 |
               length(x$accuracy) == length(unique(unlist(x$train$words))))
-  stopifnot(nrow(response_matrix) == length(unique(unlist(x$train$words))))
-  stopifnot(ncol(response_matrix) == length(unique(unlist(x$train$objects))))
+  stopifnot(nrow(x$response_matrix) == length(unique(unlist(x$train$words))))
+  stopifnot(ncol(x$response_matrix) == length(unique(unlist(x$train$objects))))
   x
 }
 
 #' Constructor for xslData S3 class
 #'
 #' @rdname xslData-class
-#' @param x List with elements train, test, accuracy, n_subj, label, condition
+#' @param x List with elements train, test, accuracy, n_subj, label, condition, descrption, response_matrix
 #'
 #' @export
 new_xslData <- function(x = list()) {

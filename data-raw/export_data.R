@@ -1,52 +1,6 @@
 require(tidyverse)
 require(XSLmodels)
 
-get_response_matrix <- function(dat) {
-  voc_sz = max(dat$CorrectAns) # FIXME: base this on training trials!
-  m <- matrix(0, nrow = voc_sz, ncol = voc_sz)
-  for(i in 1:nrow(dat)) {
-    m[dat[i,]$CorrectAns, dat[i,]$Response] = m[dat[i,]$CorrectAns, dat[i,]$Response] + 1
-  }
-  return(m)
-}
-
-# priming data (frequency..)
-load("data-raw/data/priming_all_trajectory.Rdata") # each person does 4 consecutive blocks of the same training (and test)
-conds = unique(all$Exp) #
-# "4 Pairs/Trial, 6x" - orig_4x4
-# "3 Pairs/Trial 3,6,9x" - block2_3_6_9-3x3.txt
-# "4 Pairs/Trial 3,6,9x" = x8_369.txt
-sort(unique(all$TotalFreq)) # 3  6  9 12 18 24 27 36
-primedat <- all |> group_by(Exp, TotalFreq, Subject) |>
-  summarise(perf = mean(Correct),
-            n = n())
-# TODO: figure out how to store response_matrix trajectories (block x word x object?) and accuracy (block x word?)
-# for now, should just create a condition for each duration of training (1-4x copies of training trials)
-
-
-# x4 - 3x4 probabilistic subsets
-# TODO: extract item groups based on x4_analysis_probabilistic_subset.r
-x4 <- read.csv("data-raw/agg_data/x4-prob_6-26.txt", sep='\t') |>
-  mutate(Subject = paste0("x4_",Subject))
-conds = unique(x4$Condition)
-# "1_80per" - 3 words, 4 objects - each of the 18 objects appears 2 extra times (without it's word)
-# "2_12-100per_6-50per" - 3x4 with one additional item selected from 6, each repeated 6 times; 12 100%, 6 50%
-#  - 50% items are indices 13-18
-# "3_6-100per_12-66per" - 3x4 with one additional item selected from 12; (6 100%; 12 66%)
-#  - 12 66% items: 3, 4, 5, 6, 7, 8, 13, 14, 15 16, 17, 18
-# "4_6-dist"
-ord_files = c("80per.txt", "12-100per_6-50per.txt", "6-100per_12-66per.txt", "6-dist.txt")
-
-x6 <- read.csv("data-raw/agg_data/x6-tc_data9-9.txt", sep='\t') |>
-  rename(Condition = ExperimentName,
-         RT = TestSlide.RT,
-         TestIndex = TestList.Sample) |> select(-SessionTime) |>
-  mutate(Subject = paste0("x6_",Subject))
-
-x4 <- x4 |> bind_rows(x6 |>
-                        filter(Condition %in% c("1_80per", "2_12-100per_6-50per", "3_6-100per_12-66per")))
-
-
 # generate info needed for xslData
 summarize_condition <- function(dat) {
   response_matrix <- get_response_matrix(dat)
@@ -72,23 +26,117 @@ get_asymmetric_trial_order <- function(fname) {
   list(words = words, objects = objects)
 }
 
+get_symmetric_trial_order <- function(fname, repetitions=1) {
+  tmp <- read.csv(fname, header = F, sep='\t')
+  words = list()
+  index = 1
+  for(rep in 1:repetitions) {
+    for(i in 1:nrow(tmp)) {
+      words[[index]] = unlist(tmp[i,])
+      index = index + 1
+    }
+  }
+  list(words = words, objects = words)
+}
+
+get_response_matrix <- function(dat) {
+  voc_sz = max(dat$CorrectAns) # FIXME: base this on training trials!
+  m <- matrix(0, nrow = voc_sz, ncol = voc_sz)
+  for(i in 1:nrow(dat)) {
+    m[dat[i,]$CorrectAns, dat[i,]$Response] = m[dat[i,]$CorrectAns, dat[i,]$Response] + 1
+  }
+  return(m)
+}
+
+# priming data (frequency..)
+load("data-raw/data/priming_all_trajectory.Rdata") # each person does 4 consecutive blocks of the same training (and test)
+prime_conds = unique(all$Exp) #
+# "4 Pairs/Trial, 6x" - orig_4x4
+# "3 Pairs/Trial 3,6,9x" - block2_3_6_9-3x3.txt
+# "4 Pairs/Trial 3,6,9x" = x8_369.txt
+sort(unique(all$TotalFreq)) # 3  6  9 12 18 24 27 36
+prime <- all |>
+  rename(Condition = Exp)
+# TODO: figure out how to store response_matrix trajectories (block x word x object?) and accuracy (block x word?)
+# for now, should just create a condition for each duration of training (1-4x copies of training trials)
+ord_files = paste0(c("orig_4x4", "block2_3_6_9-3x3", "x8_369"), ".txt")
+
+orig1x = get_symmetric_trial_order(paste0("data-raw/orders/", ord_files[1]), repetitions=1)
+orig2x = get_symmetric_trial_order(paste0("data-raw/orders/", ord_files[1]), repetitions=2)
+orig3x = get_symmetric_trial_order(paste0("data-raw/orders/", ord_files[1]), repetitions=3)
+orig4x = get_symmetric_trial_order(paste0("data-raw/orders/", ord_files[1]), repetitions=4)
+
+# for each condition, for block 1-4 ...
+dat <- summarize_condition(prime |> filter(Condition==prime_conds[1], Block==1))
+xslData(
+  train = orig1x,
+  #test = x4.1$test, # default to all objects - needs to be a list?
+  test = list(),
+  accuracy = dat$accuracy,
+  n_subj = dat$n_subj,
+  #subj_perf_sd = x4.1$subj_perf_sd,
+  label = "4x4 1x",
+  condition = "4x4 1 rep",
+  description = "Original 4x4, 1 repetition.",
+  response_matrix = dat$response_matrix
+)
+
+dat <- summarize_condition(prime |> filter(Condition==prime_conds[2], Block==1))
+xslData(
+  train = orig2x,
+  #test = x4.1$test, # default to all objects - needs to be a list?
+  test = list(),
+  accuracy = dat$accuracy,
+  n_subj = dat$n_subj,
+  #subj_perf_sd = x4.1$subj_perf_sd,
+  label = "4x4 2x",
+  condition = "4x4 2 reps",
+  description = "Original 4x4, 2 repetitions.",
+  response_matrix = dat$response_matrix
+)
+
+# x4 - 3x4 probabilistic subsets
+# TODO: extract item groups based on x4_analysis_probabilistic_subset.r
+x4 <- read.csv("data-raw/agg_data/x4-prob_6-26.txt", sep='\t') |>
+  mutate(Subject = paste0("x4_",Subject))
+conds = unique(x4$Condition)
+# "1_80per" - 3 words, 4 objects - each of the 18 objects appears 2 extra times (without it's word)
+# "2_12-100per_6-50per" - 3x4 with one additional item selected from 6, each repeated 6 times; 12 100%, 6 50%
+#  - 50% items are indices 13-18
+# "3_6-100per_12-66per" - 3x4 with one additional item selected from 12; (6 100%; 12 66%)
+#  - 12 66% items: 3, 4, 5, 6, 7, 8, 13, 14, 15 16, 17, 18
+# "4_6-dist"
+ord_files = c("80per.txt", "12-100per_6-50per.txt", "6-100per_12-66per.txt", "6-dist.txt")
+
+x6 <- read.csv("data-raw/agg_data/x6-tc_data9-9.txt", sep='\t') |>
+  rename(Condition = ExperimentName,
+         RT = TestSlide.RT,
+         TestIndex = TestList.Sample) |> select(-SessionTime) |>
+  mutate(Subject = paste0("x6_",Subject))
+
+x4 <- x4 |> bind_rows(x6 |>
+                        filter(Condition %in% c("1_80per", "2_12-100per_6-50per", "3_6-100per_12-66per")))
+
+
 x4.1 <- summarize_condition(subset(x4, Condition==conds[1]))
 xslData(
   train = get_asymmetric_trial_order("data-raw/orders/80per.txt"),
-  test = x4.1$test, # default to all objects - needs to be a list?
+  #test = x4.1$test, # default to all objects - needs to be a list?
+  test = list(),
   accuracy = x4.1$accuracy,
-  response_matrix = x4.1$response_matrix,
   n_subj = x4.1$n_subj,
   #subj_perf_sd = x4.1$subj_perf_sd,
   label = "201",
   condition = "3x4 6/8",
-  description = "3x4, with one additional object per trial selected from all 18. A probabilistic condition with P(w|o) = .8 (6/8) for every pair."
+  description = "3x4, with one additional object per trial selected from all 18. A probabilistic condition with P(w|o) = .8 (6/8) for every pair.",
+  response_matrix = x4.1$response_matrix
 )
 
 x4.2 <- summarize_condition(subset(x4, Condition==conds[2]))
 xslData(
   train = get_asymmetric_trial_order("data-raw/orders/12-100per_6-50per.txt"),
-  test = x4.2$test, # default to all objects
+  #test = x4.2$test, # default to all objects
+  test = list(),
   accuracy = x4.2$accuracy,
   response_matrix = x4.2$response_matrix,
   n_subj = x4.2$n_subj,
@@ -225,8 +273,7 @@ get_response_matrix(x8 |> filter(Condition=="3_"))
 x9 <- read.csv("data-raw/agg_data/x9_10-19.txt", sep='\t') |>
   rename(Condition = ExperimentName)
 x9.2 <- read.csv("data-raw/agg_data/x9_block1_10-19.txt", sep='\t') |>
-  rename(Condition = ExperimentName)
-# TODO: bind_rows(x9, x9.2) ??
+  rename(Condition = ExperimentName) # just the recognition memory test block
 x9 <- x9 |>
   mutate(Experiment = "x9-cont_div",
          Subject = paste0("x9_",Subject))
