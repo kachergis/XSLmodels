@@ -7,7 +7,9 @@ Authors@R:
       person("Mika", "Braginsky", , "mika.br@gmail.com", role = c("aut"),
            comment = c(ORCID = "0000-0001-9039-3220")),
       person("Kevin", "Liang", , "kevliang@sas.upenn.edu", role = c("aut"),
-           comment = c(ORCID = "ORCID-NUMBER")))
+           comment = c(ORCID = "0000-0000-0000-0000")))
+Author: George Kachergis [aut, cre], Mika Braginsky [aut], Kevin Liang [aut]
+Maintainer: George Kachergis <george.kachergis@gmail.com>
 Description: This package has a collection of cognitive models of
   cross-situational word learning models, as well as methods and datasets for
   optimizing them, and plotting the results.

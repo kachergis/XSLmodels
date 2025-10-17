@@ -1,6 +1,12 @@
 require(tidyverse)
 require(XSLmodels)
 
+# check against conditions in xsl_datasets:
+conds <- c()
+for(i in 1:length(xsl_datasets)) conds[i] = xsl_datasets[[i]]$condition
+xsl_datasets[[6]] # "3x3 +1w/o"
+xsl_datasets[[7]] # "4x4 +2w/o"
+
 # generate info needed for xslData
 summarize_condition <- function(dat) {
   response_matrix <- get_response_matrix(dat)
@@ -128,7 +134,7 @@ xslData(
   #subj_perf_sd = x4.1$subj_perf_sd,
   label = "201",
   condition = "3x4 6/8",
-  description = "3x4, with one additional object per trial selected from all 18. A probabilistic condition with P(w|o) = .8 (6/8) for every pair.",
+  description = "3x4, with one additional object per trial selected from all 18. A probabilistic condition with P(w|o) = .75 (6/8) for every pair.",
   response_matrix = x4.1$response_matrix
 )
 
@@ -234,10 +240,68 @@ xslData(
 )
 
 # x7-parameter - see x7_analysis.r
-x7 <- read.csv("data-raw/agg_data/x7-data-10-19corrected.txt", sep='\t') # 2844 rows
-x7.2 <- read.csv("data-raw/agg_data/x7-data-10-19.txt", sep='\t') # 2340
+#x7 <- read.csv("data-raw/agg_data/x7-data-10-19corrected.txt", sep='\t') # 2844 rows
+x7 <- read.csv("data-raw/agg_data/x7-data-10-19.txt", sep='\t') |> # 2340
+  rename(Condition = ExperimentName,
+         RT = TestSlide.RT,
+         TestIndex = TestList.Sample) |> select(-SessionTime) |>
+  mutate(Experiment = "x7-parameter",
+         Subject = paste0("x7_",Subject))
 conds = unique(x7$Condition) # "1_1x4"  "2_1x3"  "3_3x3_1nsy"  "4_4x4_2nsy"
 # 1x4, 1x3, 3x3 with 1 noisy, 4x4 with 2 noisy
+
+x7.1 <- summarize_condition(subset(x7, Condition=="1_1x4"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/1x4.txt"),
+  test = x7.1$test,
+  accuracy = x7.1$accuracy,
+  response_matrix = x7.1$response_matrix,
+  n_subj = x7.1$n_subj,
+  #subj_perf_sd = x7.1$subj_perf_sd,
+  label = character("1x4"),
+  condition = character("1x4"),
+  description = "based on original 4x4, but with only 1 word and 4 referents per trial"
+)
+
+x7.2 <- summarize_condition(subset(x7, Condition=="2_1x3"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/1x3.txt"),
+  test = x7.2$test,
+  accuracy = x7.2$accuracy,
+  response_matrix = x7.2$response_matrix,
+  n_subj = x7.2$n_subj,
+  #subj_perf_sd = x7.2$subj_perf_sd,
+  label = character("1x3"),
+  condition = character("1x3"),
+  description = "based on original 3x3, but with only 1 word and 3 referents per trial"
+)
+
+x7.3 <- summarize_condition(subset(x7, Condition=="3_3x3_1nsy"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/3x3_1nsy.txt"),
+  test = x7.3$test,
+  accuracy = x7.3$accuracy,
+  response_matrix = x7.3$response_matrix,
+  n_subj = x7.3$n_subj,
+  #subj_perf_sd = x7.3$subj_perf_sd,
+  label = character("3x3 1nsy"),
+  condition = character("3x3 1 noisy"),
+  description = "based on original 3x3, but with only 1 word and 4 referents per trial"
+)
+
+
+x7.4 <- summarize_condition(subset(x7, Condition=="4_4x4_2nsy"))
+xslData(
+  train = get_asymmetric_trial_order("data-raw/orders/4x4_2nsy.txt"),
+  test = x7.3$test,
+  accuracy = x7.3$accuracy,
+  response_matrix = x7.3$response_matrix,
+  n_subj = x7.3$n_subj,
+  #subj_perf_sd = x7.3$subj_perf_sd,
+  label = character("4x4 2nsy"),
+  condition = character("4x4 2 noisy"),
+  description = "based on original 4x4, but showing only 2 correct pairs per trial along with 2 noisy words and objects"
+)
 
 
 # x8-diff-freq
