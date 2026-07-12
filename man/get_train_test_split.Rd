@@ -10,8 +10,8 @@ get_train_test_split(test_inds, conds)
 \item{test_inds}{A numeric vector of indices indicating which elements in
 \code{conds} should be used for the test set.}
 
-\item{conds}{A list of conditions, where each condition is represented as a
-separate element.}
+\item{conds}{A list of conditions (e.g. \code{xslData} objects), where each
+condition is represented as a separate element.}
 }
 \value{
 A list with two elements: \code{train} and \code{test}. Each element is a list
@@ -22,4 +22,9 @@ of conditions, where \code{train} includes the conditions not indexed by
 This function divides a given set of conditions into training and testing
 sets. The division is based on a provided vector of indices, which specify
 the conditions to be used for testing.
+}
+\examples{
+split <- get_train_test_split(c(1, 3), xsl_datasets[1:5])
+length(split$train)
+length(split$test)
 }

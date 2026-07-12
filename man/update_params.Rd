@@ -9,11 +9,15 @@ update_params(xsl_mod, params)
 \arguments{
 \item{xsl_mod}{Object of class xslMod}
 
-\item{params}{Named list of parameters}
+\item{params}{Vector or list of parameter values, in the same order as
+\code{xsl_mod$params}}
 }
 \value{
 An object of class xslMod
 }
 \description{
-Update parameters of xslMod
+Replaces \code{xsl_mod}'s parameter values with \code{params}, matched by position
+(not by name) and of the same length -- e.g. a raw numeric vector such as
+\code{DEoptim}'s \code{bestmem}. The result keeps \code{xsl_mod}'s original parameter
+names.
 }

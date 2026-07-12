@@ -11,3 +11,7 @@
 #' @importFrom tidyr pivot_longer
 ## usethis namespace: end
 NULL
+
+# xsl_datasets is package data (see R/data.R), referenced by name in
+# get_group_model_fit(), get_crossvalidated_model_fit(), and show_datasets()
+utils::globalVariables("xsl_datasets")

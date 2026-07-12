@@ -12,7 +12,9 @@ xslData(
   accuracy = numeric(),
   n_subj = numeric(),
   label = "",
-  condition = ""
+  condition = "",
+  description = "",
+  response_matrix = NULL
 )
 
 new_xslData(x = list())
@@ -30,7 +32,11 @@ new_xslData(x = list())
 
 \item{condition}{Condition}
 
-\item{x}{List with elements train, test, accuracy, n_subj, label, condition}
+\item{description}{Description}
+
+\item{response_matrix}{Response matrix}
+
+\item{x}{List with elements train, test, accuracy, n_subj, label, condition, descrption, response_matrix}
 }
 \value{
 An object of class xslData

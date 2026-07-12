@@ -13,8 +13,9 @@ This package has a collection of cognitive models of cross-situational word lear
 
 Authors:
 \itemize{
+  \item George Kachergis \email{george.kachergis@gmail.com} (\href{https://orcid.org/0000-0003-4153-4167}{ORCID})
   \item Mika Braginsky \email{mika.br@gmail.com} (\href{https://orcid.org/0000-0001-9039-3220}{ORCID})
-  \item Kevin Liang \email{kevliang@sas.upenn.edu} (\href{https://orcid.org/ORCID-NUMBER}{ORCID})
+  \item Kevin Liang \email{kevliang@sas.upenn.edu}
 }
 
 }

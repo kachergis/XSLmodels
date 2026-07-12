@@ -16,7 +16,7 @@
 #' @export
 xslData <- function(train = list(), test = list(), accuracy = numeric(),
                     n_subj = numeric(), label = "", condition = "",
-                    description = "", response_matrix = matrix()) {
+                    description = "", response_matrix = NULL) {
   validate_xslData(
     new_xslData(list(train = train, test = test, accuracy = accuracy,
                      n_subj = n_subj, label = label, condition = condition,
@@ -40,8 +40,9 @@ validate_xslData <- function(x) {
   #for(i in x$test$words) stopifnot(length(i) == 1)
   stopifnot(length(x$accuracy) == 0 |
               length(x$accuracy) == length(unique(unlist(x$train$words))))
-  stopifnot(nrow(x$response_matrix) == length(unique(unlist(x$train$words))))
-  stopifnot(ncol(x$response_matrix) == length(unique(unlist(x$train$objects))))
+  stopifnot(is.null(x$response_matrix) ||
+              (nrow(x$response_matrix) == length(unique(unlist(x$train$words))) &&
+                 ncol(x$response_matrix) == length(unique(unlist(x$train$objects)))))
   x
 }
 

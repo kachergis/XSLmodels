@@ -54,7 +54,8 @@ test_that("co-occurrence matrix creation works", {
   cooc_matrix <- create_cooc_matrix(train_data)
   expect_true(is.matrix(cooc_matrix))
   expect_equal(dim(cooc_matrix), c(3, 3))
-  expect_equal(sum(cooc_matrix), 6) # 6 co-occurrences total
+  # each trial tallies every word x every object present (2x2 = 4 cells per trial)
+  expect_equal(sum(cooc_matrix), 12)
 })
 
 test_that("model running works with example data", {

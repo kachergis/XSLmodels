@@ -119,6 +119,82 @@ show_datasets <- function() {
   do.call(rbind, lapply(dataset_info, as.data.frame))
 }
 
+#' Registry mapping model names to constructors and DEoptim parameter bounds
+#'
+#' Single source of truth for `get_group_model_fit()` and
+#' `get_crossvalidated_model_fit()`, so the two never drift out of sync with
+#' each model's actual parameter names.
+#'
+#' @return A named list, one entry per model in `show_models()`, each with
+#'   elements `constructor` (a zero-argument function returning an `xslMod`
+#'   with starting parameter values), `lower`, and `upper` (DEoptim bounds,
+#'   in the same order as the model's parameters).
+#' @noRd
+xsl_model_registry <- function() {
+  list(
+    baseline = list(
+      constructor = function() baseline(),
+      lower = numeric(0), upper = numeric(0)
+    ),
+    decay = list(
+      constructor = function() decay(C = 0.98),
+      lower = 0.8, upper = 1.0
+    ),
+    uncfam = list(
+      constructor = function() uncfam(X = 0.1, C = 1, B = 0.98),
+      lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)
+    ),
+    uncfam_sampling = list(
+      constructor = function() uncfam_sampling(X = 0.1, C = 1, B = 0.98, K = 10),
+      lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)
+    ),
+    multi_sampling = list(
+      constructor = function() multi_sampling(C = 1, X = 0.1, B = 0.98, K = 10),
+      lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)
+    ),
+    propose_but_verify = list(
+      constructor = function() propose_but_verify(alpha = 0.1, alpha_increase = 0.5),
+      lower = c(0, 0), upper = c(1, 1)
+    ),
+    pursuit = list(
+      constructor = function() pursuit(gamma = 0.2, threshold = 0.3, lambda = 0.05),
+      lower = c(0, 0, 0), upper = c(1, 1, 1)
+    ),
+    fazly = list(
+      constructor = function() fazly(lambda = 1e-5, beta = 8500),
+      lower = c(1e-6, 1000), upper = c(1e-3, 10000)
+    ),
+    guess_and_test = list(
+      constructor = function() guess_and_test(f = 0.1, sa = 0.5),
+      lower = c(0, 0), upper = c(1, 1)
+    ),
+    rescorla_wagner = list(
+      constructor = function() rescorla_wagner(C = 0.98, alpha = 0.1, lambda = 1, beta = 1),
+      lower = c(0.8, 0.01, 0.5, 0.5), upper = c(1.0, 0.5, 2.0, 2.0)
+    ),
+    tilles = list(
+      constructor = function() tilles(x = 0.5, b = 0.8, alpha_0 = 0.85),
+      lower = c(0, 0, 0), upper = c(1, 1, 1)
+    ),
+    bayesian_decay = list(
+      constructor = function() bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 1),
+      lower = c(0.1, 0.5, 0.5), upper = c(0.9, 2.0, 2.0)
+    )
+  )
+}
+
+#' Look up a model's constructor and fitting bounds by name, or error with
+#' the list of valid names.
+#' @noRd
+get_model_registry_entry <- function(model_name) {
+  registry <- xsl_model_registry()
+  if (!model_name %in% names(registry)) {
+    stop("Model '", model_name, "' not found. Available models: ",
+         paste(names(registry), collapse = ", "))
+  }
+  registry[[model_name]]
+}
+
 #' Get group model fit for a specific model
 #'
 #' Fits a model to all available datasets and returns the group-level fit.
@@ -138,51 +214,12 @@ get_group_model_fit <- function(model_name, datasets = NULL) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
-  
-  # Map model names to model constructors
-  model_constructors <- list(
-    baseline = baseline,
-    decay = function() decay(C = 0.98),
-    uncfam = function() uncfam(X = 0.1, C = 1, B = 0.98),
-    uncfam_sampling = function() uncfam_sampling(X = 0.1, C = 1, B = 0.98, N = 10),
-    multi_sampling = function() multi_sampling(X = 0.1, C = 1, B = 0.98, N = 10),
-    propose_but_verify = function() propose_but_verify(alpha = 0.1, alpha_increase = 0.5),
-    pursuit = function() pursuit(gamma = 0.2, threshold = 0.3, lambda = 0.05),
-    fazly = function() fazly(alpha = 1e-5, beta = 8500),
-    guess_and_test = function() guess_and_test(f = 0.1, sa = 0.5),
-    rescorla_wagner = function() rescorla_wagner(C = 0.98, alpha = 0.1, lambda = 1, beta = 1),
-    tilles = function() tilles(alpha = 0.5, beta = 0.8, gamma = 0.85),
-    bayesian_decay = function() bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 1)
-  )
-  
-  if (!model_name %in% names(model_constructors)) {
-    stop("Model '", model_name, "' not found. Available models: ", 
-         paste(names(model_constructors), collapse = ", "))
-  }
-  
-  model <- model_constructors[[model_name]]()
-  
-  # Get parameter bounds for fitting
-  param_bounds <- list(
-    baseline = list(lower = numeric(0), upper = numeric(0)),
-    decay = list(lower = 0.8, upper = 1.0),
-    uncfam = list(lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)),
-    uncfam_sampling = list(lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)),
-    multi_sampling = list(lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)),
-    propose_but_verify = list(lower = c(0, 0), upper = c(1, 1)),
-    pursuit = list(lower = c(0, 0, 0), upper = c(1, 1, 1)),
-    fazly = list(lower = c(1e-6, 1000), upper = c(1e-3, 10000)),
-    guess_and_test = list(lower = c(0, 0), upper = c(1, 1)),
-    rescorla_wagner = list(lower = c(0.8, 0.01, 0.5, 0.5), upper = c(1.0, 0.5, 2.0, 2.0)),
-    tilles = list(lower = c(0, 0, 0), upper = c(1, 1, 1)),
-    bayesian_decay = list(lower = c(0.1, 0.5, 0.5), upper = c(0.9, 2.0, 2.0))
-  )
-  
-  bounds <- param_bounds[[model_name]]
-  
-  # Fit the model
-  result <- xsl_fit(model, datasets, lower = bounds$lower, upper = bounds$upper)
-  
+
+  entry <- get_model_registry_entry(model_name)
+  model <- entry$constructor()
+
+  result <- xsl_fit(model, datasets, lower = entry$lower, upper = entry$upper)
+
   list(
     model_name = model_name,
     fit_result = result,
@@ -192,58 +229,38 @@ get_group_model_fit <- function(model_name, datasets = NULL) {
 
 #' Get cross-validated model fit
 #'
-#' Performs cross-validation on a model using the available datasets.
-#' This provides a more robust assessment of model performance.
+#' Performs k-fold cross-validation on a model using the available datasets:
+#' the datasets are split into `n_folds` groups, and for each fold the model
+#' is fit (via `xsl_fit()`) to the other folds and evaluated (via
+#' `xsl_run()`) on the held-out fold.
 #'
 #' @param model_name Name of the model to cross-validate (see `show_models()`)
 #' @param n_folds Number of folds for cross-validation (default: 5)
 #' @param datasets Optional list of datasets to use (defaults to all available)
 #'
-#' @return A list containing cross-validation results
+#' @return A list containing cross-validation results (see
+#'   `cross_validated_group_fits()`)
 #' @export
 #'
 #' @examples
-#' # Get cross-validated fit for the uncfam model
-#' cv_fit <- get_crossvalidated_model_fit("uncfam")
+#' # Get cross-validated fit for the decay model
+#' cv_fit <- get_crossvalidated_model_fit("decay", n_folds = 2,
+#'                                        datasets = xsl_datasets[1:6])
 get_crossvalidated_model_fit <- function(model_name, n_folds = 5, datasets = NULL) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
-  
-  # Use the existing cross_validated_group_fits function
-  # First, we need to get the parameter bounds
-  param_bounds <- list(
-    baseline = list(lower = numeric(0), upper = numeric(0)),
-    decay = list(lower = 0.8, upper = 1.0),
-    uncfam = list(lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)),
-    uncfam_sampling = list(lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)),
-    multi_sampling = list(lower = c(0.01, 0.8, 0.8, 1), upper = c(0.5, 1.0, 1.0, 20)),
-    propose_but_verify = list(lower = c(0, 0), upper = c(1, 1)),
-    pursuit = list(lower = c(0, 0, 0), upper = c(1, 1, 1)),
-    fazly = list(lower = c(1e-6, 1000), upper = c(1e-3, 10000)),
-    guess_and_test = list(lower = c(0, 0), upper = c(1, 1)),
-    rescorla_wagner = list(lower = c(0.8, 0.01, 0.5, 0.5), upper = c(1.0, 0.5, 2.0, 2.0)),
-    tilles = list(lower = c(0, 0, 0), upper = c(1, 1, 1)),
-    bayesian_decay = list(lower = c(0.1, 0.5, 0.5), upper = c(0.9, 2.0, 2.0))
-  )
-  
-  if (!model_name %in% names(param_bounds)) {
-    stop("Model '", model_name, "' not found. Available models: ", 
-         paste(names(param_bounds), collapse = ", "))
-  }
-  
-  bounds <- param_bounds[[model_name]]
-  
-  # For now, return a placeholder since cross_validated_group_fits needs more work
-  # In a full implementation, this would use the existing cross_validated_group_fits function
-  warning("Cross-validation functionality is not fully implemented yet. 
-          This is a placeholder that returns basic model information.")
-  
+
+  entry <- get_model_registry_entry(model_name)
+  model <- entry$constructor()
+
+  result <- cross_validated_group_fits(model, datasets, lower = entry$lower,
+                                       upper = entry$upper, n_folds = n_folds)
+
   list(
     model_name = model_name,
     n_folds = n_folds,
     datasets_used = length(datasets),
-    parameter_bounds = bounds,
-    message = "Cross-validation not yet implemented - use get_group_model_fit() instead"
+    cv_result = result
   )
 }

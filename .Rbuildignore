@@ -14,3 +14,5 @@
 data-raw
 animations
 examples.R
+tests/bakeoff_comparison
+^\.claude$

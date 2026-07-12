@@ -1,17 +1,49 @@
-url: http://langcog.github.io/wordbankr/
+url: https://kachergis.github.io/XSLmodels/
 template:
   bootstrap: 5
   bootswatch: cosmo
 reference:
-  - title: Get data
-  - contents:
-    - "get_group_model_fit"
-    - "get_crossvalidated_model_fit"
-    - "get_experiment_data"
-  - title: Get metadata
-  - contents:
-    - "show_models"
-    - "show_datasets"
-  - title: Model comparison
-  - contents:
-    - "compare_models"
+  - title: Models
+    desc: Cross-situational word learning models
+    contents:
+      - baseline
+      - decay
+      - uncfam
+      - uncfam_sampling
+      - multi_sampling
+      - propose_but_verify
+      - pursuit
+      - fazly
+      - guess_and_test
+      - rescorla_wagner
+      - tilles
+      - bayesian_decay
+  - title: Running and fitting models
+    contents:
+      - xsl_run
+      - xsl_fit
+      - update_params
+      - get_group_model_fit
+      - get_crossvalidated_model_fit
+      - cross_validated_group_fits
+      - get_train_test_split
+  - title: Datasets and data structures
+    contents:
+      - xsl_datasets
+      - xslData-class
+      - xslMod-class
+      - xslControl-class
+      - xslFit-class
+      - get_example_ambiguous_condition
+      - get_example_unambiguous_condition
+      - show_datasets
+      - show_models
+      - create_cooc_matrix
+  - title: Evaluating model performance
+    contents:
+      - get_perf
+      - mafc_test
+      - get_tp
+      - get_fscore
+      - get_roc
+      - plot_training_trials

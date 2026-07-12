@@ -117,7 +117,7 @@ tilles_model <- function(params, data, control) {
 #' xsl_run(mod, get_example_ambiguous_condition())
 tilles <- function(x, b, alpha_0) {
   xslMod(
-    name = "rescorla_wagner",
+    name = "tilles",
     description = "Tilles and Fontanari (2013) reinforcement model",
     model = tilles_model,
     params = list(x = x, b = b, alpha_0 = alpha_0),

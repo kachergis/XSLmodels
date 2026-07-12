@@ -26,5 +26,7 @@ accumulation of co-occurrences. The animation is saved to a file if a
 filename is provided.
 }
 \examples{
+\donttest{
 plot_training_trials(xsl_datasets[[1]]$train)
+}
 }

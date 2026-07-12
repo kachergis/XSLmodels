@@ -63,7 +63,16 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
 
   if (by_data) data_wrap <- data else data_wrap <- list(data)
   map(data_wrap, function(dat) {
-    run_wrapper <- \(params) xsl_run(model = update_params(model, params), data = dat, control = control)$sse
+    run_wrapper <- \(params) {
+      # some models are numerically unstable for certain parameter draws
+      # (e.g. producing NA associations); treat those as an infinitely bad
+      # fit rather than letting one bad draw abort the whole optimization
+      sse <- tryCatch(
+        xsl_run(model = update_params(model, params), data = dat, control = control)$sse,
+        error = function(e) NA_real_
+      )
+      if (is.na(sse)) Inf else sse
+    }
     DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
   })
 }

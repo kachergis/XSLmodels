@@ -37,14 +37,14 @@ See what datasets are available:
 datasets <- show_datasets()
 ```
 
-Get model fits for entire dataset:
+Get model fits across all included datasets, for a given model:
 ```
-group_fit_kachergis <- get_group_model_fit("kachergis")
+group_fit_uncfam <- get_group_model_fit("uncfam")
 ```
 
 Get cross-validated (5-fold) model fit:
 ```
-cross_val_fit_kachergis <- get_crossvalidated_model_fit("kachergis")
+cross_val_fit_uncfam <- get_crossvalidated_model_fit("uncfam")
 ```
 
 
