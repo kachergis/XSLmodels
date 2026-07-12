@@ -4,12 +4,25 @@
 \alias{get_group_model_fit}
 \title{Get group model fit for a specific model}
 \usage{
-get_group_model_fit(model_name, datasets = NULL)
+get_group_model_fit(
+  model_name,
+  datasets = NULL,
+  control = xslControl(),
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+)
 }
 \arguments{
 \item{model_name}{Name of the model to fit (see \code{show_models()})}
 
 \item{datasets}{Optional list of datasets to fit to (defaults to all available)}
+
+\item{control}{Control arguments passed to \code{xsl_run()} (via \code{xsl_fit()});
+notably \code{n_sim}, the number of simulations averaged per evaluation of a
+stochastic model (default 500 -- lowering this can speed up fitting of
+stochastic models substantially).}
+
+\item{deoptim_control}{Control parameters passed to \code{DEoptim()} (via
+\code{xsl_fit()}).}
 }
 \value{
 A list containing the fitted model results
@@ -20,6 +33,10 @@ This function provides a convenient way to get pre-computed model fits
 for common models.
 }
 \examples{
-# Get group fit for the uncfam model
-group_fit <- get_group_model_fit("uncfam")
+# Get group fit for the uncfam model. A small dataset subset and a
+# reduced DEoptim search keep this example fast; drop those arguments
+# for a real, thorough fit.
+group_fit <- get_group_model_fit(
+  "uncfam", datasets = xsl_datasets[1:3],
+  deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 }

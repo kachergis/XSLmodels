@@ -10,14 +10,21 @@ update_params(xsl_mod, params)
 \item{xsl_mod}{Object of class xslMod}
 
 \item{params}{Vector or list of parameter values, in the same order as
-\code{xsl_mod$params}}
+the leading elements of \code{xsl_mod$params}}
 }
 \value{
 An object of class xslMod
 }
 \description{
-Replaces \code{xsl_mod}'s parameter values with \code{params}, matched by position
-(not by name) and of the same length -- e.g. a raw numeric vector such as
-\code{DEoptim}'s \code{bestmem}. The result keeps \code{xsl_mod}'s original parameter
-names.
+Replaces \code{xsl_mod}'s leading parameter values with \code{params}, matched by
+position (not by name) -- e.g. a raw numeric vector such as \code{DEoptim}'s
+\code{bestmem}. The result keeps \code{xsl_mod}'s original parameter names.
+}
+\details{
+\code{params} may be shorter than \code{xsl_mod$params}, in which case only the
+first \code{length(params)} parameters are replaced and the rest keep their
+existing values. This is what lets \code{xsl_fit()} optimize a leading subset
+of a model's parameters (e.g. \code{uncfam()}'s numeric \code{X}/\code{B}/\code{C} but not its
+categorical \code{variant}) by giving DEoptim \code{lower}/\code{upper} bounds shorter
+than the model's full parameter list.
 }

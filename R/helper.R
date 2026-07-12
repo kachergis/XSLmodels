@@ -33,6 +33,7 @@ create_cooc_matrix <- function(train) {
 #' Calculates Shannon entropy of a supplied vector, after normalizing it
 #'
 #' @param p Numeric vector of probabilities
+#' @keywords internal
 shannon_entropy <- function(p) {
   if (min(p) < 0 || sum(p) <= 0) return(NA)
   p_norm <- p[p > 0] / sum(p)
@@ -49,6 +50,7 @@ shannon_entropy <- function(p) {
 #' @param tr_w Words
 #' @param tr_o Objects
 #' @param startval Starting value
+#' @keywords internal
 update_known <- function(m, tr_w, tr_o, startval = .01) {
   tr_assocs <- m[tr_w, tr_o]
   tr_assocs[which(tr_assocs == 0)] <- startval
@@ -203,14 +205,27 @@ get_model_registry_entry <- function(model_name) {
 #'
 #' @param model_name Name of the model to fit (see `show_models()`)
 #' @param datasets Optional list of datasets to fit to (defaults to all available)
+#' @param control Control arguments passed to `xsl_run()` (via `xsl_fit()`);
+#'   notably `n_sim`, the number of simulations averaged per evaluation of a
+#'   stochastic model (default 500 -- lowering this can speed up fitting of
+#'   stochastic models substantially).
+#' @param deoptim_control Control parameters passed to `DEoptim()` (via
+#'   `xsl_fit()`).
 #'
 #' @return A list containing the fitted model results
 #' @export
 #'
 #' @examples
-#' # Get group fit for the uncfam model
-#' group_fit <- get_group_model_fit("uncfam")
-get_group_model_fit <- function(model_name, datasets = NULL) {
+#' # Get group fit for the uncfam model. A small dataset subset and a
+#' # reduced DEoptim search keep this example fast; drop those arguments
+#' # for a real, thorough fit.
+#' group_fit <- get_group_model_fit(
+#'   "uncfam", datasets = xsl_datasets[1:3],
+#'   deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
+get_group_model_fit <- function(model_name, datasets = NULL,
+                                control = xslControl(),
+                                deoptim_control = DEoptim::DEoptim.control(
+                                  reltol = .001, NP = 100, itermax = 100)) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
@@ -218,7 +233,8 @@ get_group_model_fit <- function(model_name, datasets = NULL) {
   entry <- get_model_registry_entry(model_name)
   model <- entry$constructor()
 
-  result <- xsl_fit(model, datasets, lower = entry$lower, upper = entry$upper)
+  result <- xsl_fit(model, datasets, lower = entry$lower, upper = entry$upper,
+                    control = control, deoptim_control = deoptim_control)
 
   list(
     model_name = model_name,
@@ -237,16 +253,27 @@ get_group_model_fit <- function(model_name, datasets = NULL) {
 #' @param model_name Name of the model to cross-validate (see `show_models()`)
 #' @param n_folds Number of folds for cross-validation (default: 5)
 #' @param datasets Optional list of datasets to use (defaults to all available)
+#' @param control Control arguments passed to `xsl_run()`/`xsl_fit()`;
+#'   notably `n_sim`, the number of simulations averaged per evaluation of a
+#'   stochastic model (default 500 -- lowering this can speed up
+#'   cross-validation of stochastic models substantially).
+#' @param deoptim_control Control parameters passed to `DEoptim()` (via
+#'   `cross_validated_group_fits()`).
 #'
 #' @return A list containing cross-validation results (see
 #'   `cross_validated_group_fits()`)
 #' @export
 #'
 #' @examples
-#' # Get cross-validated fit for the decay model
-#' cv_fit <- get_crossvalidated_model_fit("decay", n_folds = 2,
-#'                                        datasets = xsl_datasets[1:6])
-get_crossvalidated_model_fit <- function(model_name, n_folds = 5, datasets = NULL) {
+#' # Get cross-validated fit for the decay model. A reduced DEoptim search
+#' # keeps this example fast; drop deoptim_control for a real, thorough fit.
+#' cv_fit <- get_crossvalidated_model_fit(
+#'   "decay", n_folds = 2, datasets = xsl_datasets[1:6],
+#'   deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
+get_crossvalidated_model_fit <- function(model_name, n_folds = 5, datasets = NULL,
+                                         control = xslControl(),
+                                         deoptim_control = DEoptim::DEoptim.control(
+                                           reltol = .001, NP = 100, itermax = 100)) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
@@ -255,7 +282,9 @@ get_crossvalidated_model_fit <- function(model_name, n_folds = 5, datasets = NUL
   model <- entry$constructor()
 
   result <- cross_validated_group_fits(model, datasets, lower = entry$lower,
-                                       upper = entry$upper, n_folds = n_folds)
+                                       upper = entry$upper, n_folds = n_folds,
+                                       control = control,
+                                       deoptim_control = deoptim_control)
 
   list(
     model_name = model_name,

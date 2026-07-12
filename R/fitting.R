@@ -28,8 +28,17 @@ xsl_run <- function(model, data, control = xslControl()) {
   sse_terms <- unlist(transpose(fits)$sse)
   # unweighted_sse <- sum(sse_terms)
   unweighted_sse <- mean(sse_terms)
-  subj <- unlist(transpose(data)$n_subj)
-  sse <- sum(sse_terms * subj) / sum(subj)
+  # n_subj may be unset (e.g. for get_example_ambiguous_condition() and
+  # other datasets without human sample sizes); fall back to the unweighted
+  # SSE rather than dividing by zero, and keep subj aligned with sse_terms
+  # (a plain unlist() would silently drop and misalign missing n_subj)
+  subj <- vapply(data, \(d) if (length(d$n_subj) == 0) NA_real_ else d$n_subj,
+                 numeric(1))
+  sse <- if (all(is.na(subj)) || sum(subj, na.rm = TRUE) == 0) {
+    unweighted_sse
+  } else {
+    sum(sse_terms * subj, na.rm = TRUE) / sum(subj, na.rm = TRUE)
+  }
 
   list(fits = fits, sse = sse, unweighted_sse = unweighted_sse)
 }
@@ -73,6 +82,13 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
       )
       if (is.na(sse)) Inf else sse
     }
-    DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
+    if (length(lower) == 0) {
+      # DEoptim segfaults when given zero-length bounds; a model with no
+      # free parameters (e.g. baseline()) has nothing to optimize, so just
+      # evaluate it once instead
+      list(optim = list(bestmem = numeric(0), bestval = run_wrapper(numeric(0))))
+    } else {
+      DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
+    }
   })
 }
