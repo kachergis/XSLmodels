@@ -17,8 +17,17 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' plot_training_trials(xsl_datasets[[1]]$train)
+#' }
 plot_training_trials <- function(train, filename = NULL) {
+  if (!requireNamespace("viridis", quietly = TRUE) ||
+        !requireNamespace("gganimate", quietly = TRUE)) {
+    stop("Packages \"viridis\" and \"gganimate\" are required for ",
+         "plot_training_trials(). Install them with ",
+         "install.packages(c(\"viridis\", \"gganimate\")).", call. = FALSE)
+  }
+
   words <- sort(unique(unlist(train$words)))
   objects <- sort(unique(unlist(train$objects)))
 
