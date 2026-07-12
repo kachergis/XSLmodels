@@ -4,23 +4,29 @@
 \alias{plot_training_trials}
 \title{Create Animated Plot of Co-Occurrence Matrix from Training Trials}
 \usage{
-plot_training_trials(trials, fname = "")
+plot_training_trials(train, filename = NULL)
 }
 \arguments{
-\item{trials}{A list representing the training data, where each element is a
-trial containing lists of words (\code{words}) and objects (\code{objs}).}
+\item{train}{A list representing the training data, where each element is a
+trial containing lists of words (\code{words}) and objects (\code{objects}).}
 
-\item{fname}{A string specifying the filename where the animation should be saved.
-If left as an empty string (''), no file will be saved.}
+\item{filename}{A string specifying the filename where the animation should
+be saved. If NULL, no file will be saved.}
 }
 \value{
 A long-format data frame where each row corresponds to a trial and
-includes columns for trial number, word, object, and the count of co-occurrences
-up to that trial.
+includes columns for trial number, word, object, and the count of
+co-occurrences up to that trial.
 }
 \description{
 This function takes a sequence of training trials, each consisting of words
-and objects, and creates an animated plot of the word-object co-occurrence matrix.
-The plot evolves over each trial, visually representing the accumulation of
-co-occurrences. The animation is saved to a file if a filename is provided.
+and objects, and creates an animated plot of the word-object co-occurrence
+matrix. The plot evolves over each trial, visually representing the
+accumulation of co-occurrences. The animation is saved to a file if a
+filename is provided.
+}
+\examples{
+\donttest{
+plot_training_trials(xsl_datasets[[1]]$train)
+}
 }

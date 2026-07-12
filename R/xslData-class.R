@@ -1,0 +1,70 @@
+#' xslData S3 class
+#'
+#' @name xslData-class
+#' @rdname xslData-class
+#'
+#' @param train Training data
+#' @param test Test data
+#' @param accuracy Accuracy data
+#' @param n_subj Number of subjects
+#' @param label Label
+#' @param condition Condition
+#' @param description Description
+#' @param response_matrix Response matrix
+#'
+#' @return An object of class xslData
+#' @export
+xslData <- function(train = list(), test = list(), accuracy = numeric(),
+                    n_subj = numeric(), label = "", condition = "",
+                    description = "", response_matrix = NULL) {
+  validate_xslData(
+    new_xslData(list(train = train, test = test, accuracy = accuracy,
+                     n_subj = n_subj, label = label, condition = condition,
+                     description = description, response_matrix = response_matrix))
+  )
+
+}
+
+validate_xslData <- function(x) {
+  stopifnot(!is.null(names(x)))
+  stopifnot(all(names(x) %in% c("train", "test", "accuracy", "n_subj", "label",
+                                "condition", "description", "response_matrix")))
+  stopifnot(!is.null(names(x$train)))
+  stopifnot(all(names(x$train) %in% c("words", "objects")))
+  stopifnot(length(x$test) == 0 |
+              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects"))))
+
+  stopifnot(length(x$train$words) == length(x$train$objects))
+  stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
+  # testing a single word per trial
+  #for(i in x$test$words) stopifnot(length(i) == 1)
+  stopifnot(length(x$accuracy) == 0 |
+              length(x$accuracy) == length(unique(unlist(x$train$words))))
+  stopifnot(is.null(x$response_matrix) ||
+              (nrow(x$response_matrix) == length(unique(unlist(x$train$words))) &&
+                 ncol(x$response_matrix) == length(unique(unlist(x$train$objects)))))
+  x
+}
+
+#' Constructor for xslData S3 class
+#'
+#' @rdname xslData-class
+#' @param x List with elements train, test, accuracy, n_subj, label, condition, descrption, response_matrix
+#'
+#' @export
+new_xslData <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(x, class = c("xslData", "list"))
+}
+
+#' @export
+print.xslData <- function(x, ...) {
+  cat(sprintf('xslData object with label "%s" and condition "%s"\n',
+              x$label, x$condition))
+  cat(sprintf("  training trials: %s\n", length(x$train$words)))
+  cat(sprintf("      test trials: %s\n", length(x$test$words)))
+  cat(sprintf("            words: %s\n", length(unique(unlist(x$train$words)))))
+  cat(sprintf("          objects: %s\n", length(unique(unlist(x$train$objects)))))
+  cat(sprintf("       accuracies: %s\n", length(x$accuracy)))
+  cat(sprintf("         subjects: %s\n", x$n_subj))
+}

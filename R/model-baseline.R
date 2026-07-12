@@ -1,0 +1,48 @@
+baseline_model <- function(params, data, control) {
+  reps <- control[["reps"]]
+
+  voc <- sort(unique(unlist(data$words)))
+  ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
+  voc_sz <- length(voc) # vocabulary size
+  ref_sz <- length(ref) # number of objects
+  traj <- list()
+  m <- matrix(0, voc_sz, ref_sz) # association matrix
+  colnames(m) <- ref
+  rownames(m) <- voc
+  perf <- matrix(0, reps, voc_sz) # a row for each block
+  # training
+  for (rep in 1:reps) { # for trajectory experiments, train multiple times
+    for (t in seq_along(data$words)) {
+      tr_w <- unlist(data$words[t])
+      tr_w <- tr_w[!is.na(tr_w)]
+      tr_w <- tr_w[tr_w != ""]
+      tr_o <- unlist(data$objects[t])
+      tr_o <- tr_o[!is.na(tr_o)]
+
+      m[tr_w, tr_o] <- m[tr_w, tr_o] + 1
+
+      index <- (rep - 1) * length(data$words) + t # index for learning trajectory
+      traj[[index]] <- m
+    }
+    perf[rep, ] <- get_perf(m)
+  }
+  xslFit(perf = perf, matrix = m, traj = traj)
+}
+
+#' Baseline model
+#'
+#' @return An object of class xslMod
+#' @export
+#'
+#' @examples
+#' mod <- baseline()
+#' xsl_run(mod, get_example_ambiguous_condition())
+baseline <- function() {
+  xslMod(
+    name = "baseline",
+    description = "Simple co-occurrence baseline model",
+    model = baseline_model,
+    params = list(),
+    stochastic = FALSE
+  )
+}

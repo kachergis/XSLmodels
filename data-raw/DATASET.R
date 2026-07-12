@@ -1,30 +1,26 @@
-## code to prepare datasets goes here
+library(purrr)
+load("combined_data.rda")
+#load(here("data-raw","combined_data.rda"))
 
-# ToDo: update and move process_FMcorpus and process_FGTcorpus functions
-# from load_corpus_data.R
+# read in spreadsheet with citation and naming info, merge with training order files and (processed?) data..
+metadata <- read_csv(here("data-raw","XSL-dataset-fields.csv"))
 
-# process_FGTcorpus ...
-#usethis::use_data(FGT_corpus, overwrite = TRUE)
-
-# process_FMcorpus ...
-#usethis::use_data(FGT_corpus, overwrite = TRUE)
-
-
-modelFiles <- list.files(path="models/", pattern="\\.R$", recursive=T)
-
-models <- vector(mode = "list", length = length(modelFiles))
-names(models) <- gsub("\\.R$", "", modelFiles)
-
-for(i in seq(along = modelFiles)) {
-  source(paste0("models/",modelFiles[i]))
-  modelInfo <- lapply(modelInfo, rlang::zap_srcref)
-  models[[i]] <- modelInfo
-  rm(modelInfo)
-}
+cds <- map2(combined_data, names(combined_data), function(cd, nm) {
+  train <- list(words = map(cd$train$words, unname),
+                objects = map(cd$train$objs, unname))
+  if (is.null(cd$test)) {
+    test <- NULL
+  } else {
+    test_trans <- transpose(cd$test$trials)
+    test <- list(words = test_trans$word, objects = test_trans$objs)
+  }
+  xslData(train = train, test = test,
+          accuracy = cd$HumanItemAcc, n_subj = cd$Nsubj,
+          label = nm, condition = cd$Condition) # response_matrix = words x chosen object
+  # citation
+})
 
 
-usethis::use_data(models, overwrite = TRUE)
-#save(models, file="data/models.rds", version=2)
 
-
-# ToDo: find the combined_data creating code and put it here
+xsl_datasets <- unname(cds)
+usethis::use_data(xsl_datasets)

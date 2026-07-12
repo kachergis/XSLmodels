@@ -2,29 +2,30 @@ order_dir = "orders/"
 model_dir = "models/"
 data_dir = "data/"
 
-load("data/priming_all_trajectory.RData")
+load("data-raw/data/priming_all_trajectory.RData")
 # all - trajectory data (4 blocks x 18 pairs) 11808 data points from 164 subjects
 prdat <- all %>% group_by(Exp, Block, Subject) %>% summarise(Correct=mean(Correct)) %>%
   tidyboot::tidyboot_mean(Correct)
 ggplot(prdat, aes(x=Block, y=mean, group=Exp, color=Exp)) + geom_point() + geom_line() + theme_bw()
 
-prdat <- all %>% group_by(Exp, Block, TotalFreq, Subject) %>% summarise(Correct=mean(Correct)) %>%
-  tidyboot::tidyboot_mean(Correct)
-ggplot(prdat, aes(x=Block, y=mean, group=TotalFreq, color=TotalFreq)) + facet_wrap(. ~ Exp) +
-  geom_point() + geom_line() + theme_bw()
+
+all |> group_by(Exp, TotalFreq, CorrectAns) |>
+  summarise(accuracy = mean(Correct)) |>
+  ggplot(aes(x=TotalFreq, y=accuracy, color=Exp)) +
+  geom_point() + theme_bw() + geom_smooth()
 # could combine this into below data:
 # "4 Pairs/Trial 3,6,9x" = "3_x8_369_4x4" (and only 30 Ss here)
 # "4 Pairs/Trial, 6x" = "orig_4x4"  (would add much to the 34 Ss there...)
 # "3 Pairs/Trial 3,6,9x" = "freq369-3x3hiCD" (and only 26 Ss here..)
 all$Item = rep(1:18, 4*164)
 
-all$order = ifelse(all$Exp=="4 Pairs/Trial 3,6,9x", "3_x8_369_4x4", 
+all$order = ifelse(all$Exp=="4 Pairs/Trial 3,6,9x", "3_x8_369_4x4",
                    ifelse(all$Exp=="4 Pairs/Trial, 6x", "orig_4x4", "freq369-3x3loCD"))
 # according to paper, Exp 2: 50 participants in 369 hiCD 4x4
 # Exp 3: 70 participants in 369 3x3 loCD
 
 prag <- all %>% filter(Block==1) %>%
-  group_by(order, Item) %>% 
+  group_by(order, Item) %>%
   summarise(HumanItemAcc=mean(Correct))
 
 #cor(subset(prag, order=="orig_4x4")$HumanItemAcc, combined_data[["orig_4x4"]]$HumanItemAcc) # .42
@@ -38,18 +39,18 @@ load("data/asymmetric_conditions.RData") # conds
 print(names(orders)) # e.g., orders[["filt0E_3L"]]
 print(names(conds))
 
-prn <- all %>% group_by(order, Subject) %>% summarise(n=n()) %>% 
+prn <- all %>% group_by(order, Subject) %>% summarise(n=n()) %>%
   group_by(order) %>% summarise(n=n())
 
 cc = c("orig_4x4", "3_x8_369_4x4", "freq369-3x3loCD")
 for(c in cc) {
   denom = orders[[c]]$Nsubj + subset(prn, order==c)$n
-  orders[[c]]$HumanItemAcc = (orders[[c]]$HumanItemAcc * orders[[c]]$Nsubj + 
+  orders[[c]]$HumanItemAcc = (orders[[c]]$HumanItemAcc * orders[[c]]$Nsubj +
                                        subset(prag, order==c)$HumanItemAcc * subset(prn, order==c)$n) / denom
   orders[[c]]$Nsubj = denom
 }
 
-load("data/filtering_item_acc.RData")
+load("data-raw/data/filtering_item_acc.RData")
 fd <- subset(acc_s, AtoA==T)
 for(ord in unique(fd$order)) {
   css = subset(fd, order==ord)
@@ -71,8 +72,8 @@ for(ord in names(orders)) {
 for(ord in names(conds)) {
   if(!is.na(conds[[ord]]$Nsubj)) {
     totSs = totSs + conds[[ord]]$Nsubj
-  } else print(ord) 
-} 
+  } else print(ord)
+}
 # 1696 subjects
 
 combined_data = c(conds, orders)

@@ -2,12 +2,20 @@
 % Please edit documentation in R/helper.R
 \name{update_known}
 \alias{update_known}
-\title{Utility function for several models that fills in a given co-occurrence matrix
-m with startval, for cells of m that were 0 before}
+\title{Update known}
 \usage{
 update_known(m, tr_w, tr_o, startval = 0.01)
 }
+\arguments{
+\item{m}{Co-occurrence matrix}
+
+\item{tr_w}{Words}
+
+\item{tr_o}{Objects}
+
+\item{startval}{Starting value}
+}
 \description{
-Utility function for several models that fills in a given co-occurrence matrix
-m with startval, for cells of m that were 0 before
+Utility function for several models that fills in a given co-occurrence
+matrix m with startval, for cells of m that were 0 before
 }
