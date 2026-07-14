@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  XSLmodels: XSLmodels.html
+last_built: 2026-07-14T23:31Z
+urls:
+  reference: https://kachergis.github.io/XSLmodels/reference
+  article: https://kachergis.github.io/XSLmodels/articles
