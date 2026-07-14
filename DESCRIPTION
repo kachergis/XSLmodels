@@ -12,6 +12,8 @@ Maintainer: George Kachergis <george.kachergis@gmail.com>
 Description: This package has a collection of cognitive models of
   cross-situational word learning models, as well as methods and datasets for
   optimizing them, and plotting the results.
+URL: https://kachergis.github.io/XSLmodels/, https://github.com/kachergis/XSLmodels
+BugReports: https://github.com/kachergis/XSLmodels/issues
 Encoding: UTF-8
 Depends: R (>= 4.1.0)
 Imports:

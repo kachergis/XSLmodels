@@ -8,6 +8,15 @@
 \description{
 This package has a collection of cognitive models of cross-situational word learning models, as well as methods and datasets for optimizing them, and plotting the results.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://kachergis.github.io/XSLmodels/}
+  \item \url{https://github.com/kachergis/XSLmodels}
+  \item Report bugs at \url{https://github.com/kachergis/XSLmodels/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: George Kachergis \email{george.kachergis@gmail.com} (\href{https://orcid.org/0000-0003-4153-4167}{ORCID})
 

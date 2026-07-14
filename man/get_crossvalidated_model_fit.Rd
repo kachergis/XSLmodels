@@ -4,7 +4,13 @@
 \alias{get_crossvalidated_model_fit}
 \title{Get cross-validated model fit}
 \usage{
-get_crossvalidated_model_fit(model_name, n_folds = 5, datasets = NULL)
+get_crossvalidated_model_fit(
+  model_name,
+  n_folds = 5,
+  datasets = NULL,
+  control = xslControl(),
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+)
 }
 \arguments{
 \item{model_name}{Name of the model to cross-validate (see \code{show_models()})}
@@ -12,6 +18,14 @@ get_crossvalidated_model_fit(model_name, n_folds = 5, datasets = NULL)
 \item{n_folds}{Number of folds for cross-validation (default: 5)}
 
 \item{datasets}{Optional list of datasets to use (defaults to all available)}
+
+\item{control}{Control arguments passed to \code{xsl_run()}/\code{xsl_fit()};
+notably \code{n_sim}, the number of simulations averaged per evaluation of a
+stochastic model (default 500 -- lowering this can speed up
+cross-validation of stochastic models substantially).}
+
+\item{deoptim_control}{Control parameters passed to \code{DEoptim()} (via
+\code{cross_validated_group_fits()}).}
 }
 \value{
 A list containing cross-validation results (see
@@ -24,7 +38,9 @@ is fit (via \code{xsl_fit()}) to the other folds and evaluated (via
 \code{xsl_run()}) on the held-out fold.
 }
 \examples{
-# Get cross-validated fit for the decay model
-cv_fit <- get_crossvalidated_model_fit("decay", n_folds = 2,
-                                       datasets = xsl_datasets[1:6])
+# Get cross-validated fit for the decay model. A reduced DEoptim search
+# keeps this example fast; drop deoptim_control for a real, thorough fit.
+cv_fit <- get_crossvalidated_model_fit(
+  "decay", n_folds = 2, datasets = xsl_datasets[1:6],
+  deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 }

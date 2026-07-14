@@ -40,6 +40,8 @@ get_train_test_split <- function(test_inds, conds) {
 #' @param upper Numeric vector of upper bounds for the model's parameters.
 #' @param n_folds Number of folds (default: 5).
 #' @param control Control arguments passed to `xsl_fit()`/`xsl_run()`.
+#' @param deoptim_control Control parameters passed to `DEoptim()` (via
+#'   `xsl_fit()`).
 #' @param seed Optional random seed, for reproducible fold assignment.
 #'
 #' @return A list containing cross-validation results:
@@ -50,10 +52,15 @@ get_train_test_split <- function(test_inds, conds) {
 #' @export
 #'
 #' @examples
+#' # A reduced DEoptim search keeps this example fast; drop
+#' # deoptim_control for a real, thorough fit.
 #' cross_validated_group_fits(decay(C = 0.98), xsl_datasets[1:6],
-#'                            lower = 0.8, upper = 1.0, n_folds = 2)
+#'                            lower = 0.8, upper = 1.0, n_folds = 2,
+#'                            deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 cross_validated_group_fits <- function(model, combined_data, lower, upper,
                                        n_folds = 5, control = xslControl(),
+                                       deoptim_control = DEoptim::DEoptim.control(
+                                         reltol = .001, NP = 100, itermax = 100),
                                        seed = NULL) {
   stopifnot("xslMod" %in% class(model))
   n <- length(combined_data)
@@ -66,7 +73,7 @@ cross_validated_group_fits <- function(model, combined_data, lower, upper,
   fold_results <- map(folds, function(test_inds) {
     split_data <- get_train_test_split(test_inds, combined_data)
     fit <- xsl_fit(model, split_data$train, lower = lower, upper = upper,
-                   control = control)[[1]]
+                   control = control, deoptim_control = deoptim_control)[[1]]
     fitted_model <- update_params(model, fit$optim$bestmem)
     test_run <- xsl_run(fitted_model, split_data$test, control = control)
     list(params = fit$optim$bestmem, train_sse = fit$optim$bestval,

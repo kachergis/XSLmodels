@@ -12,3 +12,4 @@ shannon_entropy(p)
 \description{
 Calculates Shannon entropy of a supplied vector, after normalizing it
 }
+\keyword{internal}

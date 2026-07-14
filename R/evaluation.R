@@ -78,7 +78,7 @@ get_perf <- function(m, d = NULL) {
 mafc_test <- function(m, test) {
   trials <- length(test$words)
   perf <- rep(0, trials)
-  for (i in 1:trials) {
+  for (i in seq_len(trials)) {
     w <- test$words[[i]]
     denom <- sum(m[w, test$objects[[i]]])
     perf[i] <- m[w, w] / denom

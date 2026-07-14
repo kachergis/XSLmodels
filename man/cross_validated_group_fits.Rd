@@ -11,6 +11,7 @@ cross_validated_group_fits(
   upper,
   n_folds = 5,
   control = xslControl(),
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
   seed = NULL
 )
 }
@@ -29,6 +30,9 @@ cross-validation.}
 \item{n_folds}{Number of folds (default: 5).}
 
 \item{control}{Control arguments passed to \code{xsl_fit()}/\code{xsl_run()}.}
+
+\item{deoptim_control}{Control parameters passed to \code{DEoptim()} (via
+\code{xsl_fit()}).}
 
 \item{seed}{Optional random seed, for reproducible fold assignment.}
 }
@@ -49,6 +53,9 @@ evaluated (via \code{xsl_run()}) on the held-out test conditions to obtain an
 out-of-sample SSE.
 }
 \examples{
+# A reduced DEoptim search keeps this example fast; drop
+# deoptim_control for a real, thorough fit.
 cross_validated_group_fits(decay(C = 0.98), xsl_datasets[1:6],
-                           lower = 0.8, upper = 1.0, n_folds = 2)
+                           lower = 0.8, upper = 1.0, n_folds = 2,
+                           deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 }
