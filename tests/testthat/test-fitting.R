@@ -33,6 +33,37 @@ test_that("a model updated via update_params can still be run with xsl_run", {
   expect_type(result$sse, "double")
 })
 
+test_that("xsl_run falls back to get_perf() when test is unset, rather than silently returning sse = 0", {
+  # regression test: xslData()'s test defaults to list() (not NULL), and
+  # xsl_run() checked !is.null(dat$test) rather than length(dat$test) > 0 --
+  # so any xslData built without an explicit test (e.g. the package's own
+  # get_example_ambiguous_condition()) was silently routed through
+  # mafc_test(mat, list()) instead of get_perf(). Because of an R quirk
+  # (1:0 counts down instead of being empty, and vec[i] <- numeric(0)
+  # truncates the vector rather than erroring), that returned perf =
+  # numeric(0) -- and thus sse = 0, a false "perfect fit" -- with no error.
+  dat <- xslData(
+    train = list(words = list(c(1, 2), c(1, 2)), objects = list(c(1, 2), c(1, 2))),
+    accuracy = c(0.1, 0.9),
+    label = "asymmetric toy example"
+  )
+  result <- xsl_run(baseline(), dat)
+  expect_length(result$fits[[1]]$perf, 2)
+  expect_equal(unname(result$fits[[1]]$perf), c(0.5, 0.5))
+  expect_equal(result$sse, sum((c(0.5, 0.5) - c(0.1, 0.9))^2))
+})
+
+test_that("xsl_run still uses mafc_test() when real test trials are provided", {
+  dat <- xslData(
+    train = list(words = list(c(1, 2), c(1, 2)), objects = list(c(1, 2), c(1, 2))),
+    test = list(words = list(1, 2), objects = list(1:2, 1:2)),
+    accuracy = c(0.5, 0.5),
+    label = "toy example with test trials"
+  )
+  result <- xsl_run(baseline(), dat)
+  expect_length(result$fits[[1]]$perf, 2)
+})
+
 test_that("xsl_fit scores an erroring model as an infinitely bad fit instead of crashing", {
   always_errors <- xslMod(
     name = "always_errors",

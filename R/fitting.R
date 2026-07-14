@@ -20,7 +20,11 @@ xsl_run <- function(model, data, control = xslControl()) {
     sims <- map(1:n_sim,
                 \(i) model_fun(params = model_params, data = dat$train, control = control))
     mat <- reduce(transpose(sims)$matrix, `+`)
-    perf <- if (!is.null(dat$test)) mafc_test(mat, dat$test) else get_perf(mat, d = model_params[["ch_dec"]])
+    # dat$test defaults to list() (not NULL) when unset -- length() check (not
+    # is.null()) is required so an xslData built without test isn't silently
+    # routed through mafc_test(mat, list()), which returns numeric(0) (and
+    # thus sse = 0, a false "perfect fit") rather than erroring
+    perf <- if (length(dat$test) > 0) mafc_test(mat, dat$test) else get_perf(mat, d = model_params[["ch_dec"]])
     sse <- sum((perf - dat$accuracy) ^ 2)
     list(sims = sims, perf = perf, matrix = mat, sse = sse, data = dat)
   })
