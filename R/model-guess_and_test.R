@@ -48,9 +48,7 @@ guess_and_test_model <- function(params, data, control) {
       } else {
         have_hypoths <- tr_w[which(rowSums(m[tr_w, ]) != 0)] # throw out inconsistent ones
       }
-      # issue is that there are duplicates in have_hypoths
       for (w in have_hypoths) {
-        if (length(which(m[w, ] == 1))) next
         if (!is.element(which(m[w, ] == 1), tr_o)) m[w, ] <- m[w, ] * 0 # disconfirmed
       }
 
