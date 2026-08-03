@@ -15,3 +15,15 @@
 #' scoring function that fits all of the paper's reported response
 #' proportions (including the "I" item's early/late split) directly.
 "kachergis2012_highlighting"
+
+#' Kachergis, Grimmick, & Gureckis initial accuracy experiment data
+#'
+#' A list of two `xslData` objects ("High Initial Accuracy" and "Low Initial
+#' Accuracy") from an unpublished MTurk cross-situational word learning
+#' experiment manipulating how many of 18 word-object pairs are "switched"
+#' (i.e. studied with the wrong partner) relative to an initial
+#' familiarization phase. Not included in [xsl_datasets] (see
+#' `data-raw/add_kachergis_initial_accuracy.R` for construction details and
+#' `tests/bakeoff_comparison/kachergis_initial_accuracy_fit.R` for an example
+#' model comparison).
+"kachergis_initial_accuracy"

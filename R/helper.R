@@ -84,9 +84,9 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
 #' @examples
 #' show_models()
 show_models <- function() {
-  c("baseline", "decay", "uncfam", "uncfam_sampling", "multi_sampling", 
-    "propose_but_verify", "pursuit", "fazly", "guess_and_test", 
-    "rescorla_wagner", "tilles", "bayesian_decay")
+  c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
+    "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
+    "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay")
 }
 
 #' Show available datasets in the package
@@ -144,6 +144,14 @@ xsl_model_registry <- function() {
     ),
     uncfam = list(
       constructor = function() uncfam(X = 0.1, C = 1, B = 0.98),
+      lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)
+    ),
+    uncfam_attention = list(
+      constructor = function() uncfam_attention(X = 0.1, C = 1, B = 0.98),
+      lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)
+    ),
+    uncfam_predictive = list(
+      constructor = function() uncfam_predictive(X = 0.1, C = 1, B = 0.98),
       lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)
     ),
     uncfam_sampling = list(
