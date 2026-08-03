@@ -68,6 +68,17 @@
   instead of being empty, and `vec[i] <- numeric(0)` truncates the
   vector rather than erroring), producing a false `sse = 0` “perfect
   fit” with no warning. Now checks `length(dat$test) > 0`.
+- [`guess_and_test()`](https://kachergis.github.io/XSLmodels/reference/guess_and_test.md)
+  had an inverted guard clause (`if (length(which(m[w,]==1))) next`)
+  that made its hypothesis-disconfirmation step permanently unreachable,
+  since it was only reached for words that already have a stored
+  hypothesis (guaranteeing the guard’s condition was always true).
+  Hypotheses were therefore never disconfirmed once formed, silently
+  disabling a core part of the model (“…on later encounters, learners
+  attempt to retrieve this hypothesis from memory and test it against a
+  new context, updating it only if it is disconfirmed”). Found by
+  comparing the package’s fits against the original pre-package research
+  code’s fits for the same 44-condition dataset.
 
 ### Documentation
 

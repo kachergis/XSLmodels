@@ -24,8 +24,11 @@
 <url><loc>https://kachergis.github.io/XSLmodels/reference/get_train_test_split.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/guess_and_test.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/index.html</loc></url>
+<url><loc>https://kachergis.github.io/XSLmodels/reference/kachergis2012_highlighting.html</loc></url>
+<url><loc>https://kachergis.github.io/XSLmodels/reference/kachergis_initial_accuracy.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/mafc_test.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/multi_sampling.html</loc></url>
+<url><loc>https://kachergis.github.io/XSLmodels/reference/nonneg_shannon_entropy.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/plot_training_trials.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/propose_but_verify.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/pursuit.html</loc></url>
@@ -35,6 +38,8 @@
 <url><loc>https://kachergis.github.io/XSLmodels/reference/show_models.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/tilles.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/uncfam.html</loc></url>
+<url><loc>https://kachergis.github.io/XSLmodels/reference/uncfam_attention.html</loc></url>
+<url><loc>https://kachergis.github.io/XSLmodels/reference/uncfam_predictive.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/update_known.html</loc></url>
 <url><loc>https://kachergis.github.io/XSLmodels/reference/update_params.html</loc></url>

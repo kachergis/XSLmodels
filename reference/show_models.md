@@ -18,7 +18,8 @@ A character vector of model names
 ``` r
 show_models()
 #>  [1] "baseline"           "decay"              "uncfam"            
-#>  [4] "uncfam_sampling"    "multi_sampling"     "propose_but_verify"
-#>  [7] "pursuit"            "fazly"              "guess_and_test"    
-#> [10] "rescorla_wagner"    "tilles"             "bayesian_decay"    
+#>  [4] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   
+#>  [7] "multi_sampling"     "propose_but_verify" "pursuit"           
+#> [10] "fazly"              "guess_and_test"     "rescorla_wagner"   
+#> [13] "tilles"             "bayesian_decay"    
 ```

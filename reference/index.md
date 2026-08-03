@@ -10,6 +10,10 @@ Cross-situational word learning models
   : Decay model
 - [`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
   : Kachergis 2012
+- [`uncfam_attention()`](https://kachergis.github.io/XSLmodels/reference/uncfam_attention.md)
+  : Biased associative model with attention scaled to trial uncertainty
+- [`uncfam_predictive()`](https://kachergis.github.io/XSLmodels/reference/uncfam_predictive.md)
+  : Predictive biased associative model (item-level prediction error)
 - [`uncfam_sampling()`](https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.md)
   : Kachergis 2012
 - [`multi_sampling()`](https://kachergis.github.io/XSLmodels/reference/multi_sampling.md)
@@ -50,6 +54,10 @@ Cross-situational word learning models
 
 - [`xsl_datasets`](https://kachergis.github.io/XSLmodels/reference/xsl_datasets.md)
   : Cross-situational word learning experiment data
+- [`kachergis2012_highlighting`](https://kachergis.github.io/XSLmodels/reference/kachergis2012_highlighting.md)
+  : Kachergis (2012) highlighting experiment data
+- [`kachergis_initial_accuracy`](https://kachergis.github.io/XSLmodels/reference/kachergis_initial_accuracy.md)
+  : Kachergis, Grimmick, & Gureckis initial accuracy experiment data
 - [`xslData()`](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
   [`new_xslData()`](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
   : xslData S3 class

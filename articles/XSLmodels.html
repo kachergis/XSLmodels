@@ -55,7 +55,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis &amp; Mika Braginsky</h4>
             
-            <h4 data-toc-skip class="date">2026-07-14</h4>
+            <h4 data-toc-skip class="date">2026-08-03</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/XSLmodels.Rmd" class="external-link"><code>vignettes/XSLmodels.Rmd</code></a></small>
       <div class="d-none name"><code>XSLmodels.Rmd</code></div>
@@ -237,11 +237,11 @@ word (i.e., P(referent | word)).</p>
 <code class="sourceCode R"><span><span class="co"># Test different models on a subset of datasets</span></span>
 <span><span class="va">gt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/guess_and_test.html">guess_and_test</a></span><span class="op">(</span>f <span class="op">=</span> <span class="fl">.1</span>, sa <span class="op">=</span> <span class="fl">.5</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">gt</span><span class="op">$</span><span class="va">sse</span></span>
-<span><span class="co">#&gt; [1] 0.2530896</span></span>
+<span><span class="co">#&gt; [1] 3.767219</span></span>
 <span></span>
 <span><span class="va">pt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/pursuit.html">pursuit</a></span><span class="op">(</span>gamma <span class="op">=</span> <span class="fl">.2</span>, threshold <span class="op">=</span> <span class="fl">.3</span>, lambda <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">pt</span><span class="op">$</span><span class="va">sse</span></span>
-<span><span class="co">#&gt; [1] 8.834818</span></span>
+<span><span class="co">#&gt; [1] 8.757726</span></span>
 <span></span>
 <span><span class="co"># Compare with baseline</span></span>
 <span><span class="va">bl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/baseline.html">baseline</a></span><span class="op">(</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
@@ -258,9 +258,10 @@ work with models and datasets:</p>
 <span><span class="va">models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_models.html">show_models</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">models</span></span>
 <span><span class="co">#&gt;  [1] "baseline"           "decay"              "uncfam"            </span></span>
-<span><span class="co">#&gt;  [4] "uncfam_sampling"    "multi_sampling"     "propose_but_verify"</span></span>
-<span><span class="co">#&gt;  [7] "pursuit"            "fazly"              "guess_and_test"    </span></span>
-<span><span class="co">#&gt; [10] "rescorla_wagner"    "tilles"             "bayesian_decay"</span></span>
+<span><span class="co">#&gt;  [4] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   </span></span>
+<span><span class="co">#&gt;  [7] "multi_sampling"     "propose_but_verify" "pursuit"           </span></span>
+<span><span class="co">#&gt; [10] "fazly"              "guess_and_test"     "rescorla_wagner"   </span></span>
+<span><span class="co">#&gt; [13] "tilles"             "bayesian_decay"</span></span>
 <span></span>
 <span><span class="co"># See what datasets are available</span></span>
 <span><span class="va">datasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_datasets.html">show_datasets</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -282,109 +283,109 @@ existing models in the package.</p>
 <code class="sourceCode R"><span><span class="co"># Fit a simple decay model to a single dataset</span></span>
 <span><span class="va">fit_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_fit.html">xsl_fit</a></span><span class="op">(</span><span class="fu"><a href="../reference/decay.html">decay</a></span><span class="op">(</span>C <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, </span>
 <span>                      lower <span class="op">=</span> <span class="fl">.8</span>, upper <span class="op">=</span> <span class="fl">1.0</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Iteration: 1 bestvalit: 0.310600 bestmemit:    0.938017</span></span>
-<span><span class="co">#&gt; Iteration: 2 bestvalit: 0.310600 bestmemit:    0.930496</span></span>
-<span><span class="co">#&gt; Iteration: 3 bestvalit: 0.310600 bestmemit:    0.925069</span></span>
-<span><span class="co">#&gt; Iteration: 4 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 5 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 6 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 7 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 8 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 9 bestvalit: 0.310600 bestmemit:    0.948594</span></span>
-<span><span class="co">#&gt; Iteration: 10 bestvalit: 0.310600 bestmemit:    0.978745</span></span>
-<span><span class="co">#&gt; Iteration: 11 bestvalit: 0.310600 bestmemit:    0.934315</span></span>
-<span><span class="co">#&gt; Iteration: 12 bestvalit: 0.310600 bestmemit:    0.990814</span></span>
-<span><span class="co">#&gt; Iteration: 13 bestvalit: 0.310600 bestmemit:    0.933038</span></span>
-<span><span class="co">#&gt; Iteration: 14 bestvalit: 0.310600 bestmemit:    0.916627</span></span>
-<span><span class="co">#&gt; Iteration: 15 bestvalit: 0.310600 bestmemit:    0.933442</span></span>
-<span><span class="co">#&gt; Iteration: 16 bestvalit: 0.310600 bestmemit:    0.933442</span></span>
-<span><span class="co">#&gt; Iteration: 17 bestvalit: 0.310600 bestmemit:    0.978361</span></span>
-<span><span class="co">#&gt; Iteration: 18 bestvalit: 0.310600 bestmemit:    0.893346</span></span>
-<span><span class="co">#&gt; Iteration: 19 bestvalit: 0.310600 bestmemit:    0.985801</span></span>
-<span><span class="co">#&gt; Iteration: 20 bestvalit: 0.310600 bestmemit:    0.985801</span></span>
-<span><span class="co">#&gt; Iteration: 21 bestvalit: 0.310600 bestmemit:    0.972614</span></span>
-<span><span class="co">#&gt; Iteration: 22 bestvalit: 0.310600 bestmemit:    0.975683</span></span>
-<span><span class="co">#&gt; Iteration: 23 bestvalit: 0.310600 bestmemit:    0.848964</span></span>
-<span><span class="co">#&gt; Iteration: 24 bestvalit: 0.310600 bestmemit:    0.992300</span></span>
-<span><span class="co">#&gt; Iteration: 25 bestvalit: 0.310600 bestmemit:    0.979941</span></span>
-<span><span class="co">#&gt; Iteration: 26 bestvalit: 0.310600 bestmemit:    0.989066</span></span>
-<span><span class="co">#&gt; Iteration: 27 bestvalit: 0.310600 bestmemit:    0.989066</span></span>
-<span><span class="co">#&gt; Iteration: 28 bestvalit: 0.310600 bestmemit:    0.981683</span></span>
-<span><span class="co">#&gt; Iteration: 29 bestvalit: 0.310600 bestmemit:    0.977008</span></span>
-<span><span class="co">#&gt; Iteration: 30 bestvalit: 0.310600 bestmemit:    0.928903</span></span>
-<span><span class="co">#&gt; Iteration: 31 bestvalit: 0.310600 bestmemit:    0.922236</span></span>
-<span><span class="co">#&gt; Iteration: 32 bestvalit: 0.310600 bestmemit:    0.922236</span></span>
-<span><span class="co">#&gt; Iteration: 33 bestvalit: 0.310600 bestmemit:    0.986367</span></span>
-<span><span class="co">#&gt; Iteration: 34 bestvalit: 0.310600 bestmemit:    0.992899</span></span>
-<span><span class="co">#&gt; Iteration: 35 bestvalit: 0.310600 bestmemit:    0.975771</span></span>
-<span><span class="co">#&gt; Iteration: 36 bestvalit: 0.310600 bestmemit:    0.975771</span></span>
-<span><span class="co">#&gt; Iteration: 37 bestvalit: 0.310600 bestmemit:    0.937153</span></span>
-<span><span class="co">#&gt; Iteration: 38 bestvalit: 0.310600 bestmemit:    0.989542</span></span>
-<span><span class="co">#&gt; Iteration: 39 bestvalit: 0.310600 bestmemit:    0.986137</span></span>
-<span><span class="co">#&gt; Iteration: 40 bestvalit: 0.310600 bestmemit:    0.906879</span></span>
-<span><span class="co">#&gt; Iteration: 41 bestvalit: 0.310600 bestmemit:    0.976108</span></span>
-<span><span class="co">#&gt; Iteration: 42 bestvalit: 0.310600 bestmemit:    0.936327</span></span>
-<span><span class="co">#&gt; Iteration: 43 bestvalit: 0.310600 bestmemit:    0.930611</span></span>
-<span><span class="co">#&gt; Iteration: 44 bestvalit: 0.310600 bestmemit:    0.886457</span></span>
-<span><span class="co">#&gt; Iteration: 45 bestvalit: 0.310600 bestmemit:    0.951854</span></span>
-<span><span class="co">#&gt; Iteration: 46 bestvalit: 0.310600 bestmemit:    0.951854</span></span>
-<span><span class="co">#&gt; Iteration: 47 bestvalit: 0.310600 bestmemit:    0.951854</span></span>
-<span><span class="co">#&gt; Iteration: 48 bestvalit: 0.310600 bestmemit:    0.807592</span></span>
-<span><span class="co">#&gt; Iteration: 49 bestvalit: 0.310600 bestmemit:    0.821471</span></span>
-<span><span class="co">#&gt; Iteration: 50 bestvalit: 0.310600 bestmemit:    0.982359</span></span>
-<span><span class="co">#&gt; Iteration: 51 bestvalit: 0.310600 bestmemit:    0.982359</span></span>
-<span><span class="co">#&gt; Iteration: 52 bestvalit: 0.310600 bestmemit:    0.992312</span></span>
-<span><span class="co">#&gt; Iteration: 53 bestvalit: 0.310600 bestmemit:    0.980995</span></span>
-<span><span class="co">#&gt; Iteration: 54 bestvalit: 0.310600 bestmemit:    0.979529</span></span>
-<span><span class="co">#&gt; Iteration: 55 bestvalit: 0.310600 bestmemit:    0.991811</span></span>
-<span><span class="co">#&gt; Iteration: 56 bestvalit: 0.310600 bestmemit:    0.980767</span></span>
-<span><span class="co">#&gt; Iteration: 57 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 58 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 59 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 60 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 61 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 62 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 63 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 64 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 65 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 66 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 67 bestvalit: 0.310600 bestmemit:    0.977554</span></span>
-<span><span class="co">#&gt; Iteration: 68 bestvalit: 0.310600 bestmemit:    0.988869</span></span>
-<span><span class="co">#&gt; Iteration: 69 bestvalit: 0.310600 bestmemit:    0.988869</span></span>
-<span><span class="co">#&gt; Iteration: 70 bestvalit: 0.310600 bestmemit:    0.988869</span></span>
-<span><span class="co">#&gt; Iteration: 71 bestvalit: 0.310600 bestmemit:    0.988869</span></span>
-<span><span class="co">#&gt; Iteration: 72 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 73 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 74 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 75 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 76 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 77 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 78 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 79 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 80 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 81 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 82 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 83 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 84 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 85 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 86 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 87 bestvalit: 0.310600 bestmemit:    0.973906</span></span>
-<span><span class="co">#&gt; Iteration: 88 bestvalit: 0.310600 bestmemit:    0.977916</span></span>
-<span><span class="co">#&gt; Iteration: 89 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 90 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 91 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 92 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 93 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 94 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 95 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 96 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 97 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 98 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 99 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
-<span><span class="co">#&gt; Iteration: 100 bestvalit: 0.310600 bestmemit:    0.978073</span></span>
+<span><span class="co">#&gt; Iteration: 1 bestvalit: 0.310600 bestmemit:    0.970528</span></span>
+<span><span class="co">#&gt; Iteration: 2 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 3 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 4 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 5 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 6 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 7 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 8 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 9 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 10 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 11 bestvalit: 0.310600 bestmemit:    0.979374</span></span>
+<span><span class="co">#&gt; Iteration: 12 bestvalit: 0.310600 bestmemit:    0.977778</span></span>
+<span><span class="co">#&gt; Iteration: 13 bestvalit: 0.310600 bestmemit:    0.977778</span></span>
+<span><span class="co">#&gt; Iteration: 14 bestvalit: 0.310600 bestmemit:    0.987768</span></span>
+<span><span class="co">#&gt; Iteration: 15 bestvalit: 0.310600 bestmemit:    0.991104</span></span>
+<span><span class="co">#&gt; Iteration: 16 bestvalit: 0.310600 bestmemit:    0.991104</span></span>
+<span><span class="co">#&gt; Iteration: 17 bestvalit: 0.310600 bestmemit:    0.991104</span></span>
+<span><span class="co">#&gt; Iteration: 18 bestvalit: 0.310600 bestmemit:    0.978662</span></span>
+<span><span class="co">#&gt; Iteration: 19 bestvalit: 0.310600 bestmemit:    0.978662</span></span>
+<span><span class="co">#&gt; Iteration: 20 bestvalit: 0.310600 bestmemit:    0.978662</span></span>
+<span><span class="co">#&gt; Iteration: 21 bestvalit: 0.310600 bestmemit:    0.978662</span></span>
+<span><span class="co">#&gt; Iteration: 22 bestvalit: 0.310600 bestmemit:    0.980151</span></span>
+<span><span class="co">#&gt; Iteration: 23 bestvalit: 0.310600 bestmemit:    0.980151</span></span>
+<span><span class="co">#&gt; Iteration: 24 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 25 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 26 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 27 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 28 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 29 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 30 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 31 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 32 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 33 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 34 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 35 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 36 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 37 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 38 bestvalit: 0.310600 bestmemit:    0.984310</span></span>
+<span><span class="co">#&gt; Iteration: 39 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 40 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 41 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 42 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 43 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 44 bestvalit: 0.310600 bestmemit:    0.985816</span></span>
+<span><span class="co">#&gt; Iteration: 45 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 46 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 47 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 48 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 49 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 50 bestvalit: 0.310600 bestmemit:    0.985998</span></span>
+<span><span class="co">#&gt; Iteration: 51 bestvalit: 0.310600 bestmemit:    0.989886</span></span>
+<span><span class="co">#&gt; Iteration: 52 bestvalit: 0.310600 bestmemit:    0.930671</span></span>
+<span><span class="co">#&gt; Iteration: 53 bestvalit: 0.310600 bestmemit:    0.930671</span></span>
+<span><span class="co">#&gt; Iteration: 54 bestvalit: 0.310600 bestmemit:    0.930671</span></span>
+<span><span class="co">#&gt; Iteration: 55 bestvalit: 0.310600 bestmemit:    0.985993</span></span>
+<span><span class="co">#&gt; Iteration: 56 bestvalit: 0.310600 bestmemit:    0.980990</span></span>
+<span><span class="co">#&gt; Iteration: 57 bestvalit: 0.310600 bestmemit:    0.980990</span></span>
+<span><span class="co">#&gt; Iteration: 58 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 59 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 60 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 61 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 62 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 63 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 64 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 65 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 66 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 67 bestvalit: 0.310600 bestmemit:    0.990356</span></span>
+<span><span class="co">#&gt; Iteration: 68 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 69 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 70 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 71 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 72 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 73 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 74 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 75 bestvalit: 0.310600 bestmemit:    0.982078</span></span>
+<span><span class="co">#&gt; Iteration: 76 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 77 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 78 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 79 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 80 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 81 bestvalit: 0.310600 bestmemit:    0.990160</span></span>
+<span><span class="co">#&gt; Iteration: 82 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 83 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 84 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 85 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 86 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 87 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 88 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 89 bestvalit: 0.310600 bestmemit:    0.988925</span></span>
+<span><span class="co">#&gt; Iteration: 90 bestvalit: 0.310600 bestmemit:    0.988767</span></span>
+<span><span class="co">#&gt; Iteration: 91 bestvalit: 0.310600 bestmemit:    0.997899</span></span>
+<span><span class="co">#&gt; Iteration: 92 bestvalit: 0.310600 bestmemit:    0.997899</span></span>
+<span><span class="co">#&gt; Iteration: 93 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 94 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 95 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 96 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 97 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 98 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 99 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
+<span><span class="co">#&gt; Iteration: 100 bestvalit: 0.310600 bestmemit:    0.978370</span></span>
 <span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span></span>
 <span><span class="co">#&gt;      par1 </span></span>
-<span><span class="co">#&gt; 0.9780726</span></span>
+<span><span class="co">#&gt; 0.9783702</span></span>
 <span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestval</span></span>
 <span><span class="co">#&gt; [1] 0.3106</span></span></code></pre></div>
 </div>
