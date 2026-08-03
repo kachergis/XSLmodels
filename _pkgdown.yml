@@ -9,6 +9,8 @@ reference:
       - baseline
       - decay
       - uncfam
+      - uncfam_attention
+      - uncfam_predictive
       - uncfam_sampling
       - multi_sampling
       - propose_but_verify
@@ -30,6 +32,8 @@ reference:
   - title: Datasets and data structures
     contents:
       - xsl_datasets
+      - kachergis2012_highlighting
+      - kachergis_initial_accuracy
       - xslData-class
       - xslMod-class
       - xslControl-class
