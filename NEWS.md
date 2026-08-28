@@ -1,3 +1,9 @@
+# XSLmodels 0.3.0
+
+## New Features
+- Added two new model variants of `uncfam()`: `uncfam_attention()` (BAM+Attention), which scales a trial's learning rate by that trial's object uncertainty relative to the running mean (implementing Fitneva & Christiansen 2015's system-level attention account), and `uncfam_predictive()` (BAM+Prediction), which replaces the normalized update rule with an item-level, Rescorla-Wagner-style prediction-error term (floored at 0 to prevent the unnormalized update from diverging over trials)
+- Added two standalone datasets, documented but deliberately not appended to `xsl_datasets`: `kachergis2012_highlighting` (Kachergis, 2012, CogSci) has an ambiguous test item with two legitimate target objects that doesn't fit `xslData`'s one-correct-object-per-word convention, so its accuracy is left `NA` -- appending it would silently poison every other dataset's aggregate fit in `get_group_model_fit()`/`get_crossvalidated_model_fit()`, which sum/average SSE across all of `xsl_datasets`; `kachergis_initial_accuracy` (an unpublished MTurk initial-accuracy manipulation) has no such blocker but is kept standalone for now. See their `?help` pages and `data-raw/add_kachergis2012_highlighting.R`/`add_kachergis_initial_accuracy.R` for full construction details
+
 # XSLmodels 0.2.0
 
 ## New Features
