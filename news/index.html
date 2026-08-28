@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">XSLmodels</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,14 @@
       <small>Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="xslmodels-030">XSLmodels 0.3.0<a class="anchor" aria-label="anchor" href="#xslmodels-030"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<ul><li>Added two new model variants of <code><a href="../reference/uncfam.html">uncfam()</a></code>: <code><a href="../reference/uncfam_attention.html">uncfam_attention()</a></code> (BAM+Attention), which scales a trial’s learning rate by that trial’s object uncertainty relative to the running mean (implementing Fitneva &amp; Christiansen 2015’s system-level attention account), and <code><a href="../reference/uncfam_predictive.html">uncfam_predictive()</a></code> (BAM+Prediction), which replaces the normalized update rule with an item-level, Rescorla-Wagner-style prediction-error term (floored at 0 to prevent the unnormalized update from diverging over trials)</li>
+<li>Added two standalone datasets, documented but deliberately not appended to <code>xsl_datasets</code>: <code>kachergis2012_highlighting</code> (Kachergis, 2012, CogSci) has an ambiguous test item with two legitimate target objects that doesn’t fit <code>xslData</code>’s one-correct-object-per-word convention, so its accuracy is left <code>NA</code> – appending it would silently poison every other dataset’s aggregate fit in <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code>/<code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code>, which sum/average SSE across all of <code>xsl_datasets</code>; <code>kachergis_initial_accuracy</code> (an unpublished MTurk initial-accuracy manipulation) has no such blocker but is kept standalone for now. See their <code><a href="https://rdrr.io/r/utils/help.html" class="external-link">?help</a></code> pages and <code>data-raw/add_kachergis2012_highlighting.R</code>/<code>add_kachergis_initial_accuracy.R</code> for full construction details</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="xslmodels-020">XSLmodels 0.2.0<a class="anchor" aria-label="anchor" href="#xslmodels-020"></a></h2>
 <div class="section level3">
