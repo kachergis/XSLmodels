@@ -54,3 +54,49 @@ test_that("uncfam_predictive()'s unnormalized update never drives an association
   expect_true(all(is.finite(m)))
   expect_true(all(m >= 0))
 })
+
+test_that("tilles() carries a word's alpha forward across trials it doesn't appear on", {
+  # regression test: alpha was declared fresh (rep(NA, voc_sz)) inside the
+  # trial loop and only ever filled in for words on the *current* trial
+  # (tr_w). But the "other old" words update (a word seen before, not on
+  # this trial) needs alpha[other_old_w] -- words never in tr_w on this
+  # trial -- which was therefore always NA, crashing downstream in
+  # shannon_entropy's `if`. alpha now persists across trials as per-word
+  # state, updated only for the current trial's words, so absent words keep
+  # their own last-computed value.
+  mod <- tilles(x = .5, b = .8, alpha_0 = .85)
+  result <- tryCatch(xsl_run(mod, xsl_datasets[[1]]), error = function(e) e)
+  expect_false(inherits(result, "error"))
+  expect_true(all(is.finite(result$fits[[1]]$matrix)))
+})
+
+test_that("tilles() works on an asymmetric dataset (word count != object count)", {
+  # regression test: `r <- matrix(0, voc_sz, voc_sz)` should have been
+  # matrix(0, voc_sz, ref_sz) (matching m's own dimensions, and the second
+  # r declared later in the same function) -- a copy-paste bug that only
+  # breaks assignments like r[w, tr_o] <- ... when an object index exceeds
+  # voc_sz, i.e. whenever voc_sz != ref_sz.
+  koehne <- Filter(function(d) d$label == "Koehne2013-aaappp", xsl_datasets)[[1]]
+  expect_false(length(unique(unlist(koehne$train$words))) ==
+                 length(unique(unlist(koehne$train$objects))))
+  result <- tryCatch(xsl_run(tilles(x = .5, b = .8, alpha_0 = .85), koehne),
+                     error = function(e) e)
+  expect_false(inherits(result, "error"))
+})
+
+test_that("tilles() doesn't divide by zero when an old word has no prior mass on this trial's objects", {
+  # regression test: eq 5.1's flux <- sum(m[w,other_old_o]) / sum(m[w,tr_o])
+  # assumes a currently-present, previously-seen word already has some
+  # association with at least one of this trial's objects. That's not
+  # guaranteed -- a word can be "old" yet paired with an entirely new-to-it
+  # set of objects -- giving sum(m[w,tr_o]) == 0 and thus Inf, which then
+  # multiplies by m[w,tr_o] == 0 to produce NaN. Reproduces dataset "206"'s
+  # trial 3 exactly (word 18/3 reappear paired with objects they've never
+  # been associated with), which failed on every one of 40 random parameter
+  # draws before the fix.
+  cond206 <- Filter(function(d) d$label == "206", xsl_datasets)[[1]]
+  result <- tryCatch(xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), cond206),
+                     error = function(e) e)
+  expect_false(inherits(result, "error"))
+  expect_true(all(is.finite(result$fits[[1]]$matrix)))
+})
