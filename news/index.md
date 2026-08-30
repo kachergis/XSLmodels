@@ -27,6 +27,44 @@
   their [`?help`](https://rdrr.io/r/utils/help.html) pages and
   `data-raw/add_kachergis2012_highlighting.R`/`add_kachergis_initial_accuracy.R`
   for full construction details
+- Added
+  [`kalman_filter()`](https://kachergis.github.io/XSLmodels/reference/kalman_filter.md),
+  a Kalman-filter generalization of
+  [`rescorla_wagner()`](https://kachergis.github.io/XSLmodels/reference/rescorla_wagner.md)’s
+  error-driven update: each word-object association is tracked as a
+  Gaussian belief (mean and variance), giving an adaptive learning rate
+  that starts high under uncertainty and shrinks with confidence, rather
+  than a fixed rate (Dayan & Kakade, 2000; Kruschke, 2008)
+- Added
+  [`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md),
+  a Q-learning-style reinforcement learning model. Unlike every other
+  model in the package (which updates every word-object pair presented
+  together on a trial), it makes a discrete choice per word – sampling a
+  candidate referent from a softmax policy over its current values, then
+  updating only that guess via a TD/delta-rule reward (1 if the guess
+  was present in the scene, 0 otherwise). This mirrors
+  [`propose_but_verify()`](https://kachergis.github.io/XSLmodels/reference/propose_but_verify.md)/[`pursuit()`](https://kachergis.github.io/XSLmodels/reference/pursuit.md)’s
+  propose-and-verify logic but replaces their threshold-based
+  keep/discard rules with graded value learning and explicit softmax
+  exploration
+
+### Bug Fixes
+
+- [`tilles()`](https://kachergis.github.io/XSLmodels/reference/tilles.md)
+  was essentially unfittable – three separate bugs (not the single one
+  originally suspected) made a quick DEoptim search return `Inf` for
+  every draw: (1) its `alpha` term was recomputed fresh every trial
+  instead of persisting per-word across trials, so words absent from the
+  current trial (needed by the “other old words” update) always had
+  `alpha = NA`; (2) an internal matrix was sized `voc_sz x voc_sz`
+  instead of `voc_sz x ref_sz`, a copy-paste bug that only breaks on
+  asymmetric datasets (word count != object count); (3) a flux
+  computation divided by a quantity that can legitimately be zero (a
+  previously-seen word paired with an entirely new-to-it set of
+  objects), producing `Inf * 0 = NaN`. One dataset failed on 100% of a
+  40-draw sweep regardless of parameters before these fixes; after them,
+  a 100-draw sweep shows a residual ~2% failure rate confined to extreme
+  parameter-space tails, on par with other models’ known numerical edges
 
 ## XSLmodels 0.2.0
 

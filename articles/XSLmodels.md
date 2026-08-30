@@ -205,7 +205,8 @@ models
 #>  [4] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   
 #>  [7] "multi_sampling"     "propose_but_verify" "pursuit"           
 #> [10] "fazly"              "guess_and_test"     "rescorla_wagner"   
-#> [13] "tilles"             "bayesian_decay"
+#> [13] "tilles"             "bayesian_decay"     "kalman_filter"     
+#> [16] "softmax_rl"
 
 # See what datasets are available
 datasets <- show_datasets()
@@ -343,12 +344,21 @@ The package includes several types of models:
 **Association-based models:** -
 [`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md) -
 Uncertainty and familiarity biased model -
+[`uncfam_attention()`](https://kachergis.github.io/XSLmodels/reference/uncfam_attention.md) -
+[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+with learning rate scaled to trial uncertainty -
+[`uncfam_predictive()`](https://kachergis.github.io/XSLmodels/reference/uncfam_predictive.md) -
+[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+with an added item-level prediction-error term -
 [`fazly()`](https://kachergis.github.io/XSLmodels/reference/fazly.md) -
 Fazly et al. model -
 [`rescorla_wagner()`](https://kachergis.github.io/XSLmodels/reference/rescorla_wagner.md) -
 Rescorla-Wagner model -
 [`bayesian_decay()`](https://kachergis.github.io/XSLmodels/reference/bayesian_decay.md) -
-Bayesian decay model
+Bayesian decay model -
+[`kalman_filter()`](https://kachergis.github.io/XSLmodels/reference/kalman_filter.md) -
+Kalman filter associative model (adaptive, uncertainty-scaled learning
+rate)
 
 **Sampling-based models:** -
 [`uncfam_sampling()`](https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.md) -
@@ -361,6 +371,10 @@ Guess and test model -
 Propose but verify model -
 [`pursuit()`](https://kachergis.github.io/XSLmodels/reference/pursuit.md) -
 Pursuit model
+
+**Reinforcement learning models:** -
+[`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md) -
+Q-learning-style model with softmax action selection
 
 **Baseline models:** -
 [`baseline()`](https://kachergis.github.io/XSLmodels/reference/baseline.md) -

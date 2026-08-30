@@ -21,5 +21,6 @@ show_models()
 #>  [4] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   
 #>  [7] "multi_sampling"     "propose_but_verify" "pursuit"           
 #> [10] "fazly"              "guess_and_test"     "rescorla_wagner"   
-#> [13] "tilles"             "bayesian_decay"    
+#> [13] "tilles"             "bayesian_decay"     "kalman_filter"     
+#> [16] "softmax_rl"        
 ```

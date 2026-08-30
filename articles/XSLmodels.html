@@ -55,7 +55,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis &amp; Mika Braginsky</h4>
             
-            <h4 data-toc-skip class="date">2026-08-28</h4>
+            <h4 data-toc-skip class="date">2026-08-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/XSLmodels.Rmd" class="external-link"><code>vignettes/XSLmodels.Rmd</code></a></small>
       <div class="d-none name"><code>XSLmodels.Rmd</code></div>
@@ -261,7 +261,8 @@ work with models and datasets:</p>
 <span><span class="co">#&gt;  [4] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   </span></span>
 <span><span class="co">#&gt;  [7] "multi_sampling"     "propose_but_verify" "pursuit"           </span></span>
 <span><span class="co">#&gt; [10] "fazly"              "guess_and_test"     "rescorla_wagner"   </span></span>
-<span><span class="co">#&gt; [13] "tilles"             "bayesian_decay"</span></span>
+<span><span class="co">#&gt; [13] "tilles"             "bayesian_decay"     "kalman_filter"     </span></span>
+<span><span class="co">#&gt; [16] "softmax_rl"</span></span>
 <span></span>
 <span><span class="co"># See what datasets are available</span></span>
 <span><span class="va">datasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_datasets.html">show_datasets</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -394,15 +395,24 @@ existing models in the package.</p>
 </h3>
 <p>The package includes several types of models:</p>
 <p><strong>Association-based models:</strong> - <code><a href="../reference/uncfam.html">uncfam()</a></code> -
-Uncertainty and familiarity biased model - <code><a href="../reference/fazly.html">fazly()</a></code> - Fazly
-et al. model - <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner model -
-<code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> - Bayesian decay model</p>
+Uncertainty and familiarity biased model -
+<code><a href="../reference/uncfam_attention.html">uncfam_attention()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with learning
+rate scaled to trial uncertainty - <code><a href="../reference/uncfam_predictive.html">uncfam_predictive()</a></code> -
+<code><a href="../reference/uncfam.html">uncfam()</a></code> with an added item-level prediction-error term -
+<code><a href="../reference/fazly.html">fazly()</a></code> - Fazly et al. model -
+<code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner model -
+<code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> - Bayesian decay model -
+<code><a href="../reference/kalman_filter.html">kalman_filter()</a></code> - Kalman filter associative model
+(adaptive, uncertainty-scaled learning rate)</p>
 <p><strong>Sampling-based models:</strong> -
 <code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code> - Sampling version of uncfam -
 <code><a href="../reference/multi_sampling.html">multi_sampling()</a></code> - Multi-hypothesis sampling -
 <code><a href="../reference/guess_and_test.html">guess_and_test()</a></code> - Guess and test model -
 <code><a href="../reference/propose_but_verify.html">propose_but_verify()</a></code> - Propose but verify model -
 <code><a href="../reference/pursuit.html">pursuit()</a></code> - Pursuit model</p>
+<p><strong>Reinforcement learning models:</strong> -
+<code><a href="../reference/softmax_rl.html">softmax_rl()</a></code> - Q-learning-style model with softmax action
+selection</p>
 <p><strong>Baseline models:</strong> - <code><a href="../reference/baseline.html">baseline()</a></code> - Simple
 co-occurrence baseline - <code><a href="../reference/decay.html">decay()</a></code> - Decay model -
 <code><a href="../reference/tilles.html">tilles()</a></code> - Tilles model</p>

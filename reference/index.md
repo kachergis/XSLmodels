@@ -32,6 +32,10 @@ Cross-situational word learning models
   : Tilles and Fontanari (2013) reinforcement model
 - [`bayesian_decay()`](https://kachergis.github.io/XSLmodels/reference/bayesian_decay.md)
   : Bayesian decay model
+- [`kalman_filter()`](https://kachergis.github.io/XSLmodels/reference/kalman_filter.md)
+  : Kalman filter associative model
+- [`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md)
+  : Softmax reinforcement learning model
 
 ## Running and fitting models
 
