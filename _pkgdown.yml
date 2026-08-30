@@ -20,6 +20,8 @@ reference:
       - rescorla_wagner
       - tilles
       - bayesian_decay
+      - kalman_filter
+      - softmax_rl
   - title: Running and fitting models
     contents:
       - xsl_run

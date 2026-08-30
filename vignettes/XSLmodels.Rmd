@@ -162,9 +162,12 @@ The package includes several types of models:
 
 **Association-based models:**
 - `uncfam()` - Uncertainty and familiarity biased model
+- `uncfam_attention()` - `uncfam()` with learning rate scaled to trial uncertainty
+- `uncfam_predictive()` - `uncfam()` with an added item-level prediction-error term
 - `fazly()` - Fazly et al. model
 - `rescorla_wagner()` - Rescorla-Wagner model
 - `bayesian_decay()` - Bayesian decay model
+- `kalman_filter()` - Kalman filter associative model (adaptive, uncertainty-scaled learning rate)
 
 **Sampling-based models:**
 - `uncfam_sampling()` - Sampling version of uncfam
@@ -172,6 +175,9 @@ The package includes several types of models:
 - `guess_and_test()` - Guess and test model
 - `propose_but_verify()` - Propose but verify model
 - `pursuit()` - Pursuit model
+
+**Reinforcement learning models:**
+- `softmax_rl()` - Q-learning-style model with softmax action selection
 
 **Baseline models:**
 - `baseline()` - Simple co-occurrence baseline

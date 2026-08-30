@@ -18,6 +18,12 @@ tilles_model <- function(params, data, control) {
   novel_o <- rep(TRUE, ref_sz)
   m <- matrix(0, voc_sz, ref_sz) # association matrix - probabilities
   # compScore <- rep(0, nrow(data$words))
+  # alpha_{t-1}: each word's own most-recently-computed alpha, persisting
+  # across trials on which that word doesn't appear (needed below for
+  # other_old_w, whose update uses their alpha from whenever they were last
+  # seen, not the current trial). Initialized to alpha_0 (eq 7's value at
+  # maximal uncertainty) as a reasonable value for words not yet encountered.
+  alpha <- rep(alpha_0, voc_sz)
   # training
   tr_w <- as.integer(data$words[[1]])
   tr_o <- as.integer(data$objects[[1]])
@@ -59,9 +65,9 @@ tilles_model <- function(params, data, control) {
       m[cur_novel_w, other_old_o] <- (1 - b) / n_o # Eqn 4 (obj not appearing on current t, but earlier)
     }
 
-    # alpha_{t-1} -- must be previous trial!
-    alpha <- rep(NA, voc_sz) # length(tr)
-    for (w in tr_w) { # 1:voc_sz
+    # update this trial's words' alpha in place; other_old_w below keep
+    # whatever alpha they were last assigned (their own "alpha_{t-1}")
+    for (w in tr_w) {
       alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - shannon_entropy(m[w, ]) / log(n_o)) # eq 7 - Nprev?
     }
 
@@ -69,11 +75,17 @@ tilles_model <- function(params, data, control) {
     # net gain of confidence for association w_i and o_j:
 
     flux <- rep(NA, voc_sz)
-    r <- matrix(0, voc_sz, voc_sz)
+    r <- matrix(0, voc_sz, ref_sz) # sized to match m; only equals voc_sz x voc_sz when voc_sz == ref_sz
 
     # slow iterative method; rowSums(m) = 1
     for (w in tr_w) {
-      flux[w] <- sum(m[w, other_old_o]) / sum(m[w, tr_o]) # eq 5.1
+      # eq 5.1 assumes w already has some association with this trial's
+      # objects; a word can be "old" overall yet have zero prior mass on
+      # this specific set of objects (e.g. always paired with different
+      # objects until now) -- with nothing to take a ratio of, there's no
+      # confidence to transfer in, so flux is 0 rather than 0/0 or x/0
+      denom <- sum(m[w, tr_o])
+      flux[w] <- if (denom == 0) 0 else sum(m[w, other_old_o]) / denom # eq 5.1
       r[w, tr_o] <- x * m[w, tr_o] * flux[w] # eq 5.2
       m[w, tr_o] <- m[w, tr_o] + alpha[w] * r[w, tr_o] + (1 - alpha[w]) * (1 / n_o - m[w, tr_o]) # eq 8
       m[w, other_old_o] <- m[w, other_old_o] - alpha[w] * x * m[w, other_old_o] + (1 - alpha[w]) * (1 / n_o - m[w, other_old_o]) # eq 9
@@ -87,7 +99,11 @@ tilles_model <- function(params, data, control) {
     # if params[3] < .268 on "block2_369-3x3hiCD" m[18,18] becomes negative at trial 9
     flux <- rep(0, voc_sz)
     r <- matrix(0, voc_sz, ref_sz)
-    flux[other_old_w] <- rowSums(m[other_old_w, tr_o]) / rowSums(m[other_old_w, other_old_o]) # eq 11.1
+    # same zero-denominator guard as eq 5.1, for the same reason: an
+    # other_old word may have zero prior mass on the "other old" objects
+    other_old_w_denom <- rowSums(m[other_old_w, other_old_o, drop = FALSE])
+    other_old_w_num <- rowSums(m[other_old_w, tr_o, drop = FALSE])
+    flux[other_old_w] <- ifelse(other_old_w_denom == 0, 0, other_old_w_num / other_old_w_denom) # eq 11.1
     r[other_old_w, other_old_o] <- b * mt[other_old_w, other_old_o] * flux[other_old_w] # eq 11.2
     m[other_old_w, other_old_o] <- mt[other_old_w, other_old_o] + alpha[other_old_w] * r[other_old_w, other_old_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, other_old_o]) # eq 12
     m[other_old_w, tr_o] <- mt[other_old_w, tr_o] - alpha[other_old_w] * b * mt[other_old_w, tr_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, tr_o]) # eq 13
