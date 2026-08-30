@@ -100,3 +100,71 @@ test_that("tilles() doesn't divide by zero when an old word has no prior mass on
   expect_false(inherits(result, "error"))
   expect_true(all(is.finite(result$fits[[1]]$matrix)))
 })
+
+test_that("kalman_filter()'s Kalman gain matches its closed-form definition and shrinks with confidence", {
+  # exercises the model's core claim: an adaptive learning rate that starts
+  # large under uncertainty and shrinks as confidence accumulates. Hand-
+  # derived from the model's own update equations (gain = sigma2/(sigma2 +
+  # sigma2_obs); mu <- mu + gain*(1-mu); sigma2 <- (1-gain)*sigma2, with
+  # sigma2 += tau2 diffusion each trial before the update).
+  dat <- xslData(
+    train = list(words = list(c(1, 2), c(1, 2)), objects = list(c(1, 2), c(1, 2))),
+    accuracy = c(0.5, 0.5),
+    label = "two trial test"
+  )
+  tau2 <- .05; sigma2_obs <- 1; sigma2_0 <- 1
+  mod <- kalman_filter(tau2 = tau2, sigma2_obs = sigma2_obs, sigma2_0 = sigma2_0)
+  result <- xsl_run(mod, dat)
+
+  sigma2_1 <- sigma2_0 + tau2
+  gain_1 <- sigma2_1 / (sigma2_1 + sigma2_obs)
+  mu_1 <- gain_1 # mu starts at 0, target is 1
+  sigma2_after_1 <- (1 - gain_1) * sigma2_1
+
+  sigma2_2 <- sigma2_after_1 + tau2
+  gain_2 <- sigma2_2 / (sigma2_2 + sigma2_obs)
+  mu_2 <- mu_1 + gain_2 * (1 - mu_1)
+
+  expect_equal(unname(result$fits[[1]]$matrix[1, 1]), mu_2)
+  expect_true(gain_2 < gain_1) # learning rate shrinks as confidence accumulates
+})
+
+test_that("softmax_rl() learns to prefer a consistently-confirmed referent over a rarely-confirmed one", {
+  # word 1 always co-occurs with object 1 (always confirmed if guessed) but
+  # only co-occurs with object 2 on 1 of 10 trials (rarely confirmed) -- a
+  # reasonable learning rate/temperature should end up strongly favoring
+  # object 1's Q-value over object 2's, averaged across many simulations
+  dat <- xslData(
+    train = list(
+      words = as.list(rep(1, 10)),
+      objects = c(as.list(rep(1, 9)), list(c(1, 2)))
+    ),
+    accuracy = c(0.9),
+    label = "confirmation preference test"
+  )
+  mod <- softmax_rl(alpha = .3, beta = 3)
+  result <- xsl_run(mod, dat, control = xslControl(n_sim = 500))
+  q <- result$fits[[1]]$matrix
+  expect_true(q[1, 1] > q[1, 2])
+})
+
+test_that("softmax_rl() only updates the sampled action, not every co-occurring pair", {
+  # regression/design check: unlike every other model in this package,
+  # which updates the full word x object cross-product on a trial, this
+  # model should only ever move the ONE q-cell it actually sampled and
+  # scored -- so across many single-trial simulations, the total number of
+  # nonzero q-cells changed should equal (not exceed) the number of words
+  # x sims, never words x objects x sims
+  dat <- xslData(
+    train = list(words = list(c(1, 2)), objects = list(c(1, 2, 3))),
+    accuracy = c(0.5, 0.5),
+    label = "sparse update test"
+  )
+  mod <- softmax_rl(alpha = .5, beta = 1)
+  result <- xsl_run(mod, dat, control = xslControl(n_sim = 1))
+  q <- result$fits[[1]]$matrix
+  # exactly one nonzero cell per word (the one it sampled), never both
+  # candidates updated for the same word in a single trial
+  expect_equal(sum(q[1, ] != 0), 1)
+  expect_equal(sum(q[2, ] != 0), 1)
+})

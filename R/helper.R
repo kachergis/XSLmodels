@@ -86,7 +86,8 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
 show_models <- function() {
   c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
-    "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay")
+    "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
+    "kalman_filter", "softmax_rl")
 }
 
 #' Show available datasets in the package
@@ -189,6 +190,14 @@ xsl_model_registry <- function() {
     bayesian_decay = list(
       constructor = function() bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 1),
       lower = c(0.1, 0.5, 0.5), upper = c(0.9, 2.0, 2.0)
+    ),
+    kalman_filter = list(
+      constructor = function() kalman_filter(tau2 = 0.01, sigma2_obs = 1, sigma2_0 = 1),
+      lower = c(0.0001, 0.01, 0.1), upper = c(1, 10, 10)
+    ),
+    softmax_rl = list(
+      constructor = function() softmax_rl(alpha = 0.3, beta = 3),
+      lower = c(0.01, 0.1), upper = c(1, 20)
     )
   )
 }
