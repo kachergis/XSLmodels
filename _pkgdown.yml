@@ -22,10 +22,13 @@ reference:
       - bayesian_decay
       - kalman_filter
       - softmax_rl
+      - fgt2009
+      - fgt2009_rsa
   - title: Running and fitting models
     contents:
       - xsl_run
       - xsl_fit
+      - fgt2009_sweep_alpha
       - update_params
       - get_group_model_fit
       - get_crossvalidated_model_fit

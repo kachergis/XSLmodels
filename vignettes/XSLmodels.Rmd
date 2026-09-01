@@ -179,6 +179,13 @@ The package includes several types of models:
 **Reinforcement learning models:**
 - `softmax_rl()` - Q-learning-style model with softmax action selection
 
+**Bayesian models:**
+- `fgt2009()` - Frank, Goodman & Tenenbaum (2009) intentional model: joint
+  posterior inference over a word-object lexicon, marginalizing the speaker's
+  referential intention (a batch model; ported from the `wordlearn` package).
+  Tune the lexicon-size prior with `fgt2009_sweep_alpha()`.
+- `fgt2009_rsa()` - `fgt2009()` with a Rational Speech Act pragmatic speaker layer
+
 **Baseline models:**
 - `baseline()` - Simple co-occurrence baseline
 - `decay()` - Decay model

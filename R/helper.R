@@ -87,7 +87,7 @@ show_models <- function() {
   c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
     "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
-    "kalman_filter", "softmax_rl")
+    "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa")
 }
 
 #' Show available datasets in the package
@@ -205,6 +205,20 @@ xsl_model_registry <- function() {
       # beta upper bound widened from 20: a group fit to all 53 conditions
       # landed at beta=18.3, essentially pinned against that bound
       lower = c(0.01, 0.1), upper = c(1, 100)
+    ),
+    # fgt2009()/fgt2009_rsa() are BATCH MCMC models: one run is many seconds,
+    # so a full DEoptim search over them is impractical, and the lexicon-size
+    # prior `alpha` scales with corpus size -- a single global value fit across
+    # all of xsl_datasets is not meaningful. These entries fit `alpha` only (the
+    # first parameter) so get_group_model_fit()/get_crossvalidated_model_fit()
+    # don't error on the name, but prefer fgt2009_sweep_alpha() on one dataset.
+    fgt2009 = list(
+      constructor = function() fgt2009(alpha = 1),
+      lower = 0.1, upper = 20
+    ),
+    fgt2009_rsa = list(
+      constructor = function() fgt2009_rsa(alpha = 1),
+      lower = 0.1, upper = 20
     )
   )
 }
