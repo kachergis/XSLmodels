@@ -193,11 +193,18 @@ xsl_model_registry <- function() {
     ),
     kalman_filter = list(
       constructor = function() kalman_filter(tau2 = 0.01, sigma2_obs = 1, sigma2_0 = 1),
-      lower = c(0.0001, 0.01, 0.1), upper = c(1, 10, 10)
+      # widened from (1e-4, 0.01, 0.1)-(1, 10, 10): a group fit to all 53
+      # conditions pinned all three parameters at (or at, for sigma2_0)
+      # their original bounds (tau2 and sigma2_0 at their lower bound,
+      # sigma2_obs at its upper bound), so the true optimum likely lies
+      # outside that box
+      lower = c(0.000001, 0.01, 0.001), upper = c(1, 500, 10)
     ),
     softmax_rl = list(
       constructor = function() softmax_rl(alpha = 0.3, beta = 3),
-      lower = c(0.01, 0.1), upper = c(1, 20)
+      # beta upper bound widened from 20: a group fit to all 53 conditions
+      # landed at beta=18.3, essentially pinned against that bound
+      lower = c(0.01, 0.1), upper = c(1, 100)
     )
   )
 }
