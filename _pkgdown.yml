@@ -52,6 +52,8 @@ reference:
     contents:
       - get_perf
       - mafc_test
+      - predict_referent
+      - rsa_listener
       - get_tp
       - get_fscore
       - get_roc

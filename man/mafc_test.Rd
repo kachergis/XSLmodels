@@ -4,7 +4,7 @@
 \alias{mafc_test}
 \title{Evaluate m-alternative forced choice test}
 \usage{
-mafc_test(m, test)
+mafc_test(m, test, ...)
 }
 \arguments{
 \item{m}{A matrix representing model memory with words as rows and
@@ -12,16 +12,20 @@ referents as columns.}
 
 \item{test}{A list representing the test trials, each containing a word and
 its associated referents.}
+
+\item{...}{Further arguments passed to \code{\link[=predict_referent]{predict_referent()}} (e.g.
+\code{pragmatic}, \code{threshold}).}
 }
 \value{
 A vector with the probability of choosing the correct object, given
 each word.
 }
 \description{
-This function evaluates a given set of test trials using the provided model
-memory matrix (word x referent). Each test trial is assumed to present one
-word and a set of referents of size less than the width of the model memory
-matrix.
+Scores a set of test trials against a model's word-object matrix, returning
+the probability of choosing the correct object on each trial. Each trial
+presents one word and a set of candidate referents; the correct object is
+the one whose id matches the word's id (the package's diagonal convention).
+A thin wrapper over \code{\link[=predict_referent]{predict_referent()}}.
 }
 \examples{
 dat <- xsl_datasets[[10]]
