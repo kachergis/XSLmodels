@@ -566,28 +566,46 @@ fgt2009_rsa <- function(alpha, gamma = 1, kappa = 0.5,
 #' rather than a general-purpose optimizer. This runs `xsl_run()` for each
 #' `alpha` and returns the per-value SSE against the dataset's human accuracy.
 #'
+#' For a naturalistic corpus (e.g. [rollins_corpus], [fm_corpus]) there is no
+#' human accuracy vector; pass `gold` (a `list(words, objects)` lexicon) to also
+#' get the best-threshold F-score of the learned matrix against it (via
+#' [get_roc_max()]) at each `alpha`. Remember such corpora also want the
+#' naturalistic-speech `gamma = 0.1`, `kappa = 0.05` rather than the defaults
+#' (see [fgt2009()]).
+#'
 #' @param data An `xslData` object (or list of them).
 #' @param alphas Numeric vector of `alpha` values to try.
 #' @param rsa Logical; if `TRUE`, sweep [fgt2009_rsa()] instead of [fgt2009()].
+#' @param gold Optional gold-standard lexicon as `list(words, objects)`. When
+#'   given, the result gains an `f_max` column (best-threshold F-score against
+#'   `gold`). `data` must be a single `xslData` in this case.
 #' @param ... Further arguments to the model constructor (e.g. `gamma`,
 #'   `kappa`, sampler controls).
 #' @param control Control arguments passed to `xsl_run()`.
 #'
-#' @return A data frame with columns `alpha` and `sse`, plus `unweighted_sse`
-#'   when `data` is a list.
+#' @return A data frame with columns `alpha` and `sse` (plus `unweighted_sse`
+#'   when `data` is a list, or `f_max` when `gold` is given).
 #' @export
 #'
 #' @examples
 #' fgt2009_sweep_alpha(get_example_ambiguous_condition(),
 #'                     alphas = c(1, 2, 4, 8))
-fgt2009_sweep_alpha <- function(data, alphas, rsa = FALSE, ...,
+fgt2009_sweep_alpha <- function(data, alphas, rsa = FALSE, gold = NULL, ...,
                                 control = xslControl()) {
   ctor <- if (rsa) fgt2009_rsa else fgt2009
+  if (!is.null(gold) && !inherits(data, "xslData")) {
+    stop("`gold` scoring requires `data` to be a single xslData object")
+  }
   rows <- lapply(alphas, function(a) {
     res <- xsl_run(ctor(alpha = a, ...), data, control = control)
-    data.frame(alpha = a, sse = res$sse, unweighted_sse = res$unweighted_sse)
+    row <- data.frame(alpha = a, sse = res$sse,
+                      unweighted_sse = res$unweighted_sse)
+    if (!is.null(gold)) {
+      row$f_max <- get_roc_max(res$fits[[1]]$matrix, gold_lexicon = gold)
+    }
+    row
   })
   out <- do.call(rbind, rows)
-  if ("xslData" %in% class(data)) out$unweighted_sse <- NULL
+  if (inherits(data, "xslData")) out$unweighted_sse <- NULL
   out
 }
