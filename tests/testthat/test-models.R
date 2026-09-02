@@ -22,6 +22,49 @@ test_that("guess_and_test disconfirms a hypothesis once contradicted, rather tha
   expect_equal(sum(m[1, 3:4]), 500, tolerance = 1e-6)
 })
 
+test_that("guess_and_test() survives repeated words per utterance and non-integer object labels", {
+  # regression: an utterance that repeats a word ("the doggy the doggy") made
+  # that word appear twice in have_hypoths, and the first pass could clear its
+  # hypothesis so the second pass hit `which(m[w, ] == 1)` of length 0 (->
+  # "argument is of length zero") or 2 (-> "the condition has length > 1").
+  # Separately, the disconfirmation check compared a column *position* to the
+  # object *labels*, which only worked when objects were labelled 1..N. Both
+  # broke the model on any naturalistic corpus.
+  dat <- xslData(
+    train = list(
+      words = list(c("the", "dog", "the", "dog"), c("look", "a", "cat"),
+                   c("dog", "dog"), c("the", "cat")),
+      objects = list(c("dog_o", "ball"), c("cat_o", "dog_o"),
+                     c("dog_o", "ball"), c("cat_o", "ball"))
+    ),
+    accuracy = numeric(), label = "repeated-word / string-label test"
+  )
+  # suppressWarnings: get_perf() inside xsl_run() recycles on a non-square
+  # matrix (this toy has more word types than object types)
+  res <- suppressWarnings(xsl_run(guess_and_test(f = 0.1, sa = 0.5), dat,
+                                  control = xslControl(n_sim = 20)))
+  m <- res$fits[[1]]$matrix
+  expect_false(anyNA(m))
+  expect_true(all(is.finite(m)))
+})
+
+test_that("tilles() runs on data with non-integer object labels", {
+  # regression: tilles() did as.integer() on the words/objects (they index
+  # m / novel_* by position), which turned string corpus labels into NA and
+  # left the matrix all-zero; it also never set dimnames on its matrix, so
+  # the result could not be scored against a gold lexicon by label.
+  dat <- xslData(
+    train = list(words = list(c("dog", "look"), c("cat", "a"), c("dog", "cat")),
+                 objects = list(c("dog_o", "cat_o"), c("cat_o", "dog_o"),
+                                c("dog_o", "cat_o"))),
+    accuracy = numeric(), label = "string-label test"
+  )
+  m <- xsl_run(tilles(x = .5, b = .8, alpha_0 = .85), dat)$fits[[1]]$matrix
+  expect_equal(rownames(m), sort(c("dog", "look", "cat", "a")))
+  expect_equal(colnames(m), c("cat_o", "dog_o"))
+  expect_true(all(is.finite(m)) && any(m != 0))
+})
+
 test_that("uncfam_attention() falls back to uncfam()'s unscaled rate on a single-trial dataset", {
   # uncfam_attention() scales X by this trial's mean object entropy relative
   # to the mean entropy of all objects seen so far. With only one trial ever

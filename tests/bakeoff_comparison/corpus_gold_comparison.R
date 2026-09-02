@@ -101,16 +101,10 @@ results <- lapply(names(corpora), function(cn) {
   arrange(corpus, desc(f_max))
 
 all_models <- c(assoc_names, "fgt2009", "fgt2009_rsa")
-scored <- unique(results$model)
-failed <- setdiff(all_models, scored)
+failed <- setdiff(all_models, unique(results$model))
 if (length(failed)) {
   message("\nproduced no scorable lexicon on either corpus: ",
-          paste(failed, collapse = ", "),
-          "\n  (guess_and_test/tilles error on the asymmetric corpora --",
-          " pre-existing bugs. The sampling/RL models run on a corpus only",
-          " because of three fixes: xslControl()'s keep_traj = FALSE default,",
-          " skipping objectless FM utterances, and softmax_rl() rewarding",
-          " against object labels rather than column positions.)")
+          paste(failed, collapse = ", "))
 }
 
 print(results, n = Inf)

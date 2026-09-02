@@ -16,7 +16,13 @@ tilles_model <- function(params, data, control) {
 
   novel_w <- rep(TRUE, voc_sz) # set novel[i]=0 once i has appeared
   novel_o <- rep(TRUE, ref_sz)
-  m <- matrix(0, voc_sz, ref_sz) # association matrix - probabilities
+  m <- matrix(0, voc_sz, ref_sz, dimnames = list(voc, ref)) # association probabilities
+
+  # this model indexes m / novel_* by position, so map each trial's word and
+  # object labels to their position in voc / ref (an identity map when the
+  # labels are already 1..N, as in xsl_datasets, but not for a corpus)
+  w_pos <- function(x) match(unlist(x), voc)
+  o_pos <- function(x) match(unlist(x), ref)
   # compScore <- rep(0, nrow(data$words))
   # alpha_{t-1}: each word's own most-recently-computed alpha, persisting
   # across trials on which that word doesn't appear (needed below for
@@ -25,16 +31,16 @@ tilles_model <- function(params, data, control) {
   # maximal uncertainty) as a reasonable value for words not yet encountered.
   alpha <- rep(alpha_0, voc_sz)
   # training
-  tr_w <- as.integer(data$words[[1]])
-  tr_o <- as.integer(data$objects[[1]])
+  tr_w <- w_pos(data$words[[1]]); tr_w <- tr_w[!is.na(tr_w)]
+  tr_o <- o_pos(data$objects[[1]]); tr_o <- tr_o[!is.na(tr_o)]
   m[tr_w, tr_o] <- 1 / length(tr_w) # eq 1: 1/C, where C=|context| (current words and objects)
   novel_w[tr_w] <- FALSE
   novel_o[tr_o] <- FALSE
 
   for (t in 2:length(data$words)) {
-    tr_w <- as.integer(data$words[[t]])
+    tr_w <- w_pos(data$words[[t]])
     tr_w <- tr_w[!is.na(tr_w)]
-    tr_o <- as.integer(data$objects[[t]])
+    tr_o <- o_pos(data$objects[[t]])
     tr_o <- tr_o[!is.na(tr_o)]
 
     # n_prev_w <- length(which(!novel_w)) # N_{t-1} for alpha_{t-1}
