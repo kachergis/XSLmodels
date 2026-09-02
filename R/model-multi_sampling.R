@@ -71,14 +71,18 @@ multi_sampling_model <- function(params, data, control) {
       colnames(chosen_assocs) <- ref
       rownames(chosen_assocs) <- voc
       for (w in tr_w) {
-        # if (sum(temp_wts[w,]) == 0) {next}
+        # a word with no positive sampling weight -- e.g. on a
+        # non-referential utterance with no objects present -- has nothing
+        # to sample; skip it (otherwise sample() errors on an all-zero prob)
+        if (sum(temp_wts[w, ]) == 0) next
         x <- sample(1:ref_sz, K, replace = TRUE, prob = temp_wts[w, ])
         chosen_assocs[w, x] <- m[w, x] # PK for chosen
       }
       denom <- sum(chosen_assocs * nent)
-      chosen_assocs <- (X * chosen_assocs * nent) / denom
       m <- m * C # decay everything
-      m <- m + chosen_assocs
+      # if nothing was sampled this trial (denom == 0) the update is a no-op,
+      # like uncfam() on an objectless trial -- decay still applies
+      if (denom > 0) m <- m + (X * chosen_assocs * nent) / denom
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
       if (keep_traj) traj[[index]] <- m

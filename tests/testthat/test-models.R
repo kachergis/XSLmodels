@@ -169,6 +169,31 @@ test_that("softmax_rl() only updates the sampled action, not every co-occurring 
   expect_equal(sum(q[2, ] != 0), 1)
 })
 
+test_that("uncfam_sampling()/multi_sampling() survive an utterance with no objects present", {
+  # a non-referential utterance (words but no visible objects) leaves the
+  # per-word sampling weights all zero; sample(prob = <all zeros>) used to
+  # error ("too few positive probabilities"), which made both models unable
+  # to run on a naturalistic corpus. Now such a trial is a no-op (decay only).
+  dat <- xslData(
+    train = list(
+      # trial 3: words heard but no objects visible (non-referential)
+      words = list(c(1, 2), c(1, 2), c(1, 2), c(1, 2)),
+      objects = list(c(1, 2), c(1, 2), integer(0), c(1, 2))
+    ),
+    accuracy = c(0.5, 0.5),
+    label = "objectless-trial test"
+  )
+
+  for (mod in list(uncfam_sampling(X = .1, C = 1, B = .98, K = 5),
+                   multi_sampling(C = 1, X = .1, B = .98, K = 5))) {
+    res <- xsl_run(mod, dat, control = xslControl(n_sim = 5))
+    m <- res$fits[[1]]$matrix
+    expect_false(anyNA(m))
+    expect_true(all(is.finite(m)))
+    expect_gt(sum(m), 0)   # the objectless trial didn't wipe out learning
+  }
+})
+
 test_that("fgt2009()'s scoring kernel matches the Python `wordlearn` reference", {
   # The log-posterior kernel (fgt_score_map) is a direct port of
   # wordlearn/model.py::score_lexicon. These values were computed by the

@@ -263,7 +263,7 @@ cmp <- data.frame(
             "kalman_filter", "pursuit", "uncfam_predictive"),
   Rollins = c(0.449, 0.450, 0.395, 0.385, 0.377, 0.377, 0.371, 0.371,
               0.377, 0.312, 0.320, 0.321, 0.303, 0.353, 0.208),
-  FM = c(0.450, 0.407, 0.421, 0.421, NA, NA, 0.354, 0.353,
+  FM = c(0.450, 0.407, 0.421, 0.421, 0.353, 0.353, 0.354, 0.353,
          0.268, 0.290, 0.272, 0.236, 0.211, 0.048, 0.091)
 )
 knitr::kable(cmp, digits = 3,
@@ -281,16 +281,18 @@ Reading the table:
 - The RSA layer makes no difference on FM (`fgt2009` == `fgt2009_rsa`): at
   `alpha = 20` the learned lexicon is sparse enough that no word names two
   co-present objects, so the pragmatic speaker reduces to the literal one.
-- **Some models do not run on these corpora** and show blank cells:
+- The middle of the pack is a tight cluster around F = 0.35 -- the three
+  `uncfam` variants and the two sampling versions all land there, which is
+  reassuring since the sampling models are meant to approximate `uncfam()`.
+- **Three models still don't run on these corpora** (blank FM cells):
   `guess_and_test()` and `tilles()` error on the large word/object asymmetry
-  (`tilles()` also returns a matrix with no dimnames); on the
-  4763-utterance FM corpus `uncfam_sampling()`, `multi_sampling()` and
-  `softmax_rl()` hit a degenerate sampling distribution. `xslControl()`'s new
-  `keep_traj = FALSE` default (don't store a word-by-object matrix per trial)
-  is what now lets `propose_but_verify()` and `pursuit()` run on FM at all --
-  though `pursuit()` then learns an almost-empty lexicon there. These
-  sampling/RL models were designed for controlled experiments of a few dozen
-  trials.
+  (`tilles()` also returns a matrix with no dimnames), and `softmax_rl()`
+  learns a degenerate all-equal matrix on FM. Getting the sampling models
+  (`uncfam_sampling`, `multi_sampling`, `propose_but_verify`, `pursuit`) to
+  run on a corpus at all needed two fixes: `xslControl()`'s `keep_traj = FALSE`
+  default (don't store a word-by-object matrix per trial), and skipping the
+  many non-referential FM utterances that have no objects present. These
+  models were designed for controlled experiments of a few dozen trials.
 
 ## References
 
