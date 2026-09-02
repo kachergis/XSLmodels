@@ -106,11 +106,11 @@ failed <- setdiff(all_models, scored)
 if (length(failed)) {
   message("\nproduced no scorable lexicon on either corpus: ",
           paste(failed, collapse = ", "),
-          "\n  (guess_and_test/tilles error on the asymmetric corpora;",
-          " softmax_rl learns a degenerate all-equal matrix on FM. The other",
-          " sampling models run on a corpus only because of two fixes:",
-          " xslControl()'s keep_traj = FALSE default, and skipping the",
-          " objectless (non-referential) FM utterances.)")
+          "\n  (guess_and_test/tilles error on the asymmetric corpora --",
+          " pre-existing bugs. The sampling/RL models run on a corpus only",
+          " because of three fixes: xslControl()'s keep_traj = FALSE default,",
+          " skipping objectless FM utterances, and softmax_rl() rewarding",
+          " against object labels rather than column positions.)")
 }
 
 print(results, n = Inf)

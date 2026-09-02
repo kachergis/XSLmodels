@@ -259,12 +259,13 @@ not re-fit here), and `fgt2009()` uses `gamma = 0.1`, `kappa = 0.05` with
 cmp <- data.frame(
   model = c("bayesian_decay", "fazly", "fgt2009_rsa", "fgt2009",
             "uncfam_sampling", "multi_sampling", "uncfam_attention", "uncfam",
-            "baseline", "rescorla_wagner", "decay", "propose_but_verify",
-            "kalman_filter", "pursuit", "uncfam_predictive"),
+            "softmax_rl", "baseline", "rescorla_wagner", "decay",
+            "propose_but_verify", "kalman_filter", "pursuit",
+            "uncfam_predictive"),
   Rollins = c(0.449, 0.450, 0.395, 0.385, 0.377, 0.377, 0.371, 0.371,
-              0.377, 0.312, 0.320, 0.321, 0.303, 0.353, 0.208),
+              0.407, 0.377, 0.312, 0.320, 0.321, 0.303, 0.353, 0.208),
   FM = c(0.450, 0.407, 0.421, 0.421, 0.353, 0.353, 0.354, 0.353,
-         0.268, 0.290, 0.272, 0.236, 0.211, 0.048, 0.091)
+         0.258, 0.268, 0.290, 0.272, 0.236, 0.211, 0.048, 0.091)
 )
 knitr::kable(cmp, digits = 3,
              caption = "Best-threshold F of the learned lexicon vs. the gold lexicon.")
@@ -284,15 +285,17 @@ Reading the table:
 - The middle of the pack is a tight cluster around F = 0.35 -- the three
   `uncfam` variants and the two sampling versions all land there, which is
   reassuring since the sampling models are meant to approximate `uncfam()`.
-- **Three models still don't run on these corpora** (blank FM cells):
-  `guess_and_test()` and `tilles()` error on the large word/object asymmetry
-  (`tilles()` also returns a matrix with no dimnames), and `softmax_rl()`
-  learns a degenerate all-equal matrix on FM. Getting the sampling models
-  (`uncfam_sampling`, `multi_sampling`, `propose_but_verify`, `pursuit`) to
-  run on a corpus at all needed two fixes: `xslControl()`'s `keep_traj = FALSE`
-  default (don't store a word-by-object matrix per trial), and skipping the
-  many non-referential FM utterances that have no objects present. These
-  models were designed for controlled experiments of a few dozen trials.
+- **Only `guess_and_test()` and `tilles()` still fail on these corpora**
+  (blank FM cells): both error on the large word/object asymmetry, and
+  `tilles()` also returns a matrix with no dimnames. Getting the other
+  sampling/RL models to run on a corpus at all took three fixes:
+  `xslControl()`'s `keep_traj = FALSE` default (don't store a word-by-object
+  matrix per trial); skipping the many non-referential FM utterances with no
+  objects present; and `softmax_rl()` comparing its sampled guess to the
+  objects present *by label* rather than by column position (it happened to
+  work only because `xsl_datasets` labels objects 1..N). These models were
+  designed for controlled experiments of a few dozen trials, so read the
+  corpus numbers as a stress test rather than a definitive ranking.
 
 ## References
 

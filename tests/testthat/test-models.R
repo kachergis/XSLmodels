@@ -148,6 +148,23 @@ test_that("softmax_rl() learns to prefer a consistently-confirmed referent over 
   expect_true(q[1, 1] > q[1, 2])
 })
 
+test_that("softmax_rl() rewards a guess against object labels, not their positions", {
+  # regression: the reward check was `proposal %in% tr_o`, comparing a column
+  # *position* (1..ref_sz) against the trial's object *labels*. For
+  # xsl_datasets the labels happen to be 1..18 so it worked, but on any
+  # dataset with non-integer (or non-contiguous) object labels every reward
+  # was 0 and the Q-matrix stayed identically zero.
+  dat <- xslData(
+    train = list(words = as.list(rep("dog", 12)),
+                 objects = as.list(rep("kitty", 12))),   # "dog" always with "kitty"
+    accuracy = c(0.9), label = "string-label reward test"
+  )
+  q <- xsl_run(softmax_rl(alpha = .3, beta = 3), dat,
+               control = xslControl(n_sim = 50))$fits[[1]]$matrix
+  expect_gt(max(q), 0)                       # something got rewarded
+  expect_equal(unname(which.max(q["dog", ])), unname(which(colnames(q) == "kitty")))
+})
+
 test_that("softmax_rl() only updates the sampled action, not every co-occurring pair", {
   # regression/design check: unlike every other model in this package,
   # which updates the full word x object cross-product on a trial, this
