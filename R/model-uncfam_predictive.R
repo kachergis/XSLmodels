@@ -27,6 +27,7 @@ uncfam_predictive_model <- function(params, data, control) {
   ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   if (!is.null(start_matrix)) {
     m <- start_matrix
@@ -76,7 +77,7 @@ uncfam_predictive_model <- function(params, data, control) {
       }
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- m
+      if (keep_traj) traj[[index]] <- m
     }
     m_test <- m + test_noise # test noise constant k
     perf[rep, ] <- get_perf(m_test)

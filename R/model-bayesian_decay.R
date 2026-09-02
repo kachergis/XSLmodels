@@ -23,6 +23,7 @@ bayesian_decay_model <- function(params, data, control) {
   ref_sz <- length(ref) # number of objects
 
   perf <- matrix(0, reps, voc_sz) # a row for each block
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
 
   ones <- rep(1, voc_sz)
@@ -55,7 +56,7 @@ bayesian_decay_model <- function(params, data, control) {
       pw_o <- pw_o / sum(pw_o)
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- p_wgo
+      if (keep_traj) traj[[index]] <- p_wgo
     }
     # power choice rule
     perf[rep, ] <- get_perf(p_wgo, d = ch_dec)

@@ -19,6 +19,7 @@ fazly_model <- function(params, data, control) {
   ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, reps, voc_sz) # a row for each block
   align <- matrix(0, voc_sz, ref_sz) # calc from probs of stim on trial
@@ -76,7 +77,7 @@ fazly_model <- function(params, data, control) {
       }
       #index = (rep-1)*nrow(data$trials$words) + t # index for learning trajectory
       index <- t
-      traj[[index]] <- probs
+      if (keep_traj) traj[[index]] <- probs
       if (!is.null(theta)) lexicon[which(probs > theta)] <- 1 # add to lexicon
     }
     if (!is.null(theta)) {

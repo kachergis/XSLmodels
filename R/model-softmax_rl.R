@@ -11,6 +11,7 @@ softmax_rl_model <- function(params, data, control) {
 
   q <- matrix(0, voc_sz, ref_sz) # Q[w,o]: value of guessing object o for word w
   colnames(q) <- ref; rownames(q) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
@@ -47,7 +48,7 @@ softmax_rl_model <- function(params, data, control) {
       }
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- q
+      if (keep_traj) traj[[index]] <- q
     }
     # test-time choice uses the same softmax policy the model learned
     # with, rather than a different (e.g. Luce/get_perf) decision rule

@@ -14,6 +14,7 @@ kalman_filter_model <- function(params, data, control) {
   sigma2 <- matrix(sigma2_0, voc_sz, ref_sz) # uncertainty (variance) about each estimate
   colnames(mu) <- ref; rownames(mu) <- voc
   colnames(sigma2) <- ref; rownames(sigma2) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
@@ -41,7 +42,7 @@ kalman_filter_model <- function(params, data, control) {
       sigma2[tr_w, tr_o] <- (1 - kalman_gain) * sigma2[tr_w, tr_o]
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- mu
+      if (keep_traj) traj[[index]] <- mu
     }
     perf[rep, ] <- get_perf(mu)
   }

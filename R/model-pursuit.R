@@ -47,6 +47,7 @@ pursuit_model <- function(params, data, control) {
   comp_score <- rep(0, length(data$words))
   freq <- rep(0, voc_sz) # number of occurrences per pair, so far (to index the resps matrix)
   names(freq) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
 
   for (t in seq_along(data$words)) {
@@ -57,7 +58,7 @@ pursuit_model <- function(params, data, control) {
     tr_o <- tr_o[!is.na(tr_o)]
     if (length(tr_o) == 0) {
       index <- t
-      traj[[index]] <- m
+      if (keep_traj) traj[[index]] <- m
       next
     }
     novel <- tr_w[which(freq[tr_w] == 0)] # novel words
@@ -97,7 +98,7 @@ pursuit_model <- function(params, data, control) {
     pm_w <- m + lambda
     pm_w <- pm_w / rowSums(pm_w) # Eq 1
     lexicon[which(pm_w > thresh)] <- 1 # add to lexicon
-    traj[[t]] <- lexicon
+    if (keep_traj) traj[[t]] <- lexicon
     #comp_score[t] = sum(diag(lexicon) / rowSums(lexicon+1e-9)) # should use index
     comp_score[t] <- sum(get_perf(pm_w))
   }

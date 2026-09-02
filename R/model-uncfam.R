@@ -16,6 +16,7 @@ uncfam_model <- function(params, data, control) {
   freq_o <- rep(0, ref_sz)
   names(freq_w) <- voc
   names(freq_o) <- ref
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   if (!is.null(start_matrix)) {
     m <- start_matrix
@@ -56,7 +57,7 @@ uncfam_model <- function(params, data, control) {
       m[tr_w, tr_o] <- m[tr_w, tr_o] + (X * terms) / sum(terms)
 
       index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
-      traj[[index]] <- m
+      if (keep_traj) traj[[index]] <- m
     }
     m_test <- m + test_noise # test noise constant k
     perf[rep, ] <- get_perf(m_test)

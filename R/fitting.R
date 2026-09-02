@@ -4,7 +4,12 @@
 #' @param data An object (or list of objects) of class xslData.
 #' @param control Control arguments returned by `xsl_control()`.
 #'
-#' @return List of fits, sse, unweighted_sse
+#' @return A list with `sse`, `unweighted_sse`, and `fits` (one entry per
+#'   dataset). Each fit has `matrix` (the word-by-object matrix, summed over
+#'   simulations for a stochastic model), `perf`, `sse`, `data`, `responses`
+#'   (an `n_sim` x n-words matrix of each simulated participant's final
+#'   per-word accuracy), and `sims` (the full per-simulation `xslFit` list,
+#'   `NULL` unless `control` had `keep_sims = TRUE`).
 #' @export
 xsl_run <- function(model, data, control = xslControl()) {
   stopifnot("xslMod" %in% class(model))
@@ -16,17 +21,35 @@ xsl_run <- function(model, data, control = xslControl()) {
 
   n_sim <- control$n_sim
   if (!model$stochastic) n_sim <- 1
+  keep_sims <- isTRUE(control$keep_sims)
+
   fits <- map(data, function(dat) {
-    sims <- map(1:n_sim,
-                \(i) model_fun(params = model_params, data = dat$train, control = control))
-    mat <- reduce(transpose(sims)$matrix, `+`)
+    # Accumulate the summed word-by-object matrix one simulation at a time so
+    # the n_sim per-simulation results never coexist in memory -- for a long
+    # corpus each carries a matrix per trial, which otherwise blows up.
+    mat <- NULL
+    responses <- NULL      # n_sim x n_words: each sim's final per-word accuracy
+    sims <- if (keep_sims) vector("list", n_sim) else NULL
+    for (i in seq_len(n_sim)) {
+      s <- model_fun(params = model_params, data = dat$train, control = control)
+      mat <- if (is.null(mat)) s$matrix else mat + s$matrix
+      pr <- s$perf
+      if (is.matrix(pr)) pr <- pr[nrow(pr), ]   # last block = final state
+      if (is.null(responses)) {
+        responses <- matrix(NA_real_, n_sim, length(pr),
+                            dimnames = list(NULL, names(pr)))
+      }
+      responses[i, ] <- pr
+      if (keep_sims) sims[[i]] <- s
+    }
     # dat$test defaults to list() (not NULL) when unset -- length() check (not
     # is.null()) is required so an xslData built without test isn't silently
     # routed through mafc_test(mat, list()), which returns numeric(0) (and
     # thus sse = 0, a false "perfect fit") rather than erroring
     perf <- if (length(dat$test) > 0) mafc_test(mat, dat$test) else get_perf(mat, d = model_params[["ch_dec"]])
     sse <- sum((perf - dat$accuracy) ^ 2)
-    list(sims = sims, perf = perf, matrix = mat, sse = sse, data = dat)
+    list(sims = sims, responses = responses, perf = perf, matrix = mat,
+         sse = sse, data = dat)
   })
 
   sse_terms <- unlist(transpose(fits)$sse)

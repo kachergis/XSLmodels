@@ -22,6 +22,7 @@ guess_and_test_model <- function(params, data, control) {
   m <- matrix(0, voc_sz, ref_sz) # hypothesis matrix
   colnames(m) <- ref
   rownames(m) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, nrow = reps, ncol = voc_sz) # a row for each block
   freq <- rep(0, voc_sz) # number of occurrences per pair, so far
@@ -35,7 +36,7 @@ guess_and_test_model <- function(params, data, control) {
       tr_o <- tr_o[!is.na(tr_o)]
       if (length(tr_o) == 0) {
         index <- (rep - 1) * length(data$words) + t
-        traj[[index]] <- m
+        if (keep_traj) traj[[index]] <- m
         next
       }
       freq[tr_w] <- freq[tr_w] + 1
@@ -65,7 +66,7 @@ guess_and_test_model <- function(params, data, control) {
         m[need_hypoths[w], new_hyps[w]] <- 1 # was m[need_hypoths[w], store[w]]
       }
       index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
-      traj[[index]] <- m
+      if (keep_traj) traj[[index]] <- m
     }
     perf[rep, ] <- get_perf(m + 1e-12)
   }
