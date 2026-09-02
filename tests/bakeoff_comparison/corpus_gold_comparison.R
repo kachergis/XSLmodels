@@ -106,10 +106,12 @@ failed <- setdiff(all_models, scored)
 if (length(failed)) {
   message("\nproduced no scorable lexicon on either corpus: ",
           paste(failed, collapse = ", "),
-          "\n  (guess_and_test/tilles error on the asymmetric corpora; the",
-          " sampling/RL models either hit the memory limit storing a",
-          " per-trial trajectory over thousands of utterances, or their",
-          " sampling distribution degenerates)")
+          "\n  (guess_and_test/tilles error on the asymmetric corpora;",
+          " uncfam_sampling/multi_sampling/softmax_rl hit a degenerate",
+          " sampling distribution on the 4763-utterance FM corpus.",
+          " NB: xslControl()'s keep_traj = FALSE default is what lets",
+          " propose_but_verify/pursuit run on FM at all -- otherwise they",
+          " exhaust memory storing a word-by-object matrix per trial.)")
 }
 
 print(results, n = Inf)
