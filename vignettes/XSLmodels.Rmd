@@ -93,6 +93,22 @@ names(xsl_datasets[[1]])
 xsl_datasets[[1]]$accuracy
 ```
 
+A few datasets ship separately from `xsl_datasets` because they don't fit its
+"one correct object per tested word, scored by SSE against human accuracy"
+convention: `kachergis2012_highlighting` and `kachergis_initial_accuracy`
+(experiments with ambiguous test items), and two naturalistic caregiver-speech
+corpora imported from the [wurwur](https://github.com/mcfrank/wurwur) package --
+`rollins_corpus` (the CHILDES/Rollins corpus fit by Frank, Goodman & Tenenbaum,
+2009) and `fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
+referent-selection data; each bundles the training `xslData` in `$data` with a
+gold-standard lexicon in `$gold`, scored with `get_fscore()` / `get_roc()`
+rather than SSE:
+
+```{r, eval = FALSE}
+m <- xsl_run(fgt2009(alpha = 7), rollins_corpus$data)$fits[[1]]$matrix
+get_roc_max(m, gold_lexicon = rollins_corpus$gold)
+```
+
 
 # Running, fitting, and defining XSL models.
 

@@ -39,6 +39,8 @@ reference:
       - xsl_datasets
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
+      - rollins_corpus
+      - fm_corpus
       - xslData-class
       - xslMod-class
       - xslControl-class
