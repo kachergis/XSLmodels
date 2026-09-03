@@ -313,18 +313,18 @@ DEoptim evaluation over 4763 utterances is impractical.
 ```{r fits-table, echo = FALSE}
 # precomputed by tests/bakeoff_comparison/corpus_gold_fits.R
 fit <- data.frame(
-  model = c("bayesian_decay", "fgt2009", "fazly", "softmax_rl",
+  model = c("bayesian_decay", "fgt2009", "fgt2009_rsa", "fazly", "softmax_rl",
             "uncfam_attention", "uncfam", "guess_and_test", "tilles",
             "uncfam_predictive", "propose_but_verify", "rescorla_wagner",
             "decay", "kalman_filter"),
-  Rollins_default = c(0.449, NA, 0.450, 0.361, 0.371, 0.371, 0.378, 0.080,
+  Rollins_default = c(0.449, NA, NA, 0.450, 0.361, 0.371, 0.371, 0.378, 0.080,
                       0.208, 0.310, 0.312, 0.320, 0.303),
-  Rollins_fitted  = c(0.465, 0.452, 0.468, 0.449, 0.438, 0.422, 0.440, 0.417,
-                      0.360, 0.365, 0.348, 0.382, 0.382),
-  FM_default = c(0.450, NA, 0.407, 0.276, 0.354, 0.353, 0.308, 0.048,
+  Rollins_fitted  = c(0.465, 0.452, 0.447, 0.468, 0.449, 0.438, 0.422, 0.440,
+                      0.417, 0.360, 0.365, 0.348, 0.382, 0.382),
+  FM_default = c(0.450, NA, NA, 0.407, 0.276, 0.354, 0.353, 0.308, 0.048,
                  0.091, 0.246, 0.290, 0.272, 0.211),
-  FM_fitted  = c(0.560, 0.529, 0.412, 0.463, 0.443, 0.446, 0.362, 0.385,
-                 0.411, 0.326, 0.324, 0.288, 0.274)
+  FM_fitted  = c(0.560, 0.529, 0.515, 0.412, 0.463, 0.443, 0.446, 0.362,
+                 0.385, 0.411, 0.326, 0.324, 0.288, 0.274)
 )
 knitr::kable(fit, digits = 3,
              caption = "Best-threshold F: registry default vs. fit to the corpus.")
@@ -336,6 +336,10 @@ knitr::kable(fit, digits = 3,
 - **`bayesian_decay` fit to FM reaches F = 0.56** -- clearly the strongest
   result -- with `fgt2009` next at 0.53. `fazly` barely moves (its defaults
   were already near-optimal for these corpora).
+- `fgt2009_rsa` fit (best of an `alpha` sweep) lands just below `fgt2009`
+  (0.45 / 0.52 vs 0.45 / 0.53) -- the pragmatic layer neither helps nor hurts
+  once `alpha` is chosen, because the fitted lexicon is still too sparse for
+  a word to name two co-present objects.
 - The fitted parameters are in `corpus_gold_fits.rds`. `kalman_filter`'s
   `sigma2_obs` sits right at its upper bound, but that is a plateau, not a
   real constraint: the three Kalman parameters share a scale redundancy and
