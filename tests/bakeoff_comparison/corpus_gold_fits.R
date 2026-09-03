@@ -154,7 +154,10 @@ saveRDS(results, file.path(out_dir, "corpus_gold_fits.rds"))
 
 plot_df <- results |>
   pivot_longer(c(f_default, f_fitted), names_to = "which", values_to = "F") |>
-  mutate(which = recode(which, f_default = "registry default", f_fitted = "fit to corpus"),
+  mutate(which = factor(recode(which, f_default = "registry default",
+                               f_fitted = "fit to corpus"),
+                        levels = c("registry default", "fit to corpus")),
+         corpus = factor(corpus, levels = c("Rollins", "FM")),
          model = factor(model, levels = results |>
                           group_by(model) |> summarise(m = mean(f_fitted)) |>
                           arrange(m) |> pull(model)))

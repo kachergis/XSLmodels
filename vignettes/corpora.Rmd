@@ -300,6 +300,47 @@ Reading the table:
   parameters -- read the low scores as "this parameterisation doesn't
   transfer", not "the model is broken".
 
+### Fitting to a corpus
+
+`tests/bakeoff_comparison/corpus_gold_fits.R` goes a step further: for each
+model it runs a (parallel) DEoptim search over the model's parameters,
+maximizing the same best-threshold F against the gold lexicon (these corpora
+have no accuracy vector, so `xsl_fit()`'s SSE objective does not apply).
+`fgt2009()` is fit by an `alpha` sweep instead. `uncfam_sampling()` /
+`multi_sampling()` are left at defaults -- averaging many simulations per
+DEoptim evaluation over 4763 utterances is impractical.
+
+```{r fits-table, echo = FALSE}
+# precomputed by tests/bakeoff_comparison/corpus_gold_fits.R
+fit <- data.frame(
+  model = c("bayesian_decay", "fgt2009", "fazly", "softmax_rl",
+            "uncfam_attention", "uncfam", "guess_and_test", "tilles",
+            "uncfam_predictive", "propose_but_verify", "rescorla_wagner",
+            "decay", "kalman_filter"),
+  Rollins_default = c(0.449, NA, 0.450, 0.361, 0.371, 0.371, 0.378, 0.080,
+                      0.208, 0.310, 0.312, 0.320, 0.303),
+  Rollins_fitted  = c(0.465, 0.452, 0.468, 0.449, 0.438, 0.422, 0.440, 0.417,
+                      0.360, 0.365, 0.348, 0.382, 0.382),
+  FM_default = c(0.450, NA, 0.407, 0.276, 0.354, 0.353, 0.308, 0.048,
+                 0.091, 0.246, 0.290, 0.272, 0.211),
+  FM_fitted  = c(0.560, 0.529, 0.412, 0.463, 0.443, 0.446, 0.362, 0.385,
+                 0.411, 0.326, 0.324, 0.288, 0.274)
+)
+knitr::kable(fit, digits = 3,
+             caption = "Best-threshold F: registry default vs. fit to the corpus.")
+```
+
+- **Fitting lifts every model**, and by a lot for the ones whose registry
+  defaults were tuned on controlled experiments: `tilles` (+0.34 on both
+  corpora), `uncfam_predictive` (+0.15 / +0.32), `softmax_rl` (+0.09 / +0.19).
+- **`bayesian_decay` fit to FM reaches F = 0.56** -- clearly the strongest
+  result -- with `fgt2009` next at 0.53. `fazly` barely moves (its defaults
+  were already near-optimal for these corpora).
+- The fitted parameters are in `corpus_gold_fits.rds`; a few sit near a
+  registry bound (`kalman_filter`'s `sigma2_obs` fits to ~498 against an upper
+  bound of 500), a hint that those bounds could be widened for corpus-scale
+  data.
+
 ## References
 
 Frank, M. C., Goodman, N. D., & Tenenbaum, J. B. (2009). Using speakers'
