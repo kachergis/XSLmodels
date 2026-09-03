@@ -64,6 +64,12 @@ kalman_filter_model <- function(params, data, control) {
 #' associations drift slowly over time), which keeps the model able to
 #' revise a belief rather than converging to a fixed point.
 #'
+#' Note that the three parameters share a scale redundancy: multiplying
+#' `tau2`, `sigma2_obs` and `sigma2_0` together by any constant leaves every
+#' Kalman gain -- and hence the learned matrix -- unchanged. Only two of the
+#' three are identifiable; when fitting, hold one fixed (conventionally
+#' `sigma2_obs`).
+#'
 #' @param tau2 Process (diffusion) noise: how much uncertainty about every
 #'   association grows per trial, whether or not it was observed
 #' @param sigma2_obs Observation noise: how uninformative a single

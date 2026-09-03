@@ -193,12 +193,17 @@ xsl_model_registry <- function() {
     ),
     kalman_filter = list(
       constructor = function() kalman_filter(tau2 = 0.01, sigma2_obs = 1, sigma2_0 = 1),
-      # widened from (1e-4, 0.01, 0.1)-(1, 10, 10): a group fit to all 53
-      # conditions pinned all three parameters at (or at, for sigma2_0)
-      # their original bounds (tau2 and sigma2_0 at their lower bound,
-      # sigma2_obs at its upper bound), so the true optimum likely lies
-      # outside that box
-      lower = c(0.000001, 0.01, 0.001), upper = c(1, 500, 10)
+      # The three parameters share a scale redundancy -- multiplying tau2,
+      # sigma2_obs and sigma2_0 together leaves every Kalman gain, and so the
+      # learned matrix, unchanged -- and the F / SSE landscape additionally
+      # plateaus in sigma2_obs above a few hundred. A fit therefore walks
+      # sigma2_obs to whatever upper bound it is given *without changing the
+      # fit quality*: a group fit to all 53 xsl_datasets conditions and fits
+      # to either bundled corpus all sit on that plateau at the same F/SSE
+      # whether the bound is 500, 2000 or 20000. The bound is wide here only
+      # so the pinning is visibly a plateau, not a real constraint; treat the
+      # fitted sigma2_obs as "large", not as an estimate.
+      lower = c(1e-6, 0.01, 0.001), upper = c(1, 2000, 10)
     ),
     softmax_rl = list(
       constructor = function() softmax_rl(alpha = 0.3, beta = 3),

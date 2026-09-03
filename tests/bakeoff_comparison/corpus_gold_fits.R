@@ -126,21 +126,24 @@ run_set <- function(model_names, n_sim) {
 
 results <- bind_rows(run_set(det_models, 1L), run_set(stoch_models, N_SIM))
 
-# fgt2009(): coarse alpha sweep (serial)
+# fgt2009() / fgt2009_rsa(): coarse alpha sweep (serial)
 fgt_rows <- lapply(names(corpora), function(cn) {
   corpus <- corpora[[cn]]
   n <- length(corpus$data$train$words)
   alphas <- sort(unique(round(c(1, 2, 3, 5, 8, 12, 20) *
                                  max(1, round(sqrt(n / 600))))))
-  message(sprintf("[%s] sweeping fgt2009 alpha over %s ...",
-                  cn, paste(alphas, collapse = ", ")))
-  sw <- fgt2009_sweep_alpha(corpus$data, alphas = alphas, gold = corpus$gold,
-                            gamma = 0.1, kappa = 0.05,
-                            n_warmup = 60, n_samples = 150)
-  best <- sw[which.max(sw$f_max), ]
-  tibble(model = "fgt2009", corpus = cn, f_default = NA_real_,
-         f_fitted = best$f_max,
-         params = sprintf("alpha=%g (gamma=0.1, kappa=0.05)", best$alpha))
+  lapply(c(FALSE, TRUE), function(rsa) {
+    nm <- if (rsa) "fgt2009_rsa" else "fgt2009"
+    message(sprintf("[%s] sweeping %s alpha over %s ...",
+                    cn, nm, paste(alphas, collapse = ", ")))
+    sw <- fgt2009_sweep_alpha(corpus$data, alphas = alphas, gold = corpus$gold,
+                              rsa = rsa, gamma = 0.1, kappa = 0.05,
+                              n_warmup = 60, n_samples = 150)
+    best <- sw[which.max(sw$f_max), ]
+    tibble(model = nm, corpus = cn, f_default = NA_real_,
+           f_fitted = best$f_max,
+           params = sprintf("alpha=%g (gamma=0.1, kappa=0.05)", best$alpha))
+  }) |> bind_rows()
 }) |> bind_rows()
 
 results <- bind_rows(results, fgt_rows) |>

@@ -336,10 +336,12 @@ knitr::kable(fit, digits = 3,
 - **`bayesian_decay` fit to FM reaches F = 0.56** -- clearly the strongest
   result -- with `fgt2009` next at 0.53. `fazly` barely moves (its defaults
   were already near-optimal for these corpora).
-- The fitted parameters are in `corpus_gold_fits.rds`; a few sit near a
-  registry bound (`kalman_filter`'s `sigma2_obs` fits to ~498 against an upper
-  bound of 500), a hint that those bounds could be widened for corpus-scale
-  data.
+- The fitted parameters are in `corpus_gold_fits.rds`. `kalman_filter`'s
+  `sigma2_obs` sits right at its upper bound, but that is a plateau, not a
+  real constraint: the three Kalman parameters share a scale redundancy and
+  the F landscape is flat in `sigma2_obs` above a few hundred, so the fit is
+  the same F whether the bound is 500 or 20000. Read its fitted `sigma2_obs`
+  as "large", not as an estimate.
 
 ## References
 
