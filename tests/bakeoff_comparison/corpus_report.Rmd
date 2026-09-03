@@ -1,0 +1,147 @@
+---
+title: "Cross-situational models on naturalistic corpora"
+subtitle: "Gold-lexicon recovery on the Rollins and FM corpora"
+date: "`r format(Sys.Date())`"
+output:
+  github_document:
+    toc: true
+    html_preview: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+library(dplyr)
+library(tidyr)
+library(knitr)
+
+cmp <- readRDS("corpus_gold_comparison.rds")   # registry-default params
+fit <- readRDS("corpus_gold_fits.rds")         # fit per corpus
+```
+
+A short write-up of how the models in **XSLmodels** do at recovering a
+gold-standard lexicon from two naturalistic corpora of caregiver speech, at
+their default parameters and fit to each corpus. Produced from
+`corpus_gold_comparison.R` and `corpus_gold_fits.R` in this directory.
+
+## The corpora
+
+| corpus | source | utterances | word types | object types | gold pairs |
+|---|---|---:|---:|---:|---:|
+| **`rollins_corpus`** | CHILDES/Rollins -- the corpus Frank, Goodman & Tenenbaum (2009) fit | 619 | 416 | 22 | 34 |
+| **`fm_corpus`** | Frank, Tenenbaum & Fernald (2013) | 4763 | 1122 | 30 | 41 (curated) |
+
+Neither has human referent-selection data, so models are scored against the
+gold lexicon rather than by SSE against accuracy. The score is the
+**best-threshold F** of the (row-normalized) learned word-object matrix
+against the gold lexicon, sweeping the threshold (`get_roc_max()`).
+
+## Method
+
+- **Default run** (`corpus_gold_comparison.R`): every model once per corpus at
+  its `xsl_model_registry()` starting parameters; `fgt2009()` / `fgt2009_rsa()`
+  at `gamma = 0.1`, `kappa = 0.05` with `alpha` from the heuristic
+  `round(7 sqrt(n / 600))`.
+- **Fitted run** (`corpus_gold_fits.R`): a parallel DEoptim search over each
+  model's parameters maximizing that same F; `fgt2009*` by an `alpha` sweep.
+  `baseline` has no parameters; `uncfam_sampling`, `multi_sampling` and
+  `pursuit` are left at defaults (their per-simulation cost on FM makes a
+  DEoptim search impractical).
+
+## Results
+
+```{r results-table}
+best <- fit |>
+  transmute(model, corpus, default = f_default, fitted = f_fitted)
+
+# models with no fitted entry: carry the default value through as "best"
+default_only <- cmp |>
+  filter(!model %in% best$model) |>
+  transmute(model, corpus, default = f_max, fitted = NA_real_)
+
+tbl <- bind_rows(best, default_only) |>
+  mutate(best = pmax(default, fitted, na.rm = TRUE)) |>
+  select(model, corpus, default, best) |>
+  pivot_wider(names_from = corpus, values_from = c(default, best)) |>
+  mutate(overall = rowMeans(cbind(best_Rollins, best_FM))) |>
+  arrange(desc(overall)) |>
+  transmute(
+    model,
+    `Rollins (default)` = default_Rollins,
+    `Rollins (best)`    = best_Rollins,
+    `FM (default)`      = default_FM,
+    `FM (best)`         = best_FM,
+    `overall best`      = overall
+  )
+
+kable(tbl, digits = 3,
+      caption = "Best-threshold F, models ordered by overall best (mean of the two corpora's best F). \"best\" is the fit-to-corpus value where a fit was run, otherwise the default.")
+```
+
+![Registry defaults vs. fit to each corpus](corpus_gold_fits.png)
+
+## Findings
+
+1. **`bayesian_decay` is the strongest model on both corpora** (overall best
+   F = `r round(tbl$"overall best"[tbl$model == "bayesian_decay"], 2)`), and
+   `fgt2009` -- the model designed for this problem -- is next. The gap to the
+   associative baselines (`baseline`, `decay`, `rescorla_wagner`) is real but
+   not huge: ~0.45 vs ~0.32.
+
+2. **`fgt2009` buys precision with the size prior.** At default parameters on
+   FM its precision is
+   `r round(cmp$precision[cmp$model == "fgt2009" & cmp$corpus == "FM"], 2)`
+   against 0.2--0.34 for the others (recall
+   `r round(cmp$recall[cmp$model == "fgt2009" & cmp$corpus == "FM"], 2)`): the
+   geometric `exp(-alpha |L|)` prior makes it commit to a small,
+   mostly-correct lexicon rather than a large noisy one.
+
+3. **The RSA layer is a no-op here.** `fgt2009_rsa` tracks `fgt2009` to within
+   noise (fitted F 0.45 / 0.52 vs 0.45 / 0.53). The learned lexicon is too
+   sparse for a word to name two co-present objects, so the pragmatic speaker
+   reduces to the literal one.
+
+4. **Fitting matters -- most for the models whose registry defaults were tuned
+   on controlled experiments.** `tilles` gains +0.34 on both corpora,
+   `uncfam_predictive` +0.15 / +0.32, `softmax_rl` +0.09 / +0.19. `fazly`
+   barely moves -- its defaults were already near-optimal for a corpus.
+
+5. **At default parameters, the `uncfam` family and its sampling versions
+   land in the same place** (F ~0.35--0.38 on both corpora) -- the expected
+   sanity check, since the sampling models are meant to approximate
+   `uncfam()`. Fitting then lifts the deterministic `uncfam` variants to
+   ~0.44 while `uncfam_sampling` / `multi_sampling` stay at their defaults
+   (not fit here).
+
+6. **`pursuit` collapses on FM** (F = 0.05, recall 1.0, precision 0.02): at
+   its default parameters it learns an almost-flat matrix on the large
+   corpus. This is a "wrong parameterisation" result -- it was not fit.
+
+## Caveats
+
+- **Not human data.** F against a gold lexicon measures lexicon *recovery*,
+  not fit to what a child actually learns; the two can diverge (a model can be
+  "too good").
+- **F depends on the gold lexicon.** FM ships three (`curated`, `strict`,
+  `permissive`); absolute F is not comparable across them. All numbers here use
+  `curated`.
+- **The sampling models are only partly fit.** `propose_but_verify`,
+  `guess_and_test` and `softmax_rl` are fit with 60 simulations averaged per
+  DEoptim evaluation; `uncfam_sampling` / `multi_sampling` / `pursuit` are at
+  defaults.
+- **`kalman_filter`'s `sigma2_obs` is not identified.** The three parameters
+  share a scale redundancy and the F landscape plateaus, so its fitted
+  `sigma2_obs` sits at whatever bound it is given without changing F. Read it
+  as "large".
+- Several models needed bug fixes before they would run on a corpus at all
+  (memory, non-referential utterances with no objects present, and position-
+  vs-label confusions in `softmax_rl` / `guess_and_test` / `tilles`); see the
+  package NEWS.
+
+## Reproducing
+
+```r
+# from the package root, against the installed package
+source("tests/bakeoff_comparison/corpus_gold_comparison.R")   # ~30 min
+source("tests/bakeoff_comparison/corpus_gold_fits.R")         # ~3 h (parallel)
+rmarkdown::render("tests/bakeoff_comparison/corpus_report.Rmd")
+```
