@@ -22,10 +22,13 @@ reference:
       - bayesian_decay
       - kalman_filter
       - softmax_rl
+      - fgt2009
+      - fgt2009_rsa
   - title: Running and fitting models
     contents:
       - xsl_run
       - xsl_fit
+      - fgt2009_sweep_alpha
       - update_params
       - get_group_model_fit
       - get_crossvalidated_model_fit
@@ -36,6 +39,8 @@ reference:
       - xsl_datasets
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
+      - rollins_corpus
+      - fm_corpus
       - xslData-class
       - xslMod-class
       - xslControl-class
@@ -49,6 +54,8 @@ reference:
     contents:
       - get_perf
       - mafc_test
+      - predict_referent
+      - rsa_listener
       - get_tp
       - get_fscore
       - get_roc

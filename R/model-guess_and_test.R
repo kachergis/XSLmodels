@@ -18,30 +18,34 @@ guess_and_test_model <- function(params, data, control) {
   ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
-  ppt <- length(data$words[[1]]) # pairs per trial ASSUMES num words = num objects per trial
   m <- matrix(0, voc_sz, ref_sz) # hypothesis matrix
   colnames(m) <- ref
   rownames(m) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, nrow = reps, ncol = voc_sz) # a row for each block
   freq <- rep(0, voc_sz) # number of occurrences per pair, so far
   names(freq) <- voc
   for (rep in 1:reps) {
     for (t in seq_along(data$words)) {
+      # a word or object heard twice in one utterance is still one word /
+      # one object for hypothesis testing -- without de-duplicating, a
+      # repeated word is visited twice below, and the first visit can clear
+      # or double-set its hypothesis, leaving which(m[w, ] == 1) non-scalar
+      # (a corpus has repeated words per utterance; controlled trials never do)
       tr_w <- unlist(data$words[t])
-      tr_w <- tr_w[!is.na(tr_w)]
-      tr_w <- tr_w[tr_w != ""]
+      tr_w <- unique(tr_w[!is.na(tr_w) & tr_w != ""])
       tr_o <- unlist(data$objects[t])
-      tr_o <- tr_o[!is.na(tr_o)]
+      tr_o <- unique(tr_o[!is.na(tr_o)])
       if (length(tr_o) == 0) {
         index <- (rep - 1) * length(data$words) + t
-        traj[[index]] <- m
+        if (keep_traj) traj[[index]] <- m
         next
       }
+      tr_o_pos <- match(tr_o, ref)   # column positions of this trial's objects
       freq[tr_w] <- freq[tr_w] + 1
       # forget randomly-selected hypotheses
-      forget <- tr_w[which(runif(ppt) < f)]
-      forget <- forget[!is.na(forget)]
+      forget <- tr_w[runif(length(tr_w)) < f]
       m[forget, ] <- m[forget, ] * 0
       if (length(tr_w) == 1) {
         have_hypoths <- tr_w[which(sum(m[tr_w, ]) != 0)]
@@ -49,7 +53,9 @@ guess_and_test_model <- function(params, data, control) {
         have_hypoths <- tr_w[which(rowSums(m[tr_w, ]) != 0)] # throw out inconsistent ones
       }
       for (w in have_hypoths) {
-        if (!is.element(which(m[w, ] == 1), tr_o)) m[w, ] <- m[w, ] * 0 # disconfirmed
+        # disconfirm if the word's single stored hypothesis (a column
+        # position) is not among the objects present on this trial
+        if (!is.element(which(m[w, ] == 1), tr_o_pos)) m[w, ] <- m[w, ] * 0
       }
 
       # make new hypotheses
@@ -58,14 +64,18 @@ guess_and_test_model <- function(params, data, control) {
       } else {
         need_hypoths <- tr_w[which(rowSums(m[tr_w, ]) == 0)]
       }
-      store <- need_hypoths[which(runif(length(need_hypoths)) < sa)]
-      new_hyps <- sample(tr_o, length(store), replace = TRUE)
+      store <- need_hypoths[runif(length(need_hypoths)) < sa]
+      # tr_o[sample.int(...)] rather than sample(tr_o, ...) -- the latter
+      # samples from 1:tr_o when tr_o is a single number (a 1-object trial)
+      new_hyps <- tr_o[sample.int(length(tr_o), length(store), replace = TRUE)]
       for (w in seq_along(store)) {
-        if (length(store) == 0) next
-        m[need_hypoths[w], new_hyps[w]] <- 1 # was m[need_hypoths[w], store[w]]
+        # store[w] is the word getting a hypothesis; new_hyps[w] its guessed
+        # object (indexing need_hypoths here set hypotheses for the wrong
+        # words whenever only a subset rolled below the storage threshold)
+        m[store[w], new_hyps[w]] <- 1
       }
       index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
-      traj[[index]] <- m
+      if (keep_traj) traj[[index]] <- m
     }
     perf[rep, ] <- get_perf(m + 1e-12)
   }

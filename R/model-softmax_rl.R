@@ -11,6 +11,7 @@ softmax_rl_model <- function(params, data, control) {
 
   q <- matrix(0, voc_sz, ref_sz) # Q[w,o]: value of guessing object o for word w
   colnames(q) <- ref; rownames(q) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
@@ -28,6 +29,19 @@ softmax_rl_model <- function(params, data, control) {
       tr_w <- tr_w[tr_w != ""]
       tr_o <- unlist(data$objects[t])
       tr_o <- tr_o[!is.na(tr_o)]
+      # objects present, as column positions in q (the guesses are sampled in
+      # that same position space). `tr_o` are object *labels*, which for
+      # xsl_datasets happen to equal 1..ref_sz but for a corpus are strings.
+      present <- match(tr_o, ref)
+      present <- present[!is.na(present)]
+
+      index <- (rep - 1) * length(data$words) + t # index for learning trajectory
+      if (length(present) == 0) {
+        # a non-referential utterance: no scene, so no reward signal, so no
+        # value update (skip, like propose_but_verify()/guess_and_test())
+        if (keep_traj) traj[[index]] <- q
+        next
+      }
 
       # for each word heard this trial: propose a referent by sampling from
       # the agent's own current policy over ALL known objects (not just
@@ -39,15 +53,14 @@ softmax_rl_model <- function(params, data, control) {
         # reward: was the proposed referent actually present in the scene?
         # (1 = confirmed, 0 = disconfirmed) -- the only feedback available
         # in a cross-situational (no trial-by-trial correct-answer) task
-        reward <- as.numeric(proposal %in% tr_o)
+        reward <- as.numeric(proposal %in% present)
         # standard Q-learning / delta-rule update, applied only to the
         # sampled action -- unlike every other model here, which updates
         # every word-object pair presented together on the trial
         q[w, proposal] <- q[w, proposal] + alpha * (reward - q[w, proposal])
       }
 
-      index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- q
+      if (keep_traj) traj[[index]] <- q
     }
     # test-time choice uses the same softmax policy the model learned
     # with, rather than a different (e.g. Luce/get_perf) decision rule

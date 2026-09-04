@@ -22,6 +22,49 @@ test_that("guess_and_test disconfirms a hypothesis once contradicted, rather tha
   expect_equal(sum(m[1, 3:4]), 500, tolerance = 1e-6)
 })
 
+test_that("guess_and_test() survives repeated words per utterance and non-integer object labels", {
+  # regression: an utterance that repeats a word ("the doggy the doggy") made
+  # that word appear twice in have_hypoths, and the first pass could clear its
+  # hypothesis so the second pass hit `which(m[w, ] == 1)` of length 0 (->
+  # "argument is of length zero") or 2 (-> "the condition has length > 1").
+  # Separately, the disconfirmation check compared a column *position* to the
+  # object *labels*, which only worked when objects were labelled 1..N. Both
+  # broke the model on any naturalistic corpus.
+  dat <- xslData(
+    train = list(
+      words = list(c("the", "dog", "the", "dog"), c("look", "a", "cat"),
+                   c("dog", "dog"), c("the", "cat")),
+      objects = list(c("dog_o", "ball"), c("cat_o", "dog_o"),
+                     c("dog_o", "ball"), c("cat_o", "ball"))
+    ),
+    accuracy = numeric(), label = "repeated-word / string-label test"
+  )
+  # suppressWarnings: get_perf() inside xsl_run() recycles on a non-square
+  # matrix (this toy has more word types than object types)
+  res <- suppressWarnings(xsl_run(guess_and_test(f = 0.1, sa = 0.5), dat,
+                                  control = xslControl(n_sim = 20)))
+  m <- res$fits[[1]]$matrix
+  expect_false(anyNA(m))
+  expect_true(all(is.finite(m)))
+})
+
+test_that("tilles() runs on data with non-integer object labels", {
+  # regression: tilles() did as.integer() on the words/objects (they index
+  # m / novel_* by position), which turned string corpus labels into NA and
+  # left the matrix all-zero; it also never set dimnames on its matrix, so
+  # the result could not be scored against a gold lexicon by label.
+  dat <- xslData(
+    train = list(words = list(c("dog", "look"), c("cat", "a"), c("dog", "cat")),
+                 objects = list(c("dog_o", "cat_o"), c("cat_o", "dog_o"),
+                                c("dog_o", "cat_o"))),
+    accuracy = numeric(), label = "string-label test"
+  )
+  m <- xsl_run(tilles(x = .5, b = .8, alpha_0 = .85), dat)$fits[[1]]$matrix
+  expect_equal(rownames(m), sort(c("dog", "look", "cat", "a")))
+  expect_equal(colnames(m), c("cat_o", "dog_o"))
+  expect_true(all(is.finite(m)) && any(m != 0))
+})
+
 test_that("uncfam_attention() falls back to uncfam()'s unscaled rate on a single-trial dataset", {
   # uncfam_attention() scales X by this trial's mean object entropy relative
   # to the mean entropy of all objects seen so far. With only one trial ever
@@ -148,6 +191,23 @@ test_that("softmax_rl() learns to prefer a consistently-confirmed referent over 
   expect_true(q[1, 1] > q[1, 2])
 })
 
+test_that("softmax_rl() rewards a guess against object labels, not their positions", {
+  # regression: the reward check was `proposal %in% tr_o`, comparing a column
+  # *position* (1..ref_sz) against the trial's object *labels*. For
+  # xsl_datasets the labels happen to be 1..18 so it worked, but on any
+  # dataset with non-integer (or non-contiguous) object labels every reward
+  # was 0 and the Q-matrix stayed identically zero.
+  dat <- xslData(
+    train = list(words = as.list(rep("dog", 12)),
+                 objects = as.list(rep("kitty", 12))),   # "dog" always with "kitty"
+    accuracy = c(0.9), label = "string-label reward test"
+  )
+  q <- xsl_run(softmax_rl(alpha = .3, beta = 3), dat,
+               control = xslControl(n_sim = 50))$fits[[1]]$matrix
+  expect_gt(max(q), 0)                       # something got rewarded
+  expect_equal(unname(which.max(q["dog", ])), unname(which(colnames(q) == "kitty")))
+})
+
 test_that("softmax_rl() only updates the sampled action, not every co-occurring pair", {
   # regression/design check: unlike every other model in this package,
   # which updates the full word x object cross-product on a trial, this
@@ -167,4 +227,140 @@ test_that("softmax_rl() only updates the sampled action, not every co-occurring 
   # candidates updated for the same word in a single trial
   expect_equal(sum(q[1, ] != 0), 1)
   expect_equal(sum(q[2, ] != 0), 1)
+})
+
+test_that("uncfam_sampling()/multi_sampling() survive an utterance with no objects present", {
+  # a non-referential utterance (words but no visible objects) leaves the
+  # per-word sampling weights all zero; sample(prob = <all zeros>) used to
+  # error ("too few positive probabilities"), which made both models unable
+  # to run on a naturalistic corpus. Now such a trial is a no-op (decay only).
+  dat <- xslData(
+    train = list(
+      # trial 3: words heard but no objects visible (non-referential)
+      words = list(c(1, 2), c(1, 2), c(1, 2), c(1, 2)),
+      objects = list(c(1, 2), c(1, 2), integer(0), c(1, 2))
+    ),
+    accuracy = c(0.5, 0.5),
+    label = "objectless-trial test"
+  )
+
+  for (mod in list(uncfam_sampling(X = .1, C = 1, B = .98, K = 5),
+                   multi_sampling(C = 1, X = .1, B = .98, K = 5))) {
+    res <- xsl_run(mod, dat, control = xslControl(n_sim = 5))
+    m <- res$fits[[1]]$matrix
+    expect_false(anyNA(m))
+    expect_true(all(is.finite(m)))
+    expect_gt(sum(m), 0)   # the objectless trial didn't wipe out learning
+  }
+})
+
+test_that("fgt2009()'s scoring kernel matches the Python `wordlearn` reference", {
+  # The log-posterior kernel (fgt_score_map) is a direct port of
+  # wordlearn/model.py::score_lexicon. These values were computed by the
+  # Python package on this exact 6-trial corpus (words == objects each
+  # trial: (1,2) (1,3) (2,3) x2), gamma = 0.1, kappa = 0.05, and must be
+  # reproduced to numerical precision for the port to be faithful.
+  raw <- list(c(1, 2), c(1, 3), c(2, 3), c(1, 2), c(1, 3), c(2, 3))
+  corpus <- lapply(raw, function(p) list(words = p, objects = p))
+  cache <- fgt_build_intent_cache(corpus, gamma = 0.1)
+  m <- function(...) {
+    a <- list(...)
+    if (!length(a)) matrix(integer(0), 2, 0) else matrix(unlist(a), 2)
+  }
+  expect_equal(fgt_score_map(m(), cache, 3, 3, alpha = 0.5, kappa = 0.05),
+               -13.1833, tolerance = 1e-4)
+  expect_equal(fgt_score_map(m(c(1, 1)), cache, 3, 3, alpha = 0.5, kappa = 0.05),
+               -17.7007, tolerance = 1e-4)
+  expect_equal(
+    fgt_score_map(m(c(1, 1), c(2, 2), c(3, 3)), cache, 3, 3,
+                  alpha = 1, kappa = 0.05),
+    -15.802, tolerance = 1e-3)
+})
+
+test_that("fgt2009()'s Gibbs sampler targets the exact posterior (3x3 enumeration)", {
+  # the whole space of lexicons over 3 words x 3 objects is 2^9 = 512, so the
+  # posterior edge marginals can be computed exactly by enumeration. The
+  # sampler's marginals must match them within Monte Carlo tolerance -- this
+  # is what validates that the moves leave the right distribution invariant.
+  pairs <- list(c(1, 2), c(1, 3), c(2, 3))
+  corpus <- unlist(lapply(1:4, function(r) {
+    lapply(pairs, function(q) list(words = q, objects = q))
+  }), recursive = FALSE)
+  cache <- fgt_build_intent_cache(corpus, gamma = 1)
+  alpha <- 1.5; kappa <- 0.5
+
+  ae <- expand.grid(w = 1:3, o = 1:3)
+  lp <- vapply(0:511, function(mask) {
+    sel <- which(as.integer(intToBits(mask)[1:9]) == 1)
+    mp <- if (length(sel)) rbind(ae$w[sel], ae$o[sel]) else matrix(integer(0), 2, 0)
+    fgt_score_map(mp, cache, 3, 3, alpha, kappa)
+  }, numeric(1))
+  post <- exp(lp - max(lp)); post <- post / sum(post)
+  exact <- matrix(0, 3, 3)
+  for (mask in 0:511) {
+    sel <- which(as.integer(intToBits(mask)[1:9]) == 1)
+    if (length(sel)) {
+      exact[cbind(ae$w[sel], ae$o[sel])] <-
+        exact[cbind(ae$w[sel], ae$o[sel])] + post[mask + 1]
+    }
+  }
+
+  sf <- function(mp) fgt_score_map(mp, cache, 3, 3, alpha, kappa)
+  sp <- function(mp, s) fgt_score_map(mp, cache, 3, 3, alpha, kappa, sit_indices = s)
+  gibbs <- fgt_run_gibbs(cache, 3, 3, alpha, 1, kappa, sf, sp,
+                         n_chains = 4, n_warmup = 200, n_samples = 1500, seed = 1)
+  expect_lt(max(abs(gibbs - exact)), 0.08)
+})
+
+test_that("fgt2009() learns an unambiguous pairing and rejects its distractors", {
+  # word 1's referent (object 1) is present on every trial word 1 appears in,
+  # while its trial-mates rotate through the other objects -- so the joint
+  # posterior should put clear mass on edge (1, 1) and little on (1, other).
+  set.seed(1)
+  trials <- list()
+  distractors <- c(2, 3, 4, 5, 6)
+  for (rep in 1:4) for (d in distractors) {
+    trials[[length(trials) + 1]] <- list(words = c(1, d), objects = c(1, d))
+  }
+  dat <- xslData(train = list(words = lapply(trials, `[[`, "words"),
+                              objects = lapply(trials, `[[`, "objects")),
+                 accuracy = rep(0.8, 6), label = "one clear pair")
+
+  m <- xsl_run(fgt2009(alpha = 1, n_warmup = 80, n_samples = 200), dat)$fits[[1]]$matrix
+  expect_gt(m[1, 1], 0.75)
+  expect_true(all(m[1, distractors] < m[1, 1]))
+})
+
+test_that("fgt2009() is a batch model: control$reps does not change the result", {
+  # unlike the incremental models, fgt2009 does joint inference over the whole
+  # corpus and has no learning trajectory -- repeating the training data
+  # should be a no-op (same seed -> identical posterior).
+  dat <- get_example_unambiguous_condition()
+  a <- xsl_run(fgt2009(alpha = 1, n_warmup = 40, n_samples = 80), dat,
+               control = xslControl(reps = 1))
+  b <- xsl_run(fgt2009(alpha = 1, n_warmup = 40, n_samples = 80), dat,
+               control = xslControl(reps = 5))
+  expect_equal(a$fits[[1]]$matrix, b$fits[[1]]$matrix)
+})
+
+test_that("fgt2009() maps an empty-lexicon posterior to chance, not NaN", {
+  # a large lexicon-size prior drives the posterior to the empty lexicon;
+  # the Jeffreys-smoothed marginal matrix must still be strictly positive so
+  # get_perf()/mafc_test() return chance performance rather than 0/0.
+  dat <- get_example_ambiguous_condition()
+  r <- xsl_run(fgt2009(alpha = 50, n_warmup = 40, n_samples = 80), dat)
+  m <- r$fits[[1]]$matrix
+  expect_true(all(m > 0))
+  expect_false(anyNA(r$fits[[1]]$perf))
+  # empty lexicon -> ~uniform 4x4 matrix -> get_perf() ~ 1/4 (chance)
+  expect_equal(unname(r$fits[[1]]$perf), rep(0.25, 4), tolerance = 0.02)
+})
+
+test_that("fgt2009_sweep_alpha() returns per-alpha SSE", {
+  out <- fgt2009_sweep_alpha(get_example_ambiguous_condition(),
+                             alphas = c(1, 8),
+                             n_warmup = 30, n_samples = 60)
+  expect_s3_class(out, "data.frame")
+  expect_equal(out$alpha, c(1, 8))
+  expect_true(all(is.finite(out$sse)))
 })

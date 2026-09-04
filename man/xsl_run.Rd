@@ -14,7 +14,12 @@ xsl_run(model, data, control = xslControl())
 \item{control}{Control arguments returned by \code{xsl_control()}.}
 }
 \value{
-List of fits, sse, unweighted_sse
+A list with \code{sse}, \code{unweighted_sse}, and \code{fits} (one entry per
+dataset). Each fit has \code{matrix} (the word-by-object matrix, summed over
+simulations for a stochastic model), \code{perf}, \code{sse}, \code{data}, \code{responses}
+(an \code{n_sim} x n-words matrix of each simulated participant's final
+per-word accuracy), and \code{sims} (the full per-simulation \code{xslFit} list,
+\code{NULL} unless \code{control} had \code{keep_sims = TRUE}).
 }
 \description{
 Run XSL model

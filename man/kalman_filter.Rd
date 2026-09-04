@@ -33,6 +33,13 @@ association's variance grows by \code{tau2} (the model assumes true
 associations drift slowly over time), which keeps the model able to
 revise a belief rather than converging to a fixed point.
 }
+\details{
+Note that the three parameters share a scale redundancy: multiplying
+\code{tau2}, \code{sigma2_obs} and \code{sigma2_0} together by any constant leaves every
+Kalman gain -- and hence the learned matrix -- unchanged. Only two of the
+three are identifiable; when fitting, hold one fixed (conventionally
+\code{sigma2_obs}).
+}
 \examples{
 mod <- kalman_filter(tau2 = .01, sigma2_obs = .5, sigma2_0 = 1)
 xsl_run(mod, get_example_ambiguous_condition())

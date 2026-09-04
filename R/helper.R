@@ -87,7 +87,7 @@ show_models <- function() {
   c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
     "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
-    "kalman_filter", "softmax_rl")
+    "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa")
 }
 
 #' Show available datasets in the package
@@ -193,18 +193,37 @@ xsl_model_registry <- function() {
     ),
     kalman_filter = list(
       constructor = function() kalman_filter(tau2 = 0.01, sigma2_obs = 1, sigma2_0 = 1),
-      # widened from (1e-4, 0.01, 0.1)-(1, 10, 10): a group fit to all 53
-      # conditions pinned all three parameters at (or at, for sigma2_0)
-      # their original bounds (tau2 and sigma2_0 at their lower bound,
-      # sigma2_obs at its upper bound), so the true optimum likely lies
-      # outside that box
-      lower = c(0.000001, 0.01, 0.001), upper = c(1, 500, 10)
+      # The three parameters share a scale redundancy -- multiplying tau2,
+      # sigma2_obs and sigma2_0 together leaves every Kalman gain, and so the
+      # learned matrix, unchanged -- and the F / SSE landscape additionally
+      # plateaus in sigma2_obs above a few hundred. A fit therefore walks
+      # sigma2_obs to whatever upper bound it is given *without changing the
+      # fit quality*: a group fit to all 53 xsl_datasets conditions and fits
+      # to either bundled corpus all sit on that plateau at the same F/SSE
+      # whether the bound is 500, 2000 or 20000. The bound is wide here only
+      # so the pinning is visibly a plateau, not a real constraint; treat the
+      # fitted sigma2_obs as "large", not as an estimate.
+      lower = c(1e-6, 0.01, 0.001), upper = c(1, 2000, 10)
     ),
     softmax_rl = list(
       constructor = function() softmax_rl(alpha = 0.3, beta = 3),
       # beta upper bound widened from 20: a group fit to all 53 conditions
       # landed at beta=18.3, essentially pinned against that bound
       lower = c(0.01, 0.1), upper = c(1, 100)
+    ),
+    # fgt2009()/fgt2009_rsa() are BATCH MCMC models: one run is many seconds,
+    # so a full DEoptim search over them is impractical, and the lexicon-size
+    # prior `alpha` scales with corpus size -- a single global value fit across
+    # all of xsl_datasets is not meaningful. These entries fit `alpha` only (the
+    # first parameter) so get_group_model_fit()/get_crossvalidated_model_fit()
+    # don't error on the name, but prefer fgt2009_sweep_alpha() on one dataset.
+    fgt2009 = list(
+      constructor = function() fgt2009(alpha = 1),
+      lower = 0.1, upper = 20
+    ),
+    fgt2009_rsa = list(
+      constructor = function() fgt2009_rsa(alpha = 1),
+      lower = 0.1, upper = 20
     )
   )
 }

@@ -11,7 +11,9 @@ xslControl(
   start_matrix = NULL,
   test_noise = 0,
   n_sim = 500,
-  verbose = FALSE
+  verbose = FALSE,
+  keep_traj = FALSE,
+  keep_sims = FALSE
 )
 
 new_xslControl(x = list())
@@ -26,6 +28,18 @@ new_xslControl(x = list())
 \item{n_sim}{Number of simulations for stochastic models}
 
 \item{verbose}{Verbosity}
+
+\item{keep_traj}{Whether each model run should record its per-trial
+association matrix (\code{xslFit$traj}). Off by default: the trajectory is not
+used by any function in the package, and for a long corpus it is a serious
+memory cost (one word-by-object matrix per trial, per simulation). Set
+\code{TRUE} only when you want to inspect the learning trajectory yourself.}
+
+\item{keep_sims}{Whether \code{xsl_run()} should retain the full list of
+per-simulation \code{xslFit} objects (\code{fits[[i]]$sims}). Off by default;
+\code{fits[[i]]$responses} (an \code{n_sim} x n-words matrix of each simulated
+participant's final per-word accuracy) is always returned instead, at a
+fraction of the memory.}
 
 \item{x}{List with elements train, test, accuracy, n_subj, label, condition}
 }

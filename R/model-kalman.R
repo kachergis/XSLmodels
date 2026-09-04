@@ -14,6 +14,7 @@ kalman_filter_model <- function(params, data, control) {
   sigma2 <- matrix(sigma2_0, voc_sz, ref_sz) # uncertainty (variance) about each estimate
   colnames(mu) <- ref; rownames(mu) <- voc
   colnames(sigma2) <- ref; rownames(sigma2) <- voc
+  keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
   perf <- matrix(0, reps, voc_sz) # a row for each block
 
@@ -41,7 +42,7 @@ kalman_filter_model <- function(params, data, control) {
       sigma2[tr_w, tr_o] <- (1 - kalman_gain) * sigma2[tr_w, tr_o]
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
-      traj[[index]] <- mu
+      if (keep_traj) traj[[index]] <- mu
     }
     perf[rep, ] <- get_perf(mu)
   }
@@ -62,6 +63,12 @@ kalman_filter_model <- function(params, data, control) {
 #' association's variance grows by `tau2` (the model assumes true
 #' associations drift slowly over time), which keeps the model able to
 #' revise a belief rather than converging to a fixed point.
+#'
+#' Note that the three parameters share a scale redundancy: multiplying
+#' `tau2`, `sigma2_obs` and `sigma2_0` together by any constant leaves every
+#' Kalman gain -- and hence the learned matrix -- unchanged. Only two of the
+#' three are identifiable; when fitting, hold one fixed (conventionally
+#' `sigma2_obs`).
 #'
 #' @param tau2 Process (diffusion) noise: how much uncertainty about every
 #'   association grows per trial, whether or not it was observed

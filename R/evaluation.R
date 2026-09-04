@@ -54,17 +54,114 @@ get_perf <- function(m, d = NULL) {
 # }
 
 
+#' Predict referent selection for a single trial from an association matrix
+#'
+#' Given a model's word-object association matrix, returns the probability
+#' distribution over a trial's candidate objects for one heard word -- the
+#' quantity to compare against a participant's choice on a referent-selection
+#' (m-alternative forced choice) trial. This is model-agnostic: it works on the
+#' `matrix` of any `xslFit` (or any word-by-object matrix), reading each entry
+#' as an association strength / meaning weight.
+#'
+#' The literal rule is Bayes' rule on the word's row,
+#' `P(object | word) proportional to m[word, object] * prior(object)`,
+#' normalized over the objects present. With `pragmatic = TRUE` the objects are
+#' instead resolved by a one-step Rational Speech Act pragmatic listener
+#' ([rsa_listener()]), which additionally reasons that the speaker could have
+#' used a different word -- this is what yields *strong* mutual exclusivity when
+#' a heard word is lexically ambiguous and a competitor word names one of the
+#' candidates. A truly novel (unseen) word carries no lexical evidence and
+#' returns the prior in either mode.
+#'
+#' @param m A word-by-object association matrix (e.g.
+#'   `xsl_run(mod, data)$fits[[1]]$matrix`). Assumed non-negative; negative
+#'   entries are clamped to 0. `dimnames` are used to resolve character
+#'   `word`/`objects`.
+#' @param word The heard word: a row name of `m`, or a positive integer row
+#'   index. A value not present in `m` is treated as a novel word.
+#' @param objects The candidate objects present on the trial: column names of
+#'   `m`, or positive integer column indices. An entry not present in `m` is
+#'   treated as an unnamed (novel) object.
+#' @param prior Optional prior over `objects` (length `length(objects)`,
+#'   non-negative). Defaults to uniform. Set an entry to 0 to remove that
+#'   object from consideration entirely (e.g. an object the speaker has no
+#'   epistemic access to).
+#' @param pragmatic If `TRUE`, use the RSA pragmatic listener instead of the
+#'   literal one.
+#' @param threshold Optional; binarize `m` at this value (`m >= threshold`)
+#'   before predicting. The RSA layer is sharpest on a binary lexicon.
+#' @param rsa_alpha,depth Speaker rationality and recursion depth for the RSA
+#'   listener (only used when `pragmatic = TRUE`).
+#'
+#' @return A numeric vector of probabilities over `objects`, in the given
+#'   order, summing to 1.
+#' @export
+#'
+#' @examples
+#' m <- xsl_run(fgt2009(alpha = 1), get_example_unambiguous_condition())$fits[[1]]$matrix
+#' predict_referent(m, 1, c(1, 2, 3))
+#' predict_referent(m, 1, c(1, 2, 3), prior = c(1, 0, 1)) # object 2 unavailable
+predict_referent <- function(m, word, objects, prior = NULL,
+                             pragmatic = FALSE, threshold = NULL,
+                             rsa_alpha = 3, depth = 1) {
+  M <- pmax(m, 0)
+  if (!is.null(threshold)) M <- (M >= threshold) * 1
+  wn <- rownames(M)
+  on <- colnames(M)
+  W <- nrow(M)
+  O <- ncol(M)
+
+  resolve <- function(x, nms, n) {
+    if (is.numeric(x)) {
+      idx <- as.integer(round(x))
+      idx[idx < 1 | idx > n] <- NA_integer_
+      return(idx)
+    }
+    match(as.character(x), nms)
+  }
+
+  P <- length(objects)
+  if (P == 0) stop("`objects` must be non-empty")
+  pr <- if (is.null(prior)) rep(1, P) else as.numeric(prior)
+  if (length(pr) != P) stop("`prior` must have length ", P)
+  if (any(pr < 0) || sum(pr) <= 0) {
+    stop("`prior` must be non-negative with positive total mass")
+  }
+
+  oidx <- resolve(objects, on, O)
+  Msub <- matrix(0, W, P)
+  for (k in seq_len(P)) if (!is.na(oidx[k])) Msub[, k] <- M[, oidx[k]]
+
+  widx <- resolve(word, wn, W)
+  if (length(widx) != 1 || is.na(widx)) return(pr / sum(pr))  # novel word
+
+  if (!pragmatic) {
+    row <- Msub[widx, ] * pr
+    return(if (sum(row) > 0) row / sum(row) else pr / sum(pr))
+  }
+
+  cand <- which(rowSums(Msub) > 0)
+  if (!(widx %in% cand)) cand <- c(cand, widx)
+  listener <- rsa_listener(Msub[cand, , drop = FALSE], pr,
+                           alpha = rsa_alpha, depth = depth)
+  row <- listener[match(widx, cand), ]
+  if (sum(row) > 0 && all(is.finite(row))) row / sum(row) else pr / sum(pr)
+}
+
 #' Evaluate m-alternative forced choice test
 #'
-#' This function evaluates a given set of test trials using the provided model
-#' memory matrix (word x referent). Each test trial is assumed to present one
-#' word and a set of referents of size less than the width of the model memory
-#' matrix.
+#' Scores a set of test trials against a model's word-object matrix, returning
+#' the probability of choosing the correct object on each trial. Each trial
+#' presents one word and a set of candidate referents; the correct object is
+#' the one whose id matches the word's id (the package's diagonal convention).
+#' A thin wrapper over [predict_referent()].
 #'
 #' @param m A matrix representing model memory with words as rows and
 #'   referents as columns.
 #' @param test A list representing the test trials, each containing a word and
 #'   its associated referents.
+#' @param ... Further arguments passed to [predict_referent()] (e.g.
+#'   `pragmatic`, `threshold`).
 #'
 #' @return A vector with the probability of choosing the correct object, given
 #'   each word.
@@ -75,15 +172,14 @@ get_perf <- function(m, d = NULL) {
 #' x <- xsl_run(baseline(), dat)
 #' mat <- x$fits[[1]]$matrix
 #' mafc_test(mat, dat$test)
-mafc_test <- function(m, test) {
-  trials <- length(test$words)
-  perf <- rep(0, trials)
-  for (i in seq_len(trials)) {
+mafc_test <- function(m, test, ...) {
+  vapply(seq_along(test$words), function(i) {
     w <- test$words[[i]]
-    denom <- sum(m[w, test$objects[[i]]])
-    perf[i] <- m[w, w] / denom
-  }
-  return(perf)
+    os <- test$objects[[i]]
+    probs <- predict_referent(m, w, os, ...)
+    correct <- match(w, os)
+    if (is.na(correct)) NA_real_ else probs[correct]
+  }, numeric(1))
 }
 
 
