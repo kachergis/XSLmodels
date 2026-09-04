@@ -36,7 +36,7 @@ new_xslData(x = list())
 
 \item{response_matrix}{Response matrix}
 
-\item{x}{List with elements train, test, accuracy, n_subj, label, condition, descrption, response_matrix}
+\item{x}{List with elements train, test, accuracy, n_subj, label, condition, description, response_matrix}
 }
 \value{
 An object of class xslData

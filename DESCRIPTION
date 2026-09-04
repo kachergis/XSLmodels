@@ -9,9 +9,10 @@ Authors@R:
       person("Kevin", "Liang", , "kevliang@sas.upenn.edu", role = c("aut")))
 Author: George Kachergis [aut, cre], Mika Braginsky [aut], Kevin Liang [aut]
 Maintainer: George Kachergis <george.kachergis@gmail.com>
-Description: This package has a collection of cognitive models of
-  cross-situational word learning models, as well as methods and datasets for
-  optimizing them, and plotting the results.
+Description: A collection of cognitive models of cross-situational word
+  learning, together with methods and datasets for fitting and
+  cross-validating them against experimental and corpus data, and for
+  plotting the results.
 URL: https://kachergis.github.io/XSLmodels/, https://github.com/kachergis/XSLmodels
 BugReports: https://github.com/kachergis/XSLmodels/issues
 Encoding: UTF-8

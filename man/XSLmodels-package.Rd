@@ -6,7 +6,7 @@
 \alias{XSLmodels-package}
 \title{XSLmodels: Run and optimize cross-situational word learning models}
 \description{
-This package has a collection of cognitive models of cross-situational word learning models, as well as methods and datasets for optimizing them, and plotting the results.
+A collection of cognitive models of cross-situational word learning, together with methods and datasets for fitting and cross-validating them against experimental and corpus data, and for plotting the results.
 }
 \seealso{
 Useful links:

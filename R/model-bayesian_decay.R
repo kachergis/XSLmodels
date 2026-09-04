@@ -70,7 +70,7 @@ bayesian_decay_model <- function(params, data, control) {
 #'
 #' @param alpha Decay for word/object non-co-occurrence (0.1, 0.5, 0.9)
 #' @param delta Multiplier for word/object co-occurrence (1 for no increase)
-#' @param ch_dec ecision parameter (e.g., 1)
+#' @param ch_dec Decision parameter (e.g., 1)
 #'
 #' @return An object of class xslMod
 #' @export

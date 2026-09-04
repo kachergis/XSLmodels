@@ -44,8 +44,14 @@ plot_training_trials <- function(train, filename = NULL) {
   df <- matrix_to_long(m, 0)
 
   for (t in seq_along(train$words)) {
-    tr_w <- train$words[[t]]
-    tr_o <- train$objects[[t]]
+    tr_w <- unlist(train$words[[t]])
+    tr_o <- unlist(train$objects[[t]])
+    tr_w <- tr_w[!is.na(tr_w)]
+    tr_o <- tr_o[!is.na(tr_o)]
+    if (length(tr_w) == 0 || length(tr_o) == 0) {
+      df <- bind_rows(df, matrix_to_long(m, t))
+      next
+    }
     m[tr_w, tr_o] <- m[tr_w, tr_o] + 1
     df_t <- matrix_to_long(m, t)
     df <- bind_rows(df, df_t)
@@ -57,11 +63,20 @@ plot_training_trials <- function(train, filename = NULL) {
     coord_equal() +
     labs(x = "Object", y = "Word") +
     gganimate::transition_states(.data$trial)
-  print(p)
 
-  if (!is.null(filename)) {
+  # gganimate's renderer falls back to writing raw PNG frames into the
+  # current working directory when none of gifski/magick/av are installed;
+  # render inside a scratch dir so that can never happen regardless of which
+  # backend ends up in use.
+  old_wd <- setwd(tempdir())
+  on.exit(setwd(old_wd), add = TRUE)
+
+  if (is.null(filename)) {
+    print(p)
+  } else {
     gganimate::animate(p, format = "mp4",
                        renderer = gganimate::ffmpeg_renderer(format = "mp4"))
+    setwd(old_wd)
     gganimate::anim_save(filename)
   }
 

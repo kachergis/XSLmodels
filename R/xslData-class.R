@@ -49,7 +49,7 @@ validate_xslData <- function(x) {
 #' Constructor for xslData S3 class
 #'
 #' @rdname xslData-class
-#' @param x List with elements train, test, accuracy, n_subj, label, condition, descrption, response_matrix
+#' @param x List with elements train, test, accuracy, n_subj, label, condition, description, response_matrix
 #'
 #' @export
 new_xslData <- function(x = list()) {
