@@ -4,14 +4,14 @@
 \name{XSLmodels-package}
 \alias{XSLmodels}
 \alias{XSLmodels-package}
-\title{XSLmodels: Run and optimize cross-situational word learning models}
+\title{XSLmodels: Run and Optimize Cross-Situational Word Learning Models}
 \description{
 A collection of cognitive models of cross-situational word learning, together with methods and datasets for fitting and cross-validating them against experimental and corpus data, and for plotting the results.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://kachergis.github.io/XSLmodels/}
+  \item \url{https://www.kachergis.com/XSLmodels/}
   \item \url{https://github.com/kachergis/XSLmodels}
   \item Report bugs at \url{https://github.com/kachergis/XSLmodels/issues}
 }
