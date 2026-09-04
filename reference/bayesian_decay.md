@@ -20,7 +20,7 @@ bayesian_decay(alpha, delta, ch_dec)
 
 - ch_dec:
 
-  ecision parameter (e.g., 1)
+  Decision parameter (e.g., 1)
 
 ## Value
 

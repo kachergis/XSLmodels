@@ -31,6 +31,11 @@ Get cross-validated (5-fold) model fit:
 For more details, see [this
 vignette](https://kachergis.github.io/XSLmodels/articles/XSLmodels.html).
 
+Models can also be run and scored against gold-standard lexicons from
+naturalistic child-directed speech corpora (rather than fit to lab
+experiment accuracy) – see the [corpora
+vignette](https://kachergis.github.io/XSLmodels/articles/corpora.html).
+
 # Package index
 
 ## Models

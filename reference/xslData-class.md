@@ -58,7 +58,7 @@ new_xslData(x = list())
 - x:
 
   List with elements train, test, accuracy, n_subj, label, condition,
-  descrption, response_matrix
+  description, response_matrix
 
 ## Value
 
