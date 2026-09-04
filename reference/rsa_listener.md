@@ -2,7 +2,7 @@
 
 A small, self-contained RSA recursion over a word-by-object meaning
 matrix (Frank & Goodman, 2012; Smith, Goodman & Frank, 2013), used by
-[`predict_referent()`](https://kachergis.github.io/XSLmodels/reference/predict_referent.md)
+[`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
 with `pragmatic = TRUE`. `rsa_listener()` returns `P(object | word)` for
 a listener who reasons about an informative speaker; `rsa_speaker()`
 returns `P(word | object)` for that speaker. Both operate on any

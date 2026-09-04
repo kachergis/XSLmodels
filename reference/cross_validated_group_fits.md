@@ -2,9 +2,9 @@
 
 This function runs k-fold cross-validation for group fits of a specified
 model using a set of conditions. On each fold, the model is fit (via
-[`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md))
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md))
 to the training conditions, and the fitted model is then evaluated (via
-[`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md))
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md))
 on the held-out test conditions to obtain an out-of-sample SSE.
 
 ## Usage
@@ -29,7 +29,7 @@ cross_validated_group_fits(
   An object of class `xslMod` giving the model to cross-validate (its
   starting parameter values are only used to determine how many
   parameters
-  [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
   should optimize).
 
 - combined_data:
@@ -51,12 +51,12 @@ cross_validated_group_fits(
 - control:
 
   Control arguments passed to
-  [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)/[`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md).
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)/[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md).
 
 - deoptim_control:
 
   Control parameters passed to `DEoptim()` (via
-  [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)).
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)).
 
 - seed:
 

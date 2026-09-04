@@ -11,7 +11,7 @@ whether the guess was actually present in the scene as the reward (1 =
 "confirmed", 0 = "disconfirmed"). This is the only feedback available in
 a task with no trial-by-trial correct answer, and mirrors the
 propose-and-verify logic of
-[`propose_but_verify()`](https://kachergis.github.io/XSLmodels/reference/propose_but_verify.md)/[`pursuit()`](https://kachergis.github.io/XSLmodels/reference/pursuit.md),
+[`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)/[`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md),
 but replaces their threshold-based keep/discard rules with graded value
 learning and an explicit (softmax) exploration/exploitation tradeoff.
 

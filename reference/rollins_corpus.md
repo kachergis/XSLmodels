@@ -29,7 +29,7 @@ A list with:
 - `data`:
 
   an
-  [xslData](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
+  [xslData](https://www.kachergis.com/XSLmodels/reference/xslData-class.md)
   object with the 619 training utterances (`data$train$words[[t]]` /
   `data$train$objects[[t]]` are character vectors). No `accuracy` or
   `test` – there is no human referent-selection data for this corpus.
@@ -38,18 +38,18 @@ A list with:
 
   the gold-standard lexicon as `list(words, objects)` (34 word-object
   pairs), for scoring a learned matrix with
-  [`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md),
-  [`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md),
-  [`get_roc_max()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md),
+  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md),
+  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
+  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
   or
-  [`get_tp()`](https://kachergis.github.io/XSLmodels/reference/get_tp.md).
+  [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md).
 
 - `reference`:
 
   the citation string.
 
 Not part of
-[xsl_datasets](https://kachergis.github.io/XSLmodels/reference/xsl_datasets.md)
+[xsl_datasets](https://www.kachergis.com/XSLmodels/reference/xsl_datasets.md)
 (which is scored by SSE against a human accuracy vector these corpora
 don't have). Imported from the wurwur package
 (<https://github.com/mcfrank/wurwur>); see

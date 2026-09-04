@@ -1,4 +1,4 @@
-# XSLmodels: Run and optimize cross-situational word learning models
+# XSLmodels: Run and Optimize Cross-Situational Word Learning Models
 
 A collection of cognitive models of cross-situational word learning,
 together with methods and datasets for fitting and cross-validating them
@@ -8,7 +8,7 @@ against experimental and corpus data, and for plotting the results.
 
 Useful links:
 
-- <https://kachergis.github.io/XSLmodels/>
+- <https://www.kachergis.com/XSLmodels/>
 
 - <https://github.com/kachergis/XSLmodels>
 

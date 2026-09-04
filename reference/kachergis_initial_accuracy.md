@@ -5,7 +5,7 @@ Initial Accuracy") from an unpublished MTurk cross-situational word
 learning experiment manipulating how many of 18 word-object pairs are
 "switched" (i.e. studied with the wrong partner) relative to an initial
 familiarization phase. Not included in
-[xsl_datasets](https://kachergis.github.io/XSLmodels/reference/xsl_datasets.md)
+[xsl_datasets](https://www.kachergis.com/XSLmodels/reference/xsl_datasets.md)
 (see `data-raw/add_kachergis_initial_accuracy.R` for construction
 details and `tests/bakeoff_comparison/kachergis_initial_accuracy_fit.R`
 for an example model comparison).

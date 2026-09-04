@@ -1,7 +1,7 @@
 # xslControl S3 class
 
 Control arguments for
-[`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
 
 ## Usage
 
@@ -52,7 +52,7 @@ new_xslControl(x = list())
 - keep_sims:
 
   Whether
-  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
   should retain the full list of per-simulation `xslFit` objects
   (`fits[[i]]$sims`). Off by default; `fits[[i]]$responses` (an `n_sim`
   x n-words matrix of each simulated participant's final per-word

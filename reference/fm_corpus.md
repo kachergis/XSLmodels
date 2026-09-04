@@ -4,7 +4,7 @@
 the objects present in the scene. 1122 word types, 30 object types
 present in scenes; roughly half the utterances are non-referential.
 Unlike
-[rollins_corpus](https://kachergis.github.io/XSLmodels/reference/rollins_corpus.md),
+[rollins_corpus](https://www.kachergis.com/XSLmodels/reference/rollins_corpus.md),
 the speaker's referential intention is hand-coded per utterance.
 
 ## Usage
@@ -31,7 +31,7 @@ A list with:
 - `data`:
 
   an
-  [xslData](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
+  [xslData](https://www.kachergis.com/XSLmodels/reference/xslData-class.md)
   object with the 4763 training utterances (character-vector
   `words`/`objects` per trial). No `accuracy`/`test`.
 
@@ -44,11 +44,11 @@ A list with:
 - `gold`:
 
   a hand-curated gold lexicon as `list(words, objects)` (41 pairs), for
-  [`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md)
+  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md)
   /
-  [`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md)
+  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
   /
-  [`get_tp()`](https://kachergis.github.io/XSLmodels/reference/get_tp.md).
+  [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md).
 
 - `gold_variants`:
 
@@ -61,7 +61,7 @@ A list with:
   the citation string.
 
 Not part of
-[xsl_datasets](https://kachergis.github.io/XSLmodels/reference/xsl_datasets.md).
+[xsl_datasets](https://www.kachergis.com/XSLmodels/reference/xsl_datasets.md).
 Gaze/hand attentional cues present in the source CSVs are not imported.
 Imported from the wurwur package (<https://github.com/mcfrank/wurwur>);
 see `data-raw/add_wurwur_corpora.R`.

@@ -1,7 +1,7 @@
 # Biased associative model with attention scaled to trial uncertainty
 
 A variant of
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 (Kachergis et al. 2012's uncertainty- and familiarity-biased associative
 model) in which the associative weight distributed on a trial is
 additionally scaled by the ratio of that trial's mean object entropy to

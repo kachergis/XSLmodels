@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   corpora: corpora.html
   XSLmodels: XSLmodels.html
-last_built: 2026-09-04T20:31Z
+last_built: 2026-09-04T20:50Z
 urls:
-  reference: https://kachergis.github.io/XSLmodels/reference
-  article: https://kachergis.github.io/XSLmodels/articles
+  reference: https://www.kachergis.com/XSLmodels/reference
+  article: https://www.kachergis.com/XSLmodels/articles

@@ -44,7 +44,7 @@ xsl_fit(
 - control:
 
   Control parameters passed to
-  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md).
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md).
 
 - deoptim_control:
 

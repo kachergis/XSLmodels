@@ -60,9 +60,9 @@ xslData(train = list(words = list(c(1, 2), c(2, 3)),
 
 ### 1. Structure of an experimental condition
 
-[`get_example_ambiguous_condition()`](https://kachergis.github.io/XSLmodels/reference/get_example_ambiguous_condition.md)
+[`get_example_ambiguous_condition()`](https://www.kachergis.com/XSLmodels/reference/get_example_ambiguous_condition.md)
 and
-[`get_example_unambiguous_condition()`](https://kachergis.github.io/XSLmodels/reference/get_example_unambiguous_condition.md)
+[`get_example_unambiguous_condition()`](https://www.kachergis.com/XSLmodels/reference/get_example_unambiguous_condition.md)
 return simple example experimental conditions, which consist of a list
 of training *trials*, an optional vector *perf* containing the per-word
 performance of people on the test trials, and an optional list of test
@@ -95,7 +95,7 @@ One common way to summarize the structure of a cross-situational word
 learning experiment is to make a matrix of the word-object
 co-occurrences, which can be visualized with a heatmap to show the
 strength of association between each word and object.
-[`create_cooc_matrix()`](https://kachergis.github.io/XSLmodels/reference/create_cooc_matrix.md)
+[`create_cooc_matrix()`](https://www.kachergis.com/XSLmodels/reference/create_cooc_matrix.md)
 will return a word x object matrix showing the tallied co-occurrences of
 each word with each object across all of the training trials.
 
@@ -152,9 +152,9 @@ and two naturalistic caregiver-speech corpora imported from the
 `fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
 referent-selection data; each bundles the training `xslData` in `$data`
 with a gold-standard lexicon in `$gold`, scored with
-[`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md)
+[`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md)
 /
-[`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md)
+[`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
 rather than SSE:
 
 ``` r
@@ -363,57 +363,57 @@ fit_result[[1]]$optim$bestval
 The package includes several types of models:
 
 **Association-based models:** -
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md) -
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md) -
 Uncertainty and familiarity biased model -
-[`uncfam_attention()`](https://kachergis.github.io/XSLmodels/reference/uncfam_attention.md) -
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+[`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md) -
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 with learning rate scaled to trial uncertainty -
-[`uncfam_predictive()`](https://kachergis.github.io/XSLmodels/reference/uncfam_predictive.md) -
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+[`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md) -
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 with an added item-level prediction-error term -
-[`fazly()`](https://kachergis.github.io/XSLmodels/reference/fazly.md) -
+[`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md) -
 Fazly et al. model -
-[`rescorla_wagner()`](https://kachergis.github.io/XSLmodels/reference/rescorla_wagner.md) -
+[`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md) -
 Rescorla-Wagner model -
-[`bayesian_decay()`](https://kachergis.github.io/XSLmodels/reference/bayesian_decay.md) -
+[`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md) -
 Bayesian decay model -
-[`kalman_filter()`](https://kachergis.github.io/XSLmodels/reference/kalman_filter.md) -
+[`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md) -
 Kalman filter associative model (adaptive, uncertainty-scaled learning
 rate)
 
 **Sampling-based models:** -
-[`uncfam_sampling()`](https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.md) -
+[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md) -
 Sampling version of uncfam -
-[`multi_sampling()`](https://kachergis.github.io/XSLmodels/reference/multi_sampling.md) -
+[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md) -
 Multi-hypothesis sampling -
-[`guess_and_test()`](https://kachergis.github.io/XSLmodels/reference/guess_and_test.md) -
+[`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md) -
 Guess and test model -
-[`propose_but_verify()`](https://kachergis.github.io/XSLmodels/reference/propose_but_verify.md) -
+[`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md) -
 Propose but verify model -
-[`pursuit()`](https://kachergis.github.io/XSLmodels/reference/pursuit.md) -
+[`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md) -
 Pursuit model
 
 **Reinforcement learning models:** -
-[`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md) -
+[`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md) -
 Q-learning-style model with softmax action selection
 
 **Bayesian models:** -
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md) -
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md) -
 Frank, Goodman & Tenenbaum (2009) intentional model: joint posterior
 inference over a word-object lexicon, marginalizing the speaker’s
 referential intention (a batch model; ported from the `wordlearn`
 package). Tune the lexicon-size prior with
-[`fgt2009_sweep_alpha()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_sweep_alpha.md). -
-[`fgt2009_rsa()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_rsa.md) -
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009_sweep_alpha()`](https://www.kachergis.com/XSLmodels/reference/fgt2009_sweep_alpha.md). -
+[`fgt2009_rsa()`](https://www.kachergis.com/XSLmodels/reference/fgt2009_rsa.md) -
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 with a Rational Speech Act pragmatic speaker layer
 
 **Baseline models:** -
-[`baseline()`](https://kachergis.github.io/XSLmodels/reference/baseline.md) -
+[`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md) -
 Simple co-occurrence baseline -
-[`decay()`](https://kachergis.github.io/XSLmodels/reference/decay.md) -
+[`decay()`](https://www.kachergis.com/XSLmodels/reference/decay.md) -
 Decay model -
-[`tilles()`](https://kachergis.github.io/XSLmodels/reference/tilles.md) -
+[`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md) -
 Tilles model
 
 Each model can be run with different parameters and compared to human

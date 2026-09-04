@@ -5,7 +5,7 @@ returning the probability of choosing the correct object on each trial.
 Each trial presents one word and a set of candidate referents; the
 correct object is the one whose id matches the word's id (the package's
 diagonal convention). A thin wrapper over
-[`predict_referent()`](https://kachergis.github.io/XSLmodels/reference/predict_referent.md).
+[`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md).
 
 ## Usage
 
@@ -28,7 +28,7 @@ mafc_test(m, test, ...)
 - ...:
 
   Further arguments passed to
-  [`predict_referent()`](https://kachergis.github.io/XSLmodels/reference/predict_referent.md)
+  [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
   (e.g. `pragmatic`, `threshold`).
 
 ## Value

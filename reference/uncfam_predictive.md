@@ -1,7 +1,7 @@
 # Predictive biased associative model (item-level prediction error)
 
 A variant of
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 (Kachergis et al. 2012's uncertainty- and familiarity-biased associative
 model) that adds an item-level, Rescorla-Wagner-style prediction error
 term: on each trial, the amount learned about a word-object association

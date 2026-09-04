@@ -1,7 +1,7 @@
 # Kalman filter associative model
 
 A Kalman-filter generalization of
-[`rescorla_wagner()`](https://kachergis.github.io/XSLmodels/reference/rescorla_wagner.md)'s
+[`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)'s
 error-driven update rule (Dayan & Kakade, 2000; Kruschke, 2008;
 Gershman, 2015): each word-object association is tracked as a Gaussian
 belief (mean `mu` and variance `sigma2`), and each trial's update is

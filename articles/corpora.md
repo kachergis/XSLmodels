@@ -66,7 +66,7 @@ str(rollins_corpus$gold)
 
 ## Running a model
 
-[`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
 works exactly as it does for experimental conditions – it returns a
 fitted object whose `matrix` is the learned word (rows) by object
 (columns) association matrix.
@@ -89,15 +89,15 @@ Two things to know:
 
 - **Ignore `res$sse` and `res$fits[[1]]$perf`.** Those compare against
   `data$accuracy`, which is empty for a corpus.
-  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
   still computes them (falling back to
-  [`get_perf()`](https://kachergis.github.io/XSLmodels/reference/get_perf.md)),
+  [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md)),
   which is where the
   `"longer object length is not a multiple of shorter"` warning above
   comes from – the matrix is not square. It is harmless here; we score
   against the gold lexicon instead.
 - The batch model
-  [`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+  [`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
   (below) does joint inference over the whole corpus and has no learning
   trajectory, so `control$reps` does nothing for it.
 
@@ -160,7 +160,7 @@ sapply(assoc_models, function(mod) {
 
 ## The intentional Bayesian model
 
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 is the model built for exactly this problem: it does joint posterior
 inference over a word–object lexicon for the whole corpus at once,
 marginalizing the speaker’s referential intention on each utterance. It
@@ -206,7 +206,7 @@ get_roc_max(m_fgt, gold_lexicon = rollins_corpus$gold)
 
 ## “Fitting”: sweeping the lexicon-size prior
 
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)’s
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)’s
 `alpha` penalizes lexicon size (`P(L)` proportional to
 `exp(-alpha * |L|)`) and has to scale with corpus size: too small gives
 a diffuse over-large lexicon, too large an empty one. The F-vs-`alpha`
@@ -293,7 +293,7 @@ once on each corpus and scores the learned matrix against the corpus
 gold lexicon. It is deliberately **not** a fitted bake-off: the
 associative and sampling models use `xsl_model_registry()`’s starting
 parameters (calibrated defaults, not re-fit here), and
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 uses `gamma = 0.1`, `kappa = 0.05` with `alpha` from the two-point
 heuristic `round(7 * sqrt(n / 600))`.
 
@@ -336,21 +336,21 @@ Reading the table:
 - The middle of the pack is a tight cluster around F = 0.35 – the three
   `uncfam` variants and the two sampling versions all land there, which
   is reassuring since the sampling models are meant to approximate
-  [`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md).
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md).
 - **Every model now runs on both corpora**, but several needed fixes to
   get there. The sampling/RL models were built for controlled
   experiments of a few dozen trials; running them on 4763 naturalistic
   utterances exposed a memory blow-up
-  ([`xslControl()`](https://kachergis.github.io/XSLmodels/reference/xslControl-class.md)’s
+  ([`xslControl()`](https://www.kachergis.com/XSLmodels/reference/xslControl-class.md)’s
   `keep_traj = FALSE` default), an error on the many non-referential
   utterances with no objects present, and two latent bugs
-  ([`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md)
+  ([`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md)
   and
-  [`guess_and_test()`](https://kachergis.github.io/XSLmodels/reference/guess_and_test.md)
+  [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
   comparing a sampled guess to object *positions* vs *labels*;
-  [`guess_and_test()`](https://kachergis.github.io/XSLmodels/reference/guess_and_test.md)
+  [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
   also mishandling a word repeated within one utterance;
-  [`tilles()`](https://kachergis.github.io/XSLmodels/reference/tilles.md)
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   coercing its labels with
   [`as.integer()`](https://rdrr.io/r/base/integer.html) and returning an
   unnamed matrix). `pursuit` and `tilles` still learn near-empty or
@@ -364,13 +364,13 @@ Reading the table:
 each model it runs a (parallel) DEoptim search over the model’s
 parameters, maximizing the same best-threshold F against the gold
 lexicon (these corpora have no accuracy vector, so
-[`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)’s
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)’s
 SSE objective does not apply).
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 is fit by an `alpha` sweep instead.
-[`uncfam_sampling()`](https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.md)
+[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md)
 /
-[`multi_sampling()`](https://kachergis.github.io/XSLmodels/reference/multi_sampling.md)
+[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)
 are left at defaults – averaging many simulations per DEoptim evaluation
 over 4763 utterances is impractical.
 

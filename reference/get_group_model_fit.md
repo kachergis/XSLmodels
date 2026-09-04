@@ -20,7 +20,7 @@ get_group_model_fit(
 - model_name:
 
   Name of the model to fit (see
-  [`show_models()`](https://kachergis.github.io/XSLmodels/reference/show_models.md))
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md))
 
 - datasets:
 
@@ -29,9 +29,9 @@ get_group_model_fit(
 - control:
 
   Control arguments passed to
-  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
   (via
-  [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md));
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md));
   notably `n_sim`, the number of simulations averaged per evaluation of
   a stochastic model (default 500 – lowering this can speed up fitting
   of stochastic models substantially).
@@ -39,7 +39,7 @@ get_group_model_fit(
 - deoptim_control:
 
   Control parameters passed to `DEoptim()` (via
-  [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)).
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)).
 
 ## Value
 

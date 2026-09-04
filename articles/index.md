@@ -3,7 +3,7 @@
 ### All vignettes
 
 - [Running and fitting models on naturalistic
-  corpora](https://kachergis.github.io/XSLmodels/articles/corpora.md):
+  corpora](https://www.kachergis.com/XSLmodels/articles/corpora.md):
 - [Overview of \`XSLmodels\`: Importing cross-situational datasets and
   fitting
-  models](https://kachergis.github.io/XSLmodels/articles/XSLmodels.md):
+  models](https://www.kachergis.com/XSLmodels/articles/XSLmodels.md):

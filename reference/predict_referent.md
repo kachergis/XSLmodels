@@ -76,7 +76,7 @@ The literal rule is Bayes' rule on the word's row,
 normalized over the objects present. With `pragmatic = TRUE` the objects
 are instead resolved by a one-step Rational Speech Act pragmatic
 listener
-([`rsa_listener()`](https://kachergis.github.io/XSLmodels/reference/rsa_listener.md)),
+([`rsa_listener()`](https://www.kachergis.com/XSLmodels/reference/rsa_listener.md)),
 which additionally reasons that the speaker could have used a different
 word – this is what yields *strong* mutual exclusivity when a heard word
 is lexically ambiguous and a competitor word names one of the

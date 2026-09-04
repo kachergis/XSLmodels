@@ -30,8 +30,8 @@ An object of class xslMod
 `params` may be shorter than `xsl_mod$params`, in which case only the
 first `length(params)` parameters are replaced and the rest keep their
 existing values. This is what lets
-[`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
 optimize a leading subset of a model's parameters (e.g.
-[`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)'s
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)'s
 numeric `X`/`B`/`C` but not its categorical `variant`) by giving DEoptim
 `lower`/`upper` bounds shorter than the model's full parameter list.

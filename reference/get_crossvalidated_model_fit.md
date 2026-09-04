@@ -3,9 +3,9 @@
 Performs k-fold cross-validation on a model using the available
 datasets: the datasets are split into `n_folds` groups, and for each
 fold the model is fit (via
-[`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md))
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md))
 to the other folds and evaluated (via
-[`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md))
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md))
 on the held-out fold.
 
 ## Usage
@@ -25,7 +25,7 @@ get_crossvalidated_model_fit(
 - model_name:
 
   Name of the model to cross-validate (see
-  [`show_models()`](https://kachergis.github.io/XSLmodels/reference/show_models.md))
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md))
 
 - n_folds:
 
@@ -38,7 +38,7 @@ get_crossvalidated_model_fit(
 - control:
 
   Control arguments passed to
-  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)/[`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md);
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)/[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md);
   notably `n_sim`, the number of simulations averaged per evaluation of
   a stochastic model (default 500 – lowering this can speed up
   cross-validation of stochastic models substantially).
@@ -46,12 +46,12 @@ get_crossvalidated_model_fit(
 - deoptim_control:
 
   Control parameters passed to `DEoptim()` (via
-  [`cross_validated_group_fits()`](https://kachergis.github.io/XSLmodels/reference/cross_validated_group_fits.md)).
+  [`cross_validated_group_fits()`](https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.md)).
 
 ## Value
 
 A list containing cross-validation results (see
-[`cross_validated_group_fits()`](https://kachergis.github.io/XSLmodels/reference/cross_validated_group_fits.md))
+[`cross_validated_group_fits()`](https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.md))
 
 ## Examples
 

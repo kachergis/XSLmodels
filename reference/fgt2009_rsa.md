@@ -1,12 +1,12 @@
 # Frank, Goodman & Tenenbaum word-learning model with pragmatic (RSA) reasoning
 
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 with the literal speaker replaced by a Rational Speech Act pragmatic
 speaker: a speaker who chooses words to be informative to a listener who
 reasons about that speaker (Frank & Goodman, 2012; Smith, Goodman &
 Frank, 2013). The non-referential channel, the `kappa` penalty, and the
 marginalization over intentions are unchanged, so the literal
-[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+[`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 model is the `rsa_depth = 0` special case. The recursion is what
 produces *strong* mutual exclusivity – the speaker could have used a
 different word – which the literal model underproduces.
