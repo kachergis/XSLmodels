@@ -48,8 +48,8 @@ cross_val_fit_uncfam <- get_crossvalidated_model_fit("uncfam")
 ```
 
 
-For more details, see [this vignette](https://kachergis.github.io/XSLmodels/articles/XSLmodels.html).
+For more details, see [this vignette](https://www.kachergis.com/XSLmodels/articles/XSLmodels.html).
 
 Models can also be run and scored against gold-standard lexicons from naturalistic
 child-directed speech corpora (rather than fit to lab experiment accuracy) --
-see the [corpora vignette](https://kachergis.github.io/XSLmodels/articles/corpora.html).
+see the [corpora vignette](https://www.kachergis.com/XSLmodels/articles/corpora.html).
