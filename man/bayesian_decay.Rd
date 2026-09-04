@@ -11,7 +11,7 @@ bayesian_decay(alpha, delta, ch_dec)
 
 \item{delta}{Multiplier for word/object co-occurrence (1 for no increase)}
 
-\item{ch_dec}{ecision parameter (e.g., 1)}
+\item{ch_dec}{Decision parameter (e.g., 1)}
 }
 \value{
 An object of class xslMod
