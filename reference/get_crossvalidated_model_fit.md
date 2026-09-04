@@ -61,14 +61,14 @@ A list containing cross-validation results (see
 cv_fit <- get_crossvalidated_model_fit(
   "decay", n_folds = 2, datasets = xsl_datasets[1:6],
   deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
-#> Iteration: 1 bestvalit: 0.283120 bestmemit:    0.977584
-#> Iteration: 2 bestvalit: 0.281898 bestmemit:    0.984192
-#> Iteration: 3 bestvalit: 0.279827 bestmemit:    0.997571
-#> Iteration: 4 bestvalit: 0.279667 bestmemit:    0.998802
-#> Iteration: 5 bestvalit: 0.279667 bestmemit:    0.998802
-#> Iteration: 1 bestvalit: 0.230600 bestmemit:    0.964983
-#> Iteration: 2 bestvalit: 0.230600 bestmemit:    0.964983
-#> Iteration: 3 bestvalit: 0.230600 bestmemit:    0.964983
-#> Iteration: 4 bestvalit: 0.230600 bestmemit:    0.941083
-#> Iteration: 5 bestvalit: 0.230600 bestmemit:    0.972684
+#> Iteration: 1 bestvalit: 0.180096 bestmemit:    0.990199
+#> Iteration: 2 bestvalit: 0.179639 bestmemit:    0.992927
+#> Iteration: 3 bestvalit: 0.179639 bestmemit:    0.992927
+#> Iteration: 4 bestvalit: 0.179482 bestmemit:    0.993901
+#> Iteration: 5 bestvalit: 0.178656 bestmemit:    0.999459
+#> Iteration: 1 bestvalit: 0.337464 bestmemit:    0.957351
+#> Iteration: 2 bestvalit: 0.337464 bestmemit:    0.919373
+#> Iteration: 3 bestvalit: 0.337464 bestmemit:    0.919373
+#> Iteration: 4 bestvalit: 0.337464 bestmemit:    0.919373
+#> Iteration: 5 bestvalit: 0.337464 bestmemit:    0.919373
 ```

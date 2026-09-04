@@ -21,6 +21,10 @@ for common models."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/XSLmodels.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -92,11 +96,11 @@ stochastic models substantially).</p></dd>
 <span class="r-in"><span>  <span class="st">"uncfam"</span>, datasets <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>,</span></span>
 <span class="r-in"><span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>NP <span class="op">=</span> <span class="fl">10</span>, itermax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>For many problems it is best to set 'NP' (in 'control') to be at least ten times the length of the parameter vector. </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.587147 bestmemit:    0.134123    0.861626    0.993171</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.587147 bestmemit:    0.134123    0.861626    0.993171</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.227401 bestmemit:    0.066012    0.864247    0.985724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -47,9 +47,156 @@
   propose-and-verify logic but replaces their threshold-based
   keep/discard rules with graded value learning and explicit softmax
   exploration
+- Added two naturalistic corpora imported from the wurwur package
+  (github.com/mcfrank/wurwur), as standalone objects (not appended to
+  `xsl_datasets`, which is scored by SSE against a human accuracy vector
+  these don’t have): `rollins_corpus` – the CHILDES/Rollins corpus the
+  Frank, Goodman & Tenenbaum (2009) model was fit to (619 mother-infant
+  utterances, 416 words, 22 objects) – and `fm_corpus` – the larger
+  Frank, Tenenbaum & Fernald corpus (4763 utterances, 1122 words, 30
+  objects), which additionally carries the speaker’s hand-coded
+  referential intention per utterance (`fm_corpus$intents`). Each is a
+  list bundling the training `xslData` (`$data`) with a gold-standard
+  lexicon (`$gold`, plus `$gold_variants` for FM) to be scored with
+  [`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md)/[`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md)/[`get_tp()`](https://kachergis.github.io/XSLmodels/reference/get_tp.md)
+  rather than SSE. Gaze/hand attentional cues in the FM source are not
+  imported. See `data-raw/add_wurwur_corpora.R`
+- Added
+  [`predict_referent()`](https://kachergis.github.io/XSLmodels/reference/predict_referent.md),
+  a model-agnostic trial-level prediction: given any model’s word-object
+  matrix, a heard word, and the objects present, it returns the
+  probability distribution over those objects
+  (`P(object | word) proportional to m[word, object] * prior(object)`,
+  normalized over the objects present) – the quantity to compare against
+  a participant’s choice on a referent-selection trial. Supports a
+  non-uniform `prior` (set an entry to 0 to remove an object the speaker
+  has no epistemic access to) and a `pragmatic = TRUE` mode that
+  resolves the objects with a one-step Rational Speech Act pragmatic
+  listener
+  ([`rsa_listener()`](https://kachergis.github.io/XSLmodels/reference/rsa_listener.md)/[`rsa_speaker()`](https://kachergis.github.io/XSLmodels/reference/rsa_listener.md),
+  also exported), yielding strong mutual exclusivity when a heard word
+  is lexically ambiguous and a competitor word names one of the
+  candidates.
+  [`mafc_test()`](https://kachergis.github.io/XSLmodels/reference/mafc_test.md)
+  is now a thin wrapper over it (behavior unchanged; gains a `...`
+  passthrough for `pragmatic`/`threshold`)
+- Added
+  [`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+  and
+  [`fgt2009_rsa()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_rsa.md),
+  a pure-R port of the intentional Bayesian word-learning model of
+  Frank, Goodman & Tenenbaum (2009) and its Rational Speech Act (RSA)
+  pragmatic extension, from the Python package `wordlearn`
+  (github.com/mcfrank/wurwur). Unlike every other model in the package –
+  which tally word-object associations incrementally, trial by trial –
+  this is a **batch** model: it does joint MCMC inference (blocked
+  per-object Gibbs plus MI-biased single-edge Metropolis moves) over the
+  whole corpus at once, asking which lexicon best explains *all* the
+  data, so `xslFit$matrix` holds posterior edge marginals
+  `P(word names object | corpus)` rather than a running tally. It
+  therefore has no learning trajectory and ignores `control$reps`. The
+  scoring kernel is verified to match the Python reference to numerical
+  precision. `gamma`/`kappa` default to the values used for the
+  analogous cross-situational simulation in the source package
+  (`gamma = 1`, since every word in a controlled XSL experiment is a
+  referential label). The lexicon-size prior `alpha` scales with corpus
+  size and its fit-vs-`alpha` curve is single-peaked, so it is not wired
+  into `xsl_model_registry()`’s DEoptim bounds like the other models;
+  use the new
+  [`fgt2009_sweep_alpha()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_sweep_alpha.md)
+  helper instead (which takes an optional `gold` argument to report the
+  best-threshold F-score against a gold lexicon at each `alpha`, for
+  corpora with no human accuracy vector)
+- Added a vignette, “Running and fitting models on naturalistic
+  corpora”, covering how to run any model on
+  `rollins_corpus`/`fm_corpus`, score the learned matrix against a gold
+  lexicon with
+  [`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md)/[`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md)/[`get_roc_max()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md),
+  and choose
+  [`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)’s
+  `alpha` by sweeping. It ends with a quick model comparison
+  (`bayesian_decay` and `fazly` recover the gold lexicon best on both
+  corpora, with `fgt2009` close behind and highest-precision). The
+  comparison script and its outputs are in
+  `tests/bakeoff_comparison/corpus_gold_comparison.R` (every model at
+  registry defaults); a companion, `corpus_gold_fits.R`, fits each
+  model’s parameters to each corpus (parallel DEoptim maximizing
+  gold-lexicon F, since these corpora have no accuracy vector;
+  [`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+  by an `alpha` sweep). Fitting lifts every model – dramatically for the
+  ones whose registry defaults were tuned on controlled experiments
+  (`tilles` +0.34, `uncfam_predictive` +0.15/+0.32) – and
+  `bayesian_decay` fit to the FM corpus reaches F = 0.56.
+  `tests/bakeoff_comparison/corpus_report.md` is a rendered write-up of
+  all of this
+
+### Other changes
+
+- [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+  is now far more memory-frugal on long inputs (corpora). Previously it
+  built the full list of every simulation’s `xslFit` – each carrying a
+  word-by-object matrix *per training trial* – and only reduced them at
+  the end, so a stochastic model on the 4763-utterance FM corpus at
+  `n_sim = 50` needed tens of GB and simply failed. Now: (1) the
+  per-trial trajectory (`xslFit$traj`) is only recorded when
+  `xslControl(keep_traj = TRUE)` – it is off by default and is not used
+  by any function in the package; (2)
+  [`xsl_run()`](https://kachergis.github.io/XSLmodels/reference/xsl_run.md)
+  accumulates the summed matrix one simulation at a time rather than
+  holding all `n_sim` at once; (3) the full per-simulation list
+  (`fits[[i]]$sims`) is dropped unless `xslControl(keep_sims = TRUE)`,
+  replaced by `fits[[i]]$responses`, a compact `n_sim` x n-words matrix
+  of each simulated participant’s final per-word accuracy. `matrix`,
+  `perf`, and `sse` are numerically unchanged.
 
 ### Bug Fixes
 
+- [`guess_and_test()`](https://kachergis.github.io/XSLmodels/reference/guess_and_test.md)
+  errored (`if` with a zero- or multiple-length condition at the
+  disconfirmation step) on any utterance that repeats a word – common in
+  a naturalistic corpus, impossible in a controlled trial – because the
+  repeated word was visited twice and the first pass could clear or
+  double-set its hypothesis. It now de-duplicates a trial’s words and
+  objects. Its disconfirmation check also compared a column *position*
+  to the object *labels* (only equivalent when objects are labelled
+  `1..N`), and it applied new hypotheses to `need_hypoths[w]` rather
+  than the actual stored word `store[w]` (setting hypotheses for the
+  wrong words whenever only a subset rolled below the storage
+  threshold); both are fixed.
+- [`tilles()`](https://kachergis.github.io/XSLmodels/reference/tilles.md)
+  coerced each trial’s words/objects with
+  [`as.integer()`](https://rdrr.io/r/base/integer.html) (it indexes its
+  state by position), turning any non-integer label into `NA` and
+  leaving the matrix all-zero; it also never set `dimnames` on its
+  matrix, so the result could not be scored against a gold lexicon by
+  label. It now maps labels to positions with
+  [`match()`](https://rdrr.io/r/base/match.html) and names its matrix.
+  `xsl_datasets` results are unchanged (the labels there are already
+  `1..N`).
+- [`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md)
+  checked its sampled guess against the trial’s objects with
+  `proposal %in% tr_o`, comparing a column *position* (`1..ref_sz`)
+  against the objects’ *labels*. For `xsl_datasets` the object labels
+  are `1..N` so it happened to work, but on any dataset whose objects
+  have non-integer (or non-contiguous) labels – e.g. either bundled
+  corpus – every reward was 0 and the learned Q-matrix stayed
+  identically zero. It now maps the objects present to positions
+  (`match(tr_o, ref)`) before the check, and skips a trial with no
+  objects present. `xsl_datasets` results are unchanged.
+- [`uncfam_sampling()`](https://kachergis.github.io/XSLmodels/reference/uncfam_sampling.md)
+  and
+  [`multi_sampling()`](https://kachergis.github.io/XSLmodels/reference/multi_sampling.md)
+  errored ([`sample()`](https://rdrr.io/r/base/sample.html): “too few
+  positive probabilities”) on any dataset containing an utterance with
+  no objects present – e.g. the ~320 non-referential utterances in
+  `fm_corpus`, which made both models unable to run on a naturalistic
+  corpus. Such a trial now leaves the association matrix unchanged apart
+  from decay (as
+  [`uncfam()`](https://kachergis.github.io/XSLmodels/reference/uncfam.md)
+  already did), by skipping the per-word sampling when its weights are
+  all zero and only applying the normalized update when something was
+  sampled. Behaviour on datasets without objectless trials (all of
+  `xsl_datasets`) is unchanged.
 - [`tilles()`](https://kachergis.github.io/XSLmodels/reference/tilles.md)
   was essentially unfittable – three separate bugs (not the single one
   originally suspected) made a quick DEoptim search return `Inf` for

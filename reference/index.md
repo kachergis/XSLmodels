@@ -36,6 +36,12 @@ Cross-situational word learning models
   : Kalman filter associative model
 - [`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md)
   : Softmax reinforcement learning model
+- [`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+  : Frank, Goodman & Tenenbaum (2009) intentional Bayesian word-learning
+  model
+- [`fgt2009_rsa()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_rsa.md)
+  : Frank, Goodman & Tenenbaum word-learning model with pragmatic (RSA)
+  reasoning
 
 ## Running and fitting models
 
@@ -43,6 +49,8 @@ Cross-situational word learning models
   : Run XSL model
 - [`xsl_fit()`](https://kachergis.github.io/XSLmodels/reference/xsl_fit.md)
   : Fit XSL model using differential evolution
+- [`fgt2009_sweep_alpha()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_sweep_alpha.md)
+  : Sweep the lexicon-size prior alpha for an FGT model
 - [`update_params()`](https://kachergis.github.io/XSLmodels/reference/update_params.md)
   : Update parameters of xslMod
 - [`get_group_model_fit()`](https://kachergis.github.io/XSLmodels/reference/get_group_model_fit.md)
@@ -62,6 +70,11 @@ Cross-situational word learning models
   : Kachergis (2012) highlighting experiment data
 - [`kachergis_initial_accuracy`](https://kachergis.github.io/XSLmodels/reference/kachergis_initial_accuracy.md)
   : Kachergis, Grimmick, & Gureckis initial accuracy experiment data
+- [`rollins_corpus`](https://kachergis.github.io/XSLmodels/reference/rollins_corpus.md)
+  : CHILDES/Rollins naturalistic word-learning corpus (Frank et al.
+  2009)
+- [`fm_corpus`](https://kachergis.github.io/XSLmodels/reference/fm_corpus.md)
+  : Frank, Tenenbaum & Fernald naturalistic word-learning corpus
 - [`xslData()`](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
   [`new_xslData()`](https://kachergis.github.io/XSLmodels/reference/xslData-class.md)
   : xslData S3 class
@@ -92,6 +105,12 @@ Cross-situational word learning models
   knowledge matrix
 - [`mafc_test()`](https://kachergis.github.io/XSLmodels/reference/mafc_test.md)
   : Evaluate m-alternative forced choice test
+- [`predict_referent()`](https://kachergis.github.io/XSLmodels/reference/predict_referent.md)
+  : Predict referent selection for a single trial from an association
+  matrix
+- [`rsa_listener()`](https://kachergis.github.io/XSLmodels/reference/rsa_listener.md)
+  [`rsa_speaker()`](https://kachergis.github.io/XSLmodels/reference/rsa_listener.md)
+  : Rational Speech Act pragmatic listener and speaker
 - [`get_tp()`](https://kachergis.github.io/XSLmodels/reference/get_tp.md)
   : Get true positives (TP), given a knowledge matrix and a
   gold-standard lexicon

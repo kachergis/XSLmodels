@@ -17,6 +17,10 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/XSLmodels.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -153,6 +157,20 @@
 
         </dt>
         <dd>Softmax reinforcement learning model</dd>
+
+        <dt>
+
+          <code><a href="fgt2009.html">fgt2009()</a></code>
+
+        </dt>
+        <dd>Frank, Goodman &amp; Tenenbaum (2009) intentional Bayesian word-learning model</dd>
+
+        <dt>
+
+          <code><a href="fgt2009_rsa.html">fgt2009_rsa()</a></code>
+
+        </dt>
+        <dd>Frank, Goodman &amp; Tenenbaum word-learning model with pragmatic (RSA) reasoning</dd>
       </dl></div><div class="section level2">
       <h2 id="running-and-fitting-models">Running and fitting models<a class="anchor" aria-label="anchor" href="#running-and-fitting-models"></a></h2>
 
@@ -176,6 +194,13 @@
 
         </dt>
         <dd>Fit XSL model using differential evolution</dd>
+
+        <dt>
+
+          <code><a href="fgt2009_sweep_alpha.html">fgt2009_sweep_alpha()</a></code>
+
+        </dt>
+        <dd>Sweep the lexicon-size prior alpha for an FGT model</dd>
 
         <dt>
 
@@ -241,6 +266,20 @@
 
         </dt>
         <dd>Kachergis, Grimmick, &amp; Gureckis initial accuracy experiment data</dd>
+
+        <dt>
+
+          <code><a href="rollins_corpus.html">rollins_corpus</a></code>
+
+        </dt>
+        <dd>CHILDES/Rollins naturalistic word-learning corpus (Frank et al. 2009)</dd>
+
+        <dt>
+
+          <code><a href="fm_corpus.html">fm_corpus</a></code>
+
+        </dt>
+        <dd>Frank, Tenenbaum &amp; Fernald naturalistic word-learning corpus</dd>
 
         <dt>
 
@@ -327,6 +366,20 @@
 
         </dt>
         <dd>Evaluate m-alternative forced choice test</dd>
+
+        <dt>
+
+          <code><a href="predict_referent.html">predict_referent()</a></code>
+
+        </dt>
+        <dd>Predict referent selection for a single trial from an association matrix</dd>
+
+        <dt>
+
+          <code><a href="rsa_listener.html">rsa_listener()</a></code> <code><a href="rsa_listener.html">rsa_speaker()</a></code>
+
+        </dt>
+        <dd>Rational Speech Act pragmatic listener and speaker</dd>
 
         <dt>
 

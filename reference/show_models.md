@@ -22,5 +22,5 @@ show_models()
 #>  [7] "multi_sampling"     "propose_but_verify" "pursuit"           
 #> [10] "fazly"              "guess_and_test"     "rescorla_wagner"   
 #> [13] "tilles"             "bayesian_decay"     "kalman_filter"     
-#> [16] "softmax_rl"        
+#> [16] "softmax_rl"         "fgt2009"            "fgt2009_rsa"       
 ```

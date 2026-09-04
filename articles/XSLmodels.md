@@ -142,6 +142,27 @@ xsl_datasets[[1]]$accuracy
 #> [16] 0.08 0.20 0.08
 ```
 
+A few datasets ship separately from `xsl_datasets` because they don’t
+fit its “one correct object per tested word, scored by SSE against human
+accuracy” convention: `kachergis2012_highlighting` and
+`kachergis_initial_accuracy` (experiments with ambiguous test items),
+and two naturalistic caregiver-speech corpora imported from the
+[wurwur](https://github.com/mcfrank/wurwur) package – `rollins_corpus`
+(the CHILDES/Rollins corpus fit by Frank, Goodman & Tenenbaum, 2009) and
+`fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
+referent-selection data; each bundles the training `xslData` in `$data`
+with a gold-standard lexicon in `$gold`, scored with
+[`get_fscore()`](https://kachergis.github.io/XSLmodels/reference/get_fscore.md)
+/
+[`get_roc()`](https://kachergis.github.io/XSLmodels/reference/get_roc.md)
+rather than SSE:
+
+``` r
+
+m <- xsl_run(fgt2009(alpha = 7), rollins_corpus$data)$fits[[1]]$matrix
+get_roc_max(m, gold_lexicon = rollins_corpus$gold)
+```
+
 ## Running, fitting, and defining XSL models.
 
 ### 4. Run model with given parameters through a single dataset and pull SSE.
@@ -179,11 +200,11 @@ word (i.e., P(referent \| word)).
 # Test different models on a subset of datasets
 gt <- xsl_run(guess_and_test(f = .1, sa = .5), data = xsl_datasets[1:3])
 gt$sse
-#> [1] 3.767219
+#> [1] 3.194255
 
 pt <- xsl_run(pursuit(gamma = .2, threshold = .3, lambda = .05), data = xsl_datasets[1:3])
 pt$sse
-#> [1] 8.757726
+#> [1] 8.752733
 
 # Compare with baseline
 bl <- xsl_run(baseline(), data = xsl_datasets[1:3])
@@ -206,7 +227,7 @@ models
 #>  [7] "multi_sampling"     "propose_but_verify" "pursuit"           
 #> [10] "fazly"              "guess_and_test"     "rescorla_wagner"   
 #> [13] "tilles"             "bayesian_decay"     "kalman_filter"     
-#> [16] "softmax_rl"
+#> [16] "softmax_rl"         "fgt2009"            "fgt2009_rsa"
 
 # See what datasets are available
 datasets <- show_datasets()
@@ -230,109 +251,109 @@ models in the package.
 # Fit a simple decay model to a single dataset
 fit_result <- xsl_fit(decay(C = .98), data = xsl_datasets[[1]], 
                       lower = .8, upper = 1.0)
-#> Iteration: 1 bestvalit: 0.310600 bestmemit:    0.970528
-#> Iteration: 2 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 3 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 4 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 5 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 6 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 7 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 8 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 9 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 10 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 11 bestvalit: 0.310600 bestmemit:    0.979374
-#> Iteration: 12 bestvalit: 0.310600 bestmemit:    0.977778
-#> Iteration: 13 bestvalit: 0.310600 bestmemit:    0.977778
-#> Iteration: 14 bestvalit: 0.310600 bestmemit:    0.987768
-#> Iteration: 15 bestvalit: 0.310600 bestmemit:    0.991104
-#> Iteration: 16 bestvalit: 0.310600 bestmemit:    0.991104
-#> Iteration: 17 bestvalit: 0.310600 bestmemit:    0.991104
-#> Iteration: 18 bestvalit: 0.310600 bestmemit:    0.978662
-#> Iteration: 19 bestvalit: 0.310600 bestmemit:    0.978662
-#> Iteration: 20 bestvalit: 0.310600 bestmemit:    0.978662
-#> Iteration: 21 bestvalit: 0.310600 bestmemit:    0.978662
-#> Iteration: 22 bestvalit: 0.310600 bestmemit:    0.980151
-#> Iteration: 23 bestvalit: 0.310600 bestmemit:    0.980151
-#> Iteration: 24 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 25 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 26 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 27 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 28 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 29 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 30 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 31 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 32 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 33 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 34 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 35 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 36 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 37 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 38 bestvalit: 0.310600 bestmemit:    0.984310
-#> Iteration: 39 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 40 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 41 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 42 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 43 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 44 bestvalit: 0.310600 bestmemit:    0.985816
-#> Iteration: 45 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 46 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 47 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 48 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 49 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 50 bestvalit: 0.310600 bestmemit:    0.985998
-#> Iteration: 51 bestvalit: 0.310600 bestmemit:    0.989886
-#> Iteration: 52 bestvalit: 0.310600 bestmemit:    0.930671
-#> Iteration: 53 bestvalit: 0.310600 bestmemit:    0.930671
-#> Iteration: 54 bestvalit: 0.310600 bestmemit:    0.930671
-#> Iteration: 55 bestvalit: 0.310600 bestmemit:    0.985993
-#> Iteration: 56 bestvalit: 0.310600 bestmemit:    0.980990
-#> Iteration: 57 bestvalit: 0.310600 bestmemit:    0.980990
-#> Iteration: 58 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 59 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 60 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 61 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 62 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 63 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 64 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 65 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 66 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 67 bestvalit: 0.310600 bestmemit:    0.990356
-#> Iteration: 68 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 69 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 70 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 71 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 72 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 73 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 74 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 75 bestvalit: 0.310600 bestmemit:    0.982078
-#> Iteration: 76 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 77 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 78 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 79 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 80 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 81 bestvalit: 0.310600 bestmemit:    0.990160
-#> Iteration: 82 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 83 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 84 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 85 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 86 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 87 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 88 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 89 bestvalit: 0.310600 bestmemit:    0.988925
-#> Iteration: 90 bestvalit: 0.310600 bestmemit:    0.988767
-#> Iteration: 91 bestvalit: 0.310600 bestmemit:    0.997899
-#> Iteration: 92 bestvalit: 0.310600 bestmemit:    0.997899
-#> Iteration: 93 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 94 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 95 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 96 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 97 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 98 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 99 bestvalit: 0.310600 bestmemit:    0.978370
-#> Iteration: 100 bestvalit: 0.310600 bestmemit:    0.978370
+#> Iteration: 1 bestvalit: 0.310600 bestmemit:    0.922301
+#> Iteration: 2 bestvalit: 0.310600 bestmemit:    0.928167
+#> Iteration: 3 bestvalit: 0.310600 bestmemit:    0.928167
+#> Iteration: 4 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 5 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 6 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 7 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 8 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 9 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 10 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 11 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 12 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 13 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 14 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 15 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 16 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 17 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 18 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 19 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 20 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 21 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 22 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 23 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 24 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 25 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 26 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 27 bestvalit: 0.310600 bestmemit:    0.937170
+#> Iteration: 28 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 29 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 30 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 31 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 32 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 33 bestvalit: 0.310600 bestmemit:    0.979786
+#> Iteration: 34 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 35 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 36 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 37 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 38 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 39 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 40 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 41 bestvalit: 0.310600 bestmemit:    0.947051
+#> Iteration: 42 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 43 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 44 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 45 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 46 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 47 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 48 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 49 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 50 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 51 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 52 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 53 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 54 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 55 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 56 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 57 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 58 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 59 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 60 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 61 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 62 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 63 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 64 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 65 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 66 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 67 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 68 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 69 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 70 bestvalit: 0.310600 bestmemit:    0.982466
+#> Iteration: 71 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 72 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 73 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 74 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 75 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 76 bestvalit: 0.310600 bestmemit:    0.990610
+#> Iteration: 77 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 78 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 79 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 80 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 81 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 82 bestvalit: 0.310600 bestmemit:    0.986762
+#> Iteration: 83 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 84 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 85 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 86 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 87 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 88 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 89 bestvalit: 0.310600 bestmemit:    0.991180
+#> Iteration: 90 bestvalit: 0.310600 bestmemit:    0.984388
+#> Iteration: 91 bestvalit: 0.310600 bestmemit:    0.987745
+#> Iteration: 92 bestvalit: 0.310600 bestmemit:    0.987745
+#> Iteration: 93 bestvalit: 0.310600 bestmemit:    0.987745
+#> Iteration: 94 bestvalit: 0.310600 bestmemit:    0.984830
+#> Iteration: 95 bestvalit: 0.310600 bestmemit:    0.984830
+#> Iteration: 96 bestvalit: 0.310600 bestmemit:    0.979256
+#> Iteration: 97 bestvalit: 0.310600 bestmemit:    0.979256
+#> Iteration: 98 bestvalit: 0.310600 bestmemit:    0.979256
+#> Iteration: 99 bestvalit: 0.310600 bestmemit:    0.979256
+#> Iteration: 100 bestvalit: 0.310600 bestmemit:    0.979256
 fit_result[[1]]$optim$bestmem
 #>      par1 
-#> 0.9783702
+#> 0.9792563
 fit_result[[1]]$optim$bestval
 #> [1] 0.3106
 ```
@@ -375,6 +396,17 @@ Pursuit model
 **Reinforcement learning models:** -
 [`softmax_rl()`](https://kachergis.github.io/XSLmodels/reference/softmax_rl.md) -
 Q-learning-style model with softmax action selection
+
+**Bayesian models:** -
+[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md) -
+Frank, Goodman & Tenenbaum (2009) intentional model: joint posterior
+inference over a word-object lexicon, marginalizing the speaker’s
+referential intention (a batch model; ported from the `wordlearn`
+package). Tune the lexicon-size prior with
+[`fgt2009_sweep_alpha()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_sweep_alpha.md). -
+[`fgt2009_rsa()`](https://kachergis.github.io/XSLmodels/reference/fgt2009_rsa.md) -
+[`fgt2009()`](https://kachergis.github.io/XSLmodels/reference/fgt2009.md)
+with a Rational Speech Act pragmatic speaker layer
 
 **Baseline models:** -
 [`baseline()`](https://kachergis.github.io/XSLmodels/reference/baseline.md) -

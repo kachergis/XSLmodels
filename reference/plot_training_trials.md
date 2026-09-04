@@ -171,208 +171,107 @@ plot_training_trials(xsl_datasets[[1]]$train)
 #> 99     99     101 0.98019802          TRUE             35            35
 #> 100   100     101 0.99009901         FALSE             36            36
 #> 101   101     101 1.00000000          TRUE             36            36
-#>     next_state stringsAsFactors
-#> 1            0            FALSE
-#> 2            0            FALSE
-#> 3            1            FALSE
-#> 4            1            FALSE
-#> 5            1            FALSE
-#> 6            2            FALSE
-#> 7            2            FALSE
-#> 8            2            FALSE
-#> 9            3            FALSE
-#> 10           3            FALSE
-#> 11           3            FALSE
-#> 12           4            FALSE
-#> 13           4            FALSE
-#> 14           4            FALSE
-#> 15           5            FALSE
-#> 16           5            FALSE
-#> 17           5            FALSE
-#> 18           6            FALSE
-#> 19           6            FALSE
-#> 20           6            FALSE
-#> 21           7            FALSE
-#> 22           7            FALSE
-#> 23           7            FALSE
-#> 24           8            FALSE
-#> 25           8            FALSE
-#> 26           8            FALSE
-#> 27           9            FALSE
-#> 28           9            FALSE
-#> 29           9            FALSE
-#> 30          10            FALSE
-#> 31          10            FALSE
-#> 32          10            FALSE
-#> 33          11            FALSE
-#> 34          11            FALSE
-#> 35          11            FALSE
-#> 36          12            FALSE
-#> 37          12            FALSE
-#> 38          12            FALSE
-#> 39          13            FALSE
-#> 40          13            FALSE
-#> 41          13            FALSE
-#> 42          14            FALSE
-#> 43          14            FALSE
-#> 44          14            FALSE
-#> 45          15            FALSE
-#> 46          15            FALSE
-#> 47          15            FALSE
-#> 48          16            FALSE
-#> 49          16            FALSE
-#> 50          16            FALSE
-#> 52          17            FALSE
-#> 53          17            FALSE
-#> 54          18            FALSE
-#> 55          18            FALSE
-#> 56          18            FALSE
-#> 57          19            FALSE
-#> 58          19            FALSE
-#> 59          19            FALSE
-#> 60          20            FALSE
-#> 61          20            FALSE
-#> 62          20            FALSE
-#> 63          21            FALSE
-#> 64          21            FALSE
-#> 65          21            FALSE
-#> 66          22            FALSE
-#> 67          22            FALSE
-#> 68          22            FALSE
-#> 69          23            FALSE
-#> 70          23            FALSE
-#> 71          23            FALSE
-#> 72          24            FALSE
-#> 73          24            FALSE
-#> 74          24            FALSE
-#> 75          25            FALSE
-#> 76          25            FALSE
-#> 77          25            FALSE
-#> 78          26            FALSE
-#> 79          26            FALSE
-#> 80          26            FALSE
-#> 81          27            FALSE
-#> 82          27            FALSE
-#> 83          28            FALSE
-#> 84          28            FALSE
-#> 85          29            FALSE
-#> 86          29            FALSE
-#> 87          30            FALSE
-#> 88          30            FALSE
-#> 89          31            FALSE
-#> 90          31            FALSE
-#> 91          32            FALSE
-#> 92          32            FALSE
-#> 93          33            FALSE
-#> 94          33            FALSE
-#> 95          34            FALSE
-#> 96          34            FALSE
-#> 97          35            FALSE
-#> 98          35            FALSE
-#> 99          36            FALSE
-#> 100         36            FALSE
-#> 101          0            FALSE
-#>                                         frame_source
-#> 1   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0001.png
-#> 2   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0002.png
-#> 3   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0003.png
-#> 4   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0004.png
-#> 5   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0005.png
-#> 6   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0006.png
-#> 7   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0007.png
-#> 8   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0008.png
-#> 9   /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0009.png
-#> 10  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0010.png
-#> 11  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0011.png
-#> 12  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0012.png
-#> 13  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0013.png
-#> 14  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0014.png
-#> 15  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0015.png
-#> 16  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0016.png
-#> 17  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0017.png
-#> 18  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0018.png
-#> 19  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0019.png
-#> 20  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0020.png
-#> 21  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0021.png
-#> 22  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0022.png
-#> 23  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0023.png
-#> 24  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0024.png
-#> 25  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0025.png
-#> 26  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0026.png
-#> 27  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0027.png
-#> 28  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0028.png
-#> 29  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0029.png
-#> 30  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0030.png
-#> 31  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0031.png
-#> 32  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0032.png
-#> 33  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0033.png
-#> 34  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0034.png
-#> 35  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0035.png
-#> 36  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0036.png
-#> 37  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0037.png
-#> 38  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0038.png
-#> 39  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0039.png
-#> 40  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0040.png
-#> 41  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0041.png
-#> 42  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0042.png
-#> 43  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0043.png
-#> 44  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0044.png
-#> 45  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0045.png
-#> 46  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0046.png
-#> 47  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0047.png
-#> 48  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0048.png
-#> 49  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0049.png
-#> 50  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0050.png
-#> 52  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0051.png
-#> 53  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0052.png
-#> 54  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0053.png
-#> 55  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0054.png
-#> 56  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0055.png
-#> 57  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0056.png
-#> 58  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0057.png
-#> 59  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0058.png
-#> 60  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0059.png
-#> 61  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0060.png
-#> 62  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0061.png
-#> 63  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0062.png
-#> 64  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0063.png
-#> 65  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0064.png
-#> 66  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0065.png
-#> 67  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0066.png
-#> 68  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0067.png
-#> 69  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0068.png
-#> 70  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0069.png
-#> 71  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0070.png
-#> 72  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0071.png
-#> 73  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0072.png
-#> 74  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0073.png
-#> 75  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0074.png
-#> 76  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0075.png
-#> 77  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0076.png
-#> 78  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0077.png
-#> 79  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0078.png
-#> 80  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0079.png
-#> 81  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0080.png
-#> 82  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0081.png
-#> 83  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0082.png
-#> 84  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0083.png
-#> 85  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0084.png
-#> 86  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0085.png
-#> 87  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0086.png
-#> 88  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0087.png
-#> 89  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0088.png
-#> 90  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0089.png
-#> 91  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0090.png
-#> 92  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0091.png
-#> 93  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0092.png
-#> 94  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0093.png
-#> 95  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0094.png
-#> 96  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0095.png
-#> 97  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0096.png
-#> 98  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0097.png
-#> 99  /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0098.png
-#> 100 /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0099.png
-#> 101 /tmp/RtmpYN5zUA/1f5b2d8ee12e/gganim_plot0100.png
+#>     next_state stringsAsFactors                                    frame_source
+#> 1            0            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0001.png
+#> 2            0            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0002.png
+#> 3            1            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0003.png
+#> 4            1            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0004.png
+#> 5            1            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0005.png
+#> 6            2            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0006.png
+#> 7            2            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0007.png
+#> 8            2            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0008.png
+#> 9            3            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0009.png
+#> 10           3            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0010.png
+#> 11           3            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0011.png
+#> 12           4            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0012.png
+#> 13           4            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0013.png
+#> 14           4            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0014.png
+#> 15           5            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0015.png
+#> 16           5            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0016.png
+#> 17           5            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0017.png
+#> 18           6            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0018.png
+#> 19           6            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0019.png
+#> 20           6            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0020.png
+#> 21           7            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0021.png
+#> 22           7            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0022.png
+#> 23           7            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0023.png
+#> 24           8            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0024.png
+#> 25           8            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0025.png
+#> 26           8            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0026.png
+#> 27           9            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0027.png
+#> 28           9            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0028.png
+#> 29           9            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0029.png
+#> 30          10            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0030.png
+#> 31          10            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0031.png
+#> 32          10            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0032.png
+#> 33          11            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0033.png
+#> 34          11            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0034.png
+#> 35          11            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0035.png
+#> 36          12            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0036.png
+#> 37          12            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0037.png
+#> 38          12            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0038.png
+#> 39          13            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0039.png
+#> 40          13            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0040.png
+#> 41          13            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0041.png
+#> 42          14            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0042.png
+#> 43          14            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0043.png
+#> 44          14            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0044.png
+#> 45          15            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0045.png
+#> 46          15            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0046.png
+#> 47          15            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0047.png
+#> 48          16            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0048.png
+#> 49          16            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0049.png
+#> 50          16            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0050.png
+#> 52          17            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0051.png
+#> 53          17            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0052.png
+#> 54          18            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0053.png
+#> 55          18            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0054.png
+#> 56          18            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0055.png
+#> 57          19            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0056.png
+#> 58          19            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0057.png
+#> 59          19            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0058.png
+#> 60          20            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0059.png
+#> 61          20            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0060.png
+#> 62          20            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0061.png
+#> 63          21            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0062.png
+#> 64          21            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0063.png
+#> 65          21            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0064.png
+#> 66          22            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0065.png
+#> 67          22            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0066.png
+#> 68          22            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0067.png
+#> 69          23            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0068.png
+#> 70          23            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0069.png
+#> 71          23            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0070.png
+#> 72          24            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0071.png
+#> 73          24            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0072.png
+#> 74          24            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0073.png
+#> 75          25            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0074.png
+#> 76          25            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0075.png
+#> 77          25            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0076.png
+#> 78          26            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0077.png
+#> 79          26            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0078.png
+#> 80          26            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0079.png
+#> 81          27            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0080.png
+#> 82          27            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0081.png
+#> 83          28            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0082.png
+#> 84          28            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0083.png
+#> 85          29            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0084.png
+#> 86          29            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0085.png
+#> 87          30            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0086.png
+#> 88          30            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0087.png
+#> 89          31            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0088.png
+#> 90          31            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0089.png
+#> 91          32            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0090.png
+#> 92          32            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0091.png
+#> 93          33            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0092.png
+#> 94          33            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0093.png
+#> 95          34            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0094.png
+#> 96          34            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0095.png
+#> 97          35            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0096.png
+#> 98          35            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0097.png
+#> 99          36            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0098.png
+#> 100         36            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0099.png
+#> 101          0            FALSE /tmp/RtmpxX9egm/1d21d6451ad/gganim_plot0100.png
 #> # A tibble: 11,988 × 4
 #>    word  object coocs trial
 #>    <chr> <chr>  <dbl> <dbl>

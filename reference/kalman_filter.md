@@ -41,6 +41,14 @@ kalman_filter(tau2, sigma2_obs, sigma2_0)
 
 An object of class xslMod
 
+## Details
+
+Note that the three parameters share a scale redundancy: multiplying
+`tau2`, `sigma2_obs` and `sigma2_0` together by any constant leaves
+every Kalman gain – and hence the learned matrix – unchanged. Only two
+of the three are identifiable; when fitting, hold one fixed
+(conventionally `sigma2_obs`).
+
 ## Examples
 
 ``` r
@@ -49,40 +57,11 @@ xsl_run(mod, get_example_ambiguous_condition())
 #> $fits
 #> $fits[[1]]
 #> $fits[[1]]$sims
-#> $fits[[1]]$sims[[1]]
-#> $perf
+#> NULL
+#> 
+#> $fits[[1]]$responses
 #>      [,1] [,2] [,3] [,4]
 #> [1,]  0.5  0.5  0.5  0.5
-#> 
-#> $matrix
-#>           1         2         3         4
-#> 1 0.6688742 0.6688742 0.0000000 0.0000000
-#> 2 0.6688742 0.6688742 0.0000000 0.0000000
-#> 3 0.0000000 0.0000000 0.6710526 0.6710526
-#> 4 0.0000000 0.0000000 0.6710526 0.6710526
-#> 
-#> $traj
-#> $traj[[1]]
-#>           1         2 3 4
-#> 1 0.6688742 0.6688742 0 0
-#> 2 0.6688742 0.6688742 0 0
-#> 3 0.0000000 0.0000000 0 0
-#> 4 0.0000000 0.0000000 0 0
-#> 
-#> $traj[[2]]
-#>           1         2         3         4
-#> 1 0.6688742 0.6688742 0.0000000 0.0000000
-#> 2 0.6688742 0.6688742 0.0000000 0.0000000
-#> 3 0.0000000 0.0000000 0.6710526 0.6710526
-#> 4 0.0000000 0.0000000 0.6710526 0.6710526
-#> 
-#> 
-#> $sse
-#> numeric(0)
-#> 
-#> attr(,"class")
-#> [1] "xslFit" "list"  
-#> 
 #> 
 #> $fits[[1]]$perf
 #>   1   2   3   4 

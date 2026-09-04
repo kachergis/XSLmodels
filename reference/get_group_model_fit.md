@@ -55,9 +55,9 @@ group_fit <- get_group_model_fit(
   "uncfam", datasets = xsl_datasets[1:3],
   deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 #> Warning: For many problems it is best to set 'NP' (in 'control') to be at least ten times the length of the parameter vector. 
-#> Iteration: 1 bestvalit: 0.587147 bestmemit:    0.134123    0.861626    0.993171
-#> Iteration: 2 bestvalit: 0.587147 bestmemit:    0.134123    0.861626    0.993171
-#> Iteration: 3 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321
-#> Iteration: 4 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321
-#> Iteration: 5 bestvalit: 0.221056 bestmemit:    0.030286    0.928748    0.951321
+#> Iteration: 1 bestvalit: 0.227401 bestmemit:    0.066012    0.864247    0.985724
+#> Iteration: 2 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724
+#> Iteration: 3 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724
+#> Iteration: 4 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724
+#> Iteration: 5 bestvalit: 0.227213 bestmemit:    0.066012    0.837244    0.985724
 ```

@@ -39,6 +39,10 @@ revise a belief rather than converging to a fixed point."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/XSLmodels.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -99,6 +103,14 @@ before any training</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class xslMod</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Note that the three parameters share a scale redundancy: multiplying
+<code>tau2</code>, <code>sigma2_obs</code> and <code>sigma2_0</code> together by any constant leaves every
+Kalman gain – and hence the learned matrix – unchanged. Only two of the
+three are identifiable; when fitting, hold one fixed (conventionally
+<code>sigma2_obs</code>).</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -107,40 +119,11 @@ before any training</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fits</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fits[[1]]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fits[[1]]$sims</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $fits[[1]]$sims[[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $perf</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $fits[[1]]$responses</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.5  0.5  0.5  0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $matrix</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           1         2         3         4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.6688742 0.6688742 0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.6688742 0.6688742 0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.0000000 0.0000000 0.6710526 0.6710526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.0000000 0.0000000 0.6710526 0.6710526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $traj</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $traj[[1]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           1         2 3 4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.6688742 0.6688742 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.6688742 0.6688742 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.0000000 0.0000000 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.0000000 0.0000000 0 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $traj[[2]]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           1         2         3         4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.6688742 0.6688742 0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.6688742 0.6688742 0.0000000 0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.0000000 0.0000000 0.6710526 0.6710526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.0000000 0.0000000 0.6710526 0.6710526</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $sse</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> numeric(0)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "xslFit" "list"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $fits[[1]]$perf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1   2   3   4 </span>

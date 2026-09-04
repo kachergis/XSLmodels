@@ -17,6 +17,10 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/XSLmodels.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -45,7 +49,9 @@
 <span>  start_matrix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  test_noise <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  n_sim <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_traj <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_sims <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">new_xslControl</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -73,6 +79,22 @@
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Verbosity</p></dd>
+
+
+<dt id="arg-keep-traj">keep_traj<a class="anchor" aria-label="anchor" href="#arg-keep-traj"></a></dt>
+<dd><p>Whether each model run should record its per-trial
+association matrix (<code>xslFit$traj</code>). Off by default: the trajectory is not
+used by any function in the package, and for a long corpus it is a serious
+memory cost (one word-by-object matrix per trial, per simulation). Set
+<code>TRUE</code> only when you want to inspect the learning trajectory yourself.</p></dd>
+
+
+<dt id="arg-keep-sims">keep_sims<a class="anchor" aria-label="anchor" href="#arg-keep-sims"></a></dt>
+<dd><p>Whether <code><a href="xsl_run.html">xsl_run()</a></code> should retain the full list of
+per-simulation <code>xslFit</code> objects (<code>fits[[i]]$sims</code>). Off by default;
+<code>fits[[i]]$responses</code> (an <code>n_sim</code> x n-words matrix of each simulated
+participant's final per-word accuracy) is always returned instead, at a
+fraction of the memory.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

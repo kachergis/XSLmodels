@@ -23,6 +23,10 @@ xsl_run()) on the held-out fold."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/XSLmodels.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -99,16 +103,16 @@ cross-validation of stochastic models substantially).</p></dd>
 <span class="r-in"><span><span class="va">cv_fit</span> <span class="op">&lt;-</span> <span class="fu">get_crossvalidated_model_fit</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="st">"decay"</span>, n_folds <span class="op">=</span> <span class="fl">2</span>, datasets <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>,</span></span>
 <span class="r-in"><span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>NP <span class="op">=</span> <span class="fl">10</span>, itermax <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.283120 bestmemit:    0.977584</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.281898 bestmemit:    0.984192</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.279827 bestmemit:    0.997571</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.279667 bestmemit:    0.998802</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.279667 bestmemit:    0.998802</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.230600 bestmemit:    0.964983</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.230600 bestmemit:    0.964983</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.230600 bestmemit:    0.964983</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.230600 bestmemit:    0.941083</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.230600 bestmemit:    0.972684</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.180096 bestmemit:    0.990199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.179639 bestmemit:    0.992927</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.179639 bestmemit:    0.992927</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.179482 bestmemit:    0.993901</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.178656 bestmemit:    0.999459</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 1 bestvalit: 0.337464 bestmemit:    0.957351</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 2 bestvalit: 0.337464 bestmemit:    0.919373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 3 bestvalit: 0.337464 bestmemit:    0.919373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 4 bestvalit: 0.337464 bestmemit:    0.919373</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Iteration: 5 bestvalit: 0.337464 bestmemit:    0.919373</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
