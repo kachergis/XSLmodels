@@ -176,7 +176,7 @@ a new one.
 
 run1 <- xsl_run(uncfam(X = .1, C = 1, B = .98), data = xsl_datasets[[1]])
 run1$sse
-#> [1] 0.3936524
+#> [1] 0.3908695
 ```
 
 ### 5. Run a model with given parameters through multiple datasets and pull SSE.
@@ -185,7 +185,7 @@ run1$sse
 
 run3 <- xsl_run(uncfam(X = .1, C = 1, B = .98), data = xsl_datasets[1:3])
 run3$sse
-#> [1] 0.2854364
+#> [1] 0.2822977
 ```
 
 ### 6. Evaluating model performance

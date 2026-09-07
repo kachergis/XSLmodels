@@ -149,8 +149,49 @@
   of each simulated participant’s final per-word accuracy. `matrix`,
   `perf`, and `sse` are numerically unchanged.
 
+### Performance
+
+- [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md)/[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md):
+  every trial was allocating two full `voc_sz x ref_sz` matrices and
+  computing a full outer product, even though only the handful of cells
+  at `[tr_w, tr_o]` are ever nonzero. Entropy, weighting, and the update
+  are now computed on that small per-trial submatrix instead.
+  Behaviour-preserving – the
+  [`sample()`](https://rdrr.io/r/base/sample.html) call’s probability
+  vector is still built at full `ref_sz` length (zero outside `tr_o`),
+  so the RNG draw sequence, and therefore every existing fit, is
+  unchanged. 1.17x faster on a small lab condition, 1.97x on
+  `rollins_corpus` (bigger vocabularies benefit more, since that’s the
+  dimension the fix targets)
+- [`shannon_entropy()`](https://www.kachergis.com/XSLmodels/reference/shannon_entropy.md)
+  computed `sum(p)` twice (once for the `<= 0` check, again for
+  normalization); now computed once and reused
+- [`update_known()`](https://www.kachergis.com/XSLmodels/reference/update_known.md)’s
+  `which(...)`-based zero-filling replaced with direct logical-vector
+  indexing, removing five [`which()`](https://rdrr.io/r/base/which.html)
+  calls per trial
+
 ### Bug Fixes
 
+- [`update_known()`](https://www.kachergis.com/XSLmodels/reference/update_known.md)
+  computed `which(m[w, fam_objects] == 0)` – positions *within* the
+  `fam_objects`-filtered subset – and then indexed `m[w, zeros]` as if
+  those were absolute column positions, silently filling `startval` into
+  the wrong cell whenever `fam_objects` (or `fam_words`, for the
+  symmetric object-side fill) was a proper subset of all columns/rows –
+  i.e. whenever some word or object was still wholly unfamiliar. Affects
+  all 5 models that call it
+  ([`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md),
+  [`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md),
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md),
+  [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md),
+  [`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)).
+  In practice this only ever mis-set a handful of near-zero cells during
+  early training that get overwritten by real learning signal soon after
+  – verified to make no difference to the final matrix on any of
+  `xsl_datasets`’ 53 conditions or `fm_corpus`, and a single cell’s
+  `startval` on `rollins_corpus`. Fixed as part of the logical-indexing
+  rewrite above.
 - [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
   errored (`if` with a zero- or multiple-length condition at the
   disconfirmation step) on any utterance that repeats a word – common in

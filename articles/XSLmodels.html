@@ -238,7 +238,7 @@ or create a new one.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">run1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/uncfam.html">uncfam</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fl">.1</span>, C <span class="op">=</span> <span class="fl">1</span>, B <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">run1</span><span class="op">$</span><span class="va">sse</span></span>
-<span><span class="co">#&gt; [1] 0.3936524</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.3908695</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="run-a-model-with-given-parameters-through-multiple-datasets-and-pull-sse-">5. Run a model with given parameters through multiple datasets and
@@ -247,7 +247,7 @@ pull SSE.<a class="anchor" aria-label="anchor" href="#run-a-model-with-given-par
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">run3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/uncfam.html">uncfam</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fl">.1</span>, C <span class="op">=</span> <span class="fl">1</span>, B <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">run3</span><span class="op">$</span><span class="va">sse</span></span>
-<span><span class="co">#&gt; [1] 0.2854364</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.2822977</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="evaluating-model-performance">6. Evaluating model performance<a class="anchor" aria-label="anchor" href="#evaluating-model-performance"></a>
