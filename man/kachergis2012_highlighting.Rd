@@ -14,21 +14,32 @@ kachergis2012_highlighting
 A list of two \code{xslData} objects ("words as cues" and "objects as cues")
 from the highlighting experiment in Kachergis (2012, CogSci), "Learning
 Nouns with Domain-General Associative Learning Mechanisms". Training
-trials are read directly from the real per-trial ordering file used for
-the published experiment, not reconstructed from the paper's prose: every
-trial is a single word-object pair (not a simultaneous joint-cue trial),
-with two words each trained equally often (7x) with their own object and
-with a shared object, one entering the schedule 9 trials before the
-other -- a primacy/recency design, not the blocked early/late structure
-the paper's Figure 2 describes. No \code{accuracy} is set: both ambiguous
-words have two legitimate targets, which doesn't fit \code{xslData}'s
-one-correct-object-per-word convention, and forcing a number on either
-would be arbitrary. Not included in \link{xsl_datasets} as a result -- see
-\code{data-raw/add_kachergis2012_highlighting.R} for the full construction
-rationale, and
-\code{tests/bakeoff_comparison/kachergis2012_highlighting_fit.R} for how to
-evaluate a model against this design (reading its predicted preference
-for each word's own vs. shared target directly off the association
-matrix, rather than via \code{accuracy}/\code{mafc_test()}).
+trials (genuine simultaneous 2-cue trials, matching the paper's Figure
+2: 2 words + 1 object, or 2 objects + 1 word, per trial) are read
+directly from the real per-trial ordering file for the real N=67
+dataset behind the paper's published statistics -- confirmed by
+reproducing its exact reported response proportions and chi-square
+values. See \code{data-raw/add_kachergis2012_highlighting.R} for the full
+construction rationale, including index relabeling needed to work
+around a \code{uncfam_model()} indexing limitation.
+}
+\details{
+Each condition replicates the classic 3-role highlighting structure
+(PE, PL, I) twice. Words-as-cues' PL items have their real target at a
+different index than their own word index, and its I items have two
+legitimate targets -- neither fits \code{xslData}'s one-correct-object-per-
+word \code{accuracy} convention, so only its two PE items get a real
+accuracy value (the rest are \code{NA}). Objects-as-cues has no such issue
+(every tested word's own index is among its trained objects after
+relabeling), so all 4 of its items have real accuracy. Because of the
+partial-NA accuracy vector, this dataset is kept standalone rather than
+appended to \link{xsl_datasets}: an \code{NA} would silently poison every other
+dataset's aggregate fit in
+\code{get_group_model_fit()}/\code{get_crossvalidated_model_fit()}, which sum SSE
+across all of \code{xsl_datasets}. See
+\code{tests/bakeoff_comparison/kachergis2012_highlighting_fit.R} for a custom
+scorer that fits a model against all four of the paper's reported
+proportions (PE-E, PL-L, I-E, I-L) directly off the association matrix,
+the way the paper's own (non-package) fitting procedure did.
 }
 \keyword{datasets}

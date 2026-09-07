@@ -1,25 +1,22 @@
 # Model comparison + entropy-ablation on the Kachergis (2012, CogSci)
-# highlighting dataset (data-raw/add_kachergis2012_highlighting.R).
+# highlighting dataset (data-raw/add_kachergis2012_highlighting.R), now
+# built from the real N=67 dataset behind the paper's published numbers
+# (see that script's header for how this was confirmed).
 #
-# The real training order (read from
-# associative_word_learning/orderings/highlighting.txt, see that ingestion
-# script's header for the full account) is NOT the classic simultaneous
-# blocking/highlighting design this paper's prose describes -- every trial
-# is a single (word, object) pair, and word 1 and word 2 are each trained
-# equally often (7x/7x) with their own object and a shared object 3, with
-# word 1 given a 9-trial head start and the schedule's tail increasingly
-# dominated by word 2. Because of that, there's no reliable, validated
-# per-item human accuracy target to fit against for this specific real item
-# structure (see data-raw/add_kachergis2012_highlighting.R for why), so
-# this script does NOT do a DEoptim fit against reported percentages.
-# Instead it asks a cleaner, still-substantive question: does each
-# candidate model predict the primacy/recency DISSOCIATION the design
-# seems built to elicit -- word 1 (given equal counts) ultimately favoring
-# its OWN early object as forgetting increases, while word 2 favors the
-# SHARED, more-recently-trained object? A model with no notion of recency
-# (e.g. a bare co-occurrence baseline) should show no dissociation at all
-# regardless of decay; models with decay/recency should show it grow as
-# decay increases.
+# Directly answers the CogSci reviewers' questions (see
+# associative_word_learning/"reviews - domain-general CogSci 2012.rtf",
+# Review 1): "What's the model competing against? ... How important is the
+# entropy function?"
+#
+# The design is the genuine simultaneous 2-cue highlighting structure
+# (Figure 2): each condition replicates {PE, PL, I} twice. Because PL's
+# real target and I's two legitimate targets don't fit xslData's
+# one-correct-object-per-word convention (see the dataset's construction
+# script), this bypasses xsl_fit()'s default sse and instead fits directly
+# against the four response proportions the paper reports (PE-E, PL-L,
+# I-E, I-L), extracted from each model's returned association matrix --
+# the same quantities, and the same fitting target, the original paper's
+# own (non-package) fitting procedure used.
 
 devtools::load_all("..")
 library(purrr)
@@ -27,72 +24,142 @@ library(purrr)
 words_dat <- kachergis2012_highlighting[["words as cues"]]
 objects_dat <- kachergis2012_highlighting[["objects as cues"]]
 
-# words-as-cues: word 1's own-target is object 1 (early), shared is object
-# 3 (late); word 2's own-target is object 2, shared is also object 3.
-# objects-as-cues is the exact role swap -- but that moves *which item* is
-# ambiguous: words 1/2 (of this swapped condition) are each cleanly
-# unambiguous (word1->object1 only, word2->object2 only), while word 3 is
-# the ambiguous one, split between object 1 (linked to word 1's early
-# co-occurrence) and object 2 (linked to word 2's late co-occurrence) --
-# confirmed empirically below via `table(o[w==item])` on the built dataset.
-preference <- function(mat, item, own, shared) {
-  rn <- mat[as.character(item), ] / sum(mat[as.character(item), ])
-  c(own = unname(rn[as.character(own)]), shared = unname(rn[as.character(shared)]))
+human_words <- c(PE_E = 0.69, PL_L = 0.82, I_E = 0.51, I_L = 0.25)
+human_objects <- c(PE_E = 0.60, PL_L = 0.71, I_E = 0.28, I_L = 0.16)
+
+# The paper's reported response probabilities are softmax choices over the
+# association matrix (phi = discrimination), not raw row-normalized
+# strengths -- so phi is fit as an extra free parameter and applied here,
+# uniformly across every candidate model, before scoring.
+softmax_mat <- function(m, phi) {
+  e <- exp(phi * m)
+  e / rowSums(e)
 }
 
-summarize_run <- function(mat_words, mat_objects) {
-  w1 <- preference(mat_words, 1, own = 1, shared = 3)
-  w2 <- preference(mat_words, 2, own = 2, shared = 3)
-  # objects-as-cues: the ambiguous item is word 3, split between object 1
-  # ("early", word-1-linked) and object 2 ("late", word-2-linked)
-  w3 <- preference(mat_objects, 3, own = 1, shared = 2)
-  tibble::tibble(
-    word1_own = w1["own"], word1_shared = w1["shared"],
-    word2_own = w2["own"], word2_shared = w2["shared"],
-    ocue_early = w3["own"], ocue_late = w3["shared"]
-  )
+# Words-as-cues indices (see data-raw/add_kachergis2012_highlighting.R):
+# replication A -- PE=word1->obj1, PL=word2->obj2, I=word3 (obj1 early /
+# obj2 late); replication B -- PE=word4->obj3, PL=word5->obj4, I=word6
+# (obj3 early / obj4 late). Both replications are averaged, as the paper
+# does.
+score_words_as_cues <- function(m, phi) {
+  sm <- softmax_mat(m, phi)
+  rn <- function(w) sm[as.character(w), ]
+  c(PE_E = mean(c(rn(1)["1"], rn(4)["3"])),
+    PL_L = mean(c(rn(2)["2"], rn(5)["4"])),
+    I_E  = mean(c(rn(3)["1"], rn(6)["3"])),
+    I_L  = mean(c(rn(3)["2"], rn(6)["4"])))
 }
 
-## ---- 1. Does decay alone produce the primacy/recency dissociation? -------
-cat("=== 1. uncfam (entropy variant): effect of decay (C) ===\n")
-decay_sweep <- map(c(1, 0.99, 0.97, 0.93, 0.88, 0.8), function(C) {
-  m <- uncfam(X = .1, B = .5, C = C, variant = "entropy")
-  mat_w <- suppressWarnings(xsl_run(m, words_dat)$fits[[1]]$matrix)
-  mat_o <- suppressWarnings(xsl_run(m, objects_dat)$fits[[1]]$matrix)
-  summarize_run(mat_w, mat_o) |> tibble::add_column(C = C, .before = 1)
-}) |> list_rbind()
-print(decay_sweep, digits = 3)
+# Objects-as-cues indices: replication A -- E=word1->obj1, L=word2->obj2,
+# shared/ambiguous cue-object=obj5; replication B -- E=word3->obj3,
+# L=word4->obj4, shared cue-object=obj6. The ambiguity is a *cue* here, so
+# it shows up as confusion in the tested words' own response distribution
+# (P(shared object | word)), not as a second target for a tested word.
+score_objects_as_cues <- function(m, phi) {
+  sm <- softmax_mat(m, phi)
+  rn <- function(w) sm[as.character(w), ]
+  c(PE_E = mean(c(rn(1)["1"], rn(3)["3"])),
+    PL_L = mean(c(rn(2)["2"], rn(4)["4"])),
+    I_E  = mean(c(rn(1)["5"], rn(3)["6"])),
+    I_L  = mean(c(rn(2)["5"], rn(4)["6"])))
+}
+
+r_squared <- function(pred, human) 1 - sum((pred - human) ^ 2) / sum((human - mean(human)) ^ 2)
+
+# `par` is the model's own free parameters followed by phi (softmax) as the
+# last element; `score_fn` takes (matrix, phi).
+fit_model <- function(model, dat, score_fn, human, lower, upper, control = xslControl(),
+                      deoptim_control = DEoptim::DEoptim.control(NP = 20, itermax = 20, trace = FALSE)) {
+  n_model_par <- sum(vapply(model$params, is.numeric, logical(1)))
+  objective <- function(par) {
+    sse <- tryCatch({
+      m <- update_params(model, par[seq_len(n_model_par)])
+      phi <- par[n_model_par + 1]
+      mat <- suppressWarnings(xsl_run(m, dat, control = control)$fits[[1]]$matrix)
+      pred <- score_fn(mat, phi)
+      sum((pred - human) ^ 2)
+    }, error = function(e) NA_real_)
+    if (is.na(sse)) Inf else sse
+  }
+  fit <- DEoptim::DEoptim(objective, lower = lower, upper = upper, control = deoptim_control)
+  best <- fit$optim$bestmem
+  m <- update_params(model, best[seq_len(n_model_par)])
+  pred <- score_fn(suppressWarnings(xsl_run(m, dat, control = control)$fits[[1]]$matrix), best[n_model_par + 1])
+  list(par = best, sse = fit$optim$bestval, pred = pred)
+}
+
+## ---- 1. Reproduce the paper's own reported fit (no re-fitting) -----------
+## Paper's best-fitting parameters: words-as-cues chi=.11, lambda=.46,
+## alpha=1, phi=6.16 (R2=.984); objects-as-cues chi=.12, lambda=.37, alpha=1,
+## phi=6.16 (R2=.884).
+cat("=== 1. Reproducing the paper's own reported fit (uncfam entropy) ===\n")
+paper_words <- update_params(uncfam(X = .1, B = .1, C = 1, variant = "entropy"), c(.11, .46, 1))
+pred_words <- score_words_as_cues(suppressWarnings(xsl_run(paper_words, words_dat)$fits[[1]]$matrix), 6.16)
+cat("Words as cues -- predicted:\n"); print(round(pred_words, 3))
+cat("Words as cues -- human:\n"); print(human_words)
+cat(sprintf("R^2 = %.3f, SSE = %.4f\n\n", r_squared(pred_words, human_words), sum((pred_words - human_words)^2)))
+
+paper_objects <- update_params(uncfam(X = .1, B = .1, C = 1, variant = "entropy"), c(.12, .37, 1))
+pred_objects <- score_objects_as_cues(suppressWarnings(xsl_run(paper_objects, objects_dat)$fits[[1]]$matrix), 6.16)
+cat("Objects as cues -- predicted:\n"); print(round(pred_objects, 3))
+cat("Objects as cues -- human:\n"); print(human_objects)
+cat(sprintf("R^2 = %.3f, SSE = %.4f\n\n", r_squared(pred_objects, human_objects), sum((pred_objects - human_objects)^2)))
+
+## ---- 2. Entropy ablation: uncfam variants ---------------------------------
+## Directly answers Review 1: "How important is the entropy function?" --
+## compares the full model (entropy: competing uncertainty + familiarity)
+## against a familiarity-only bias (novelty) and an uncertainty-only bias,
+## refit from scratch against the same 4 targets for each condition. Unlike
+## the superseded pilot dataset (single-pair sequential trials, where every
+## uncfam variant gave identical predictions because there was never more
+## than one stimulus per trial to compete for attention), this design has
+## genuine simultaneous 2-cue trials, so the variants can differ here.
+cat("=== 2. Entropy ablation (uncfam variants) ===\n")
+variants <- c("entropy", "novelty", "uncertainty-only")
+ablation <- map(variants, function(v) {
+  base <- uncfam(X = .1, B = .5, C = 1, variant = v)
+  fw <- fit_model(base, words_dat, score_words_as_cues, human_words,
+                  lower = c(0, 0, .8, 0), upper = c(1, 10, 1, 20))
+  fo <- fit_model(base, objects_dat, score_objects_as_cues, human_objects,
+                  lower = c(0, 0, .8, 0), upper = c(1, 10, 1, 20))
+  tibble::tibble(variant = v,
+                sse_words = fw$sse, r2_words = r_squared(fw$pred, human_words),
+                sse_objects = fo$sse, r2_objects = r_squared(fo$pred, human_objects))
+}) |> purrr::list_rbind()
+print(ablation)
 cat("\n")
 
-## ---- 2. Entropy ablation: does the dissociation depend on the entropy ----
-## term specifically, or does familiarity/novelty alone produce it too?
-cat("=== 2. Entropy ablation (uncfam variants), C = 0.9 ===\n")
-variant_sweep <- map(c("entropy", "novelty", "uncertainty-only"), function(v) {
-  m <- uncfam(X = .1, B = .5, C = .9, variant = v)
-  mat_w <- suppressWarnings(xsl_run(m, words_dat)$fits[[1]]$matrix)
-  mat_o <- suppressWarnings(xsl_run(m, objects_dat)$fits[[1]]$matrix)
-  summarize_run(mat_w, mat_o) |> tibble::add_column(variant = v, .before = 1)
-}) |> list_rbind()
-print(variant_sweep, digits = 3)
-cat("\n")
+## ---- 3. Model comparison: what's uncfam competing against? ----------------
+## Directly answers Review 1: "What's the model competing against? Are
+## there models that wouldn't show this pattern?"
+cat("=== 3. Model comparison ===\n")
+fast_stoch <- xslControl(n_sim = 100) # reduced from the 500-sim default for tractable DEoptim runtimes
 
-## ---- 3. Model comparison: which models predict this pattern at all? ------
-cat("=== 3. Model comparison (fixed, reasonable default params) ===\n")
-fast_stoch <- xslControl(n_sim = 100)
-
-model_list <- list(
-  uncfam_entropy = uncfam(X = .1, B = .5, C = .9, variant = "entropy"),
-  rescorla_wagner = rescorla_wagner(C = .9, alpha = .3, beta = .3, lambda = 1),
-  guess_and_test = guess_and_test(f = .1, sa = .5),
-  pursuit = pursuit(gamma = .2, threshold = .3, lambda = .05),
-  propose_but_verify = propose_but_verify(alpha = .5, alpha_increase = .1),
-  baseline = baseline() # pure co-occurrence count, no decay/recency at all
+model_specs <- list(
+  uncfam_entropy = list(model = uncfam(X = .1, B = .5, C = 1, variant = "entropy"),
+                       lower = c(0, 0, .8, 0), upper = c(1, 10, 1, 20)),
+  rescorla_wagner = list(model = rescorla_wagner(C = 1, alpha = .1, beta = .1, lambda = 1),
+                        lower = c(.8, 0, 0, 0, 0), upper = c(1, 2, 2, 5, 20)),
+  guess_and_test = list(model = guess_and_test(f = .1, sa = .5),
+                       lower = c(0, 0, 0), upper = c(1, 1, 20)),
+  pursuit = list(model = pursuit(gamma = .2, threshold = .3, lambda = .05),
+                lower = c(0, 0, 0, 0), upper = c(1, 1, 1, 20)),
+  propose_but_verify = list(model = propose_but_verify(alpha = .5, alpha_increase = .1),
+                           lower = c(0, 0, 0), upper = c(1, 1, 20)),
+  baseline = list(model = baseline(), lower = c(0), upper = c(20)) # phi only, no model params
 )
 
-model_comparison <- map(names(model_list), function(nm) {
-  m <- model_list[[nm]]
-  mat_w <- suppressWarnings(xsl_run(m, words_dat, control = fast_stoch)$fits[[1]]$matrix)
-  mat_o <- suppressWarnings(xsl_run(m, objects_dat, control = fast_stoch)$fits[[1]]$matrix)
-  summarize_run(mat_w, mat_o) |> tibble::add_column(model = nm, .before = 1)
-}) |> list_rbind()
-print(model_comparison, digits = 3)
+comparison <- map(names(model_specs), function(nm) {
+  spec <- model_specs[[nm]]
+  fw <- fit_model(spec$model, words_dat, score_words_as_cues, human_words,
+                  lower = spec$lower, upper = spec$upper, control = fast_stoch,
+                  deoptim_control = DEoptim::DEoptim.control(NP = 15, itermax = 15, trace = FALSE))
+  fo <- fit_model(spec$model, objects_dat, score_objects_as_cues, human_objects,
+                  lower = spec$lower, upper = spec$upper, control = fast_stoch,
+                  deoptim_control = DEoptim::DEoptim.control(NP = 15, itermax = 15, trace = FALSE))
+  tibble::tibble(model = nm,
+                sse_words = fw$sse, r2_words = r_squared(fw$pred, human_words),
+                sse_objects = fo$sse, r2_objects = r_squared(fo$pred, human_objects))
+}) |> purrr::list_rbind()
+
+print(comparison)
