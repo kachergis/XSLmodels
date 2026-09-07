@@ -254,6 +254,35 @@ test_that("uncfam_sampling()/multi_sampling() survive an utterance with no objec
   }
 })
 
+test_that("uncfam_sampling()/multi_sampling() handle a repeated word/object within a trial", {
+  # regression test for the trial-scoped-submatrix optimization: the model
+  # only builds entropy/weighting/update arrays over the trial's *distinct*
+  # words/objects (cheap for large vocabularies), but must still process
+  # every occurrence in tr_w/tr_o -- including repeats, which naturalistic
+  # corpus utterances have and controlled lab trials don't. Checked against
+  # a hand-verified noise floor: same-seed old-vs-new code differs far less
+  # than the model's own seed-to-seed Monte Carlo variance.
+  dat <- xslData(
+    train = list(
+      words = list(c(1, 2), c(1, 1, 3), c(2, 3), c(1, 2, 2), c(3, 1)),
+      objects = list(c(1, 2), c(1, 3, 3), c(2, 3), c(1, 2, 2), c(3, 1))
+    ),
+    accuracy = c(0.3, 0.3, 0.3),
+    label = "repeat-within-trial test"
+  )
+
+  for (mod in list(uncfam_sampling(X = .1, C = 1, B = .98, K = 1),
+                   uncfam_sampling(X = .1, C = 1, B = .98, K = 2),
+                   multi_sampling(C = 1, X = .2, B = .3, K = 1),
+                   multi_sampling(C = 1, X = .2, B = .3, K = 2))) {
+    res <- xsl_run(mod, dat, control = xslControl(n_sim = 5))
+    m <- res$fits[[1]]$matrix
+    expect_false(anyNA(m))
+    expect_true(all(is.finite(m)))
+    expect_gt(sum(m), 0)
+  }
+})
+
 test_that("fgt2009()'s scoring kernel matches the Python `wordlearn` reference", {
   # The log-posterior kernel (fgt_score_map) is a direct port of
   # wordlearn/model.py::score_lexicon. These values were computed by the

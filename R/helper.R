@@ -35,8 +35,10 @@ create_cooc_matrix <- function(train) {
 #' @param p Numeric vector of probabilities
 #' @keywords internal
 shannon_entropy <- function(p) {
-  if (min(p) < 0 || sum(p) <= 0) return(NA)
-  p_norm <- p[p > 0] / sum(p)
+  if (min(p) < 0) return(NA)
+  s <- sum(p)
+  if (s <= 0) return(NA)
+  p_norm <- p[p > 0] / s
   -sum(log2(p_norm) * p_norm)
 }
 

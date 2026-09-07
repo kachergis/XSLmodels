@@ -38,45 +38,46 @@ uncfam_sampling_model <- function(params, data, control) {
       freq[tr_w] <- freq[tr_w] + 1
       m <- update_known(m, tr_w, tr_o) # what's been seen so far?
 
-      ent_w <- rep(0, voc_sz)
-      names(ent_w) <- voc
+      # Only the words/objects on *this* trial ever get a nonzero sampling
+      # weight, and only entries in u_tr_w x u_tr_o ever get updated -- so
+      # entropy, the weighting, and the update are all computed on that small
+      # submatrix instead of the full voc_sz x ref_sz matrix (this used to be
+      # the dominant cost for large vocabularies, e.g. naturalistic corpora).
+      # The one exception is the probability vector handed to sample(): it
+      # must stay ref_sz long (zero outside tr_o) so the draw is identical to
+      # sampling from the full row, i.e. this is a pure speed optimization,
+      # not a behavior change.
+      u_tr_w <- unique(tr_w)
+      u_tr_o <- unique(tr_o)
+      tr_o_idx <- match(u_tr_o, ref)
 
-      for (w in tr_w) {
-        ent_w[w] <- shannon_entropy(m[w, ])
-      }
-      ent_w <- exp(B * ent_w)
+      ent_w_tr <- exp(B * vapply(u_tr_w, function(w) shannon_entropy(m[w, ]), numeric(1)))
+      names(ent_w_tr) <- u_tr_w
+      ent_o_tr <- exp(B * vapply(u_tr_o, function(o) shannon_entropy(m[, o]), numeric(1)))
+      names(ent_o_tr) <- u_tr_o
 
-      ent_o <- rep(0, ref_sz)
-      names(ent_o) <- ref
-
-      for (o in tr_o) {
-        ent_o[o] <- shannon_entropy(m[, o])
-      }
-      ent_o <- exp(B * ent_o)
-
-      temp_wts <- matrix(0, voc_sz, ref_sz)
-      colnames(temp_wts) <- ref
-      rownames(temp_wts) <- voc
-      temp_wts[tr_w, tr_o] <- m[tr_w, tr_o] # use these weights to calculate entropy
-      nent <- ent_w %*% t(ent_o)
-      temp_wts <- temp_wts * as.matrix(nent)
-
-      chosen_assocs <- matrix(0, voc_sz, ref_sz)
-      colnames(chosen_assocs) <- ref
-      rownames(chosen_assocs) <- voc
+      chosen_small <- matrix(0, length(u_tr_w), length(u_tr_o),
+                              dimnames = list(u_tr_w, u_tr_o))
       for (w in tr_w) {
         # a word with no positive sampling weight -- e.g. on a
         # non-referential utterance with no objects present -- has nothing
         # to sample; skip it (otherwise sample() errors on an all-zero prob)
-        if (sum(temp_wts[w, ]) == 0) next
-        x <- sample(1:ref_sz, K, replace = TRUE, prob = temp_wts[w, ])
-        chosen_assocs[w, x] <- m[w, x] # PK for chosen
+        row_probs <- numeric(ref_sz)
+        row_probs[tr_o_idx] <- m[w, u_tr_o] * ent_w_tr[[as.character(w)]] * ent_o_tr
+        if (sum(row_probs) == 0) next
+        x <- sample(1:ref_sz, K, replace = TRUE, prob = row_probs)
+        x_lab <- ref[x]
+        chosen_small[as.character(w), as.character(x_lab)] <- m[w, x_lab] # PK for chosen
       }
-      denom <- sum(chosen_assocs * nent)
+      nent_small <- outer(ent_w_tr, ent_o_tr)
+      denom <- sum(chosen_small * nent_small)
       m <- m * C # decay everything
       # if nothing was sampled this trial (denom == 0) the update is a no-op,
       # like uncfam() on an objectless trial -- decay still applies
-      if (denom > 0) m <- m + (X * chosen_assocs * nent) / denom
+      if (denom > 0) {
+        m[u_tr_w, u_tr_o] <- m[u_tr_w, u_tr_o] +
+          (X * chosen_small * nent_small) / denom
+      }
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
       if (keep_traj) traj[[index]] <- m
