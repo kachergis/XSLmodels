@@ -55,21 +55,21 @@ shannon_entropy <- function(p) {
 #' @keywords internal
 update_known <- function(m, tr_w, tr_o, startval = .01) {
   tr_assocs <- m[tr_w, tr_o]
-  tr_assocs[which(tr_assocs == 0)] <- startval
+  tr_assocs[tr_assocs == 0] <- startval
   m[tr_w, tr_o] <- tr_assocs
   # for any other experienced word (not on this trial), fill in startval
 
-  fam_objects <- which(colSums(m) > 0)
-  fam_words <- which(rowSums(m) > 0)
+  fam_objects <- colSums(m) > 0
+  fam_words <- rowSums(m) > 0
 
   for (w in tr_w) {
-    zeros <- which(m[w, fam_objects] == 0)
-    m[w, zeros] <- startval
+    zero_fam <- fam_objects & (m[w, ] == 0)
+    m[w, zero_fam] <- startval
   }
 
   for (o in tr_o) {
-    zeros <- which(m[fam_words, o] == 0)
-    m[zeros, o] <- startval
+    zero_fam <- fam_words & (m[, o] == 0)
+    m[zero_fam, o] <- startval
   }
 
   return(m)
