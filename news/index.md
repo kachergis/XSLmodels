@@ -16,17 +16,31 @@
   to prevent the unnormalized update from diverging over trials)
 - Added two standalone datasets, documented but deliberately not
   appended to `xsl_datasets`: `kachergis2012_highlighting` (Kachergis,
-  2012, CogSci) has an ambiguous test item with two legitimate target
-  objects that doesn’t fit `xslData`’s one-correct-object-per-word
-  convention, so its accuracy is left `NA` – appending it would silently
-  poison every other dataset’s aggregate fit in
+  2012, CogSci) and `kachergis_initial_accuracy` (an unpublished MTurk
+  initial-accuracy manipulation). `kachergis2012_highlighting`’s
+  training trials are read directly from the real per-trial ordering
+  file used for the published experiment, not reconstructed from the
+  paper’s prose – every trial turns out to be a single word-object pair,
+  not the simultaneous joint-cue trial the paper’s Figure 2 describes,
+  with two words each trained equally often with their own object and a
+  shared object, one entering the schedule several trials before the
+  other (a primacy/recency design, not a blocked early/late one). Both
+  ambiguous words have two legitimate targets, which doesn’t fit
+  `xslData`’s one-correct-object-per-word convention, so no `accuracy`
+  is set at all – forcing a number on either item would be arbitrary,
+  and (for `kachergis2012_highlighting` specifically) appending it to
+  `xsl_datasets` with an `NA` would silently poison every other
+  dataset’s aggregate fit in
   [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)/[`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md),
-  which sum/average SSE across all of `xsl_datasets`;
-  `kachergis_initial_accuracy` (an unpublished MTurk initial-accuracy
-  manipulation) has no such blocker but is kept standalone for now. See
-  their [`?help`](https://rdrr.io/r/utils/help.html) pages and
+  which sum/average SSE across all of `xsl_datasets`.
+  `kachergis_initial_accuracy` has no such blocker but is kept
+  standalone for now. See their
+  [`?help`](https://rdrr.io/r/utils/help.html) pages and
   `data-raw/add_kachergis2012_highlighting.R`/`add_kachergis_initial_accuracy.R`
-  for full construction details
+  for full construction details, and
+  `tests/bakeoff_comparison/kachergis2012_highlighting_fit.R` for how to
+  evaluate a model against the design (reading its predicted own-
+  vs. shared-target preference directly off the association matrix)
 - Added
   [`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md),
   a Kalman-filter generalization of
