@@ -2,77 +2,114 @@
 # "Learning Nouns with Domain-General Associative Learning Mechanisms" --
 # as its own package dataset `kachergis2012_highlighting`.
 #
-# Training trials are built directly from the paper's own description
-# (Experiment: Highlighting; Figure 2; Results & Discussion), NOT from the
-# raw per-trial file in the associative_word_learning repo. That file's
-# item-numbering turns out not to match the minimal 3-role/replication
-# design the paper describes (e.g. two supposedly-independent "early" words
-# both target the very same object, and the paper's own reported chi-square
-# sample sizes (N=79, N=73...) aren't reproducible from the 47 (pre-exclusion)
-# or 34 (post-exclusion) subjects present in that export) -- most likely
-# because that .txt reflects a broader, related data collection (it also
-# contains illusory-correlation, memory-decay, and infer-then-remember
-# conditions never reported in this paper) rather than a clean re-derivable
-# log of exactly this experiment. Reconstructing the design from the
-# published text avoids guessing at that undocumented coding.
+# Training trials are read directly from the real per-trial ordering file
+# associative_word_learning/orderings/highlighting.txt (confirmed, over
+# several rounds of back-and-forth with the dataset's author, to be the
+# actual trial order used for the published experiment -- as opposed to the
+# same repo's "1x1" files, which belong to a different/related data
+# collection). Key facts established about that file's format:
 #
-# IMPORTANT LIMITATION -- NOT added to the shared `xsl_datasets` collection:
-# In the words-as-cues condition, the ambiguous "I" item (highlighted cue)
-# is *tested* directly, and has two legitimate target objects (early and
-# late) with different empirical rates (.51 vs .25) -- but xslData's
-# `accuracy`/`mafc_test()` convention hard-codes exactly one "correct"
-# object per tested word (the object sharing its index, via `m[w, w]`).
-# There is no way to make that diagonal simultaneously mean "the early
-# object" for the I item without colliding with the early object's own
-# dedicated word (PE), which already legitimately owns that diagonal slot.
-# So the I items' accuracy is left NA here. Because `get_crossvalidated_group_fits()`
-# and `get_group_model_fit()` sum/average sse across every dataset in
-# `xsl_datasets`, an NA would silently poison every other dataset's
-# aggregate fit -- so this condition is kept as its own standalone object
-# instead of being appended to `xsl_datasets`. It remains fully usable via
-# `xsl_run()` / `xsl_fit()` on its own, and see
-# tests/bakeoff_comparison/kachergis2012_highlighting_fit.R for a custom
-# scoring function that fits all reported response proportions (including
-# the I item's early/late split) directly, the way the original paper did.
+#   - Every physical trial is a single (word, object) pair (per the "1x1"
+#     naming convention elsewhere in that repo: "1 word, 1 object per
+#     trial"). There is no simultaneous joint-cue trial -- the highlighting
+#     effect here arises from *sequential* retraining of a word onto a
+#     different object over the course of the session, not from
+#     within-trial attentional competition between simultaneous cues.
+#   - Column headers "o1 w1 o2 w2": "o" indexes objects (columns of the
+#     association matrix), "w" indexes words (rows). Each row packs two
+#     independent single-pair trials side by side: (object=o1, word=w1) and
+#     (object=o2, word=w2).
+#   - Stream 1 (o1, w1) is the canonical highlighting manipulation: word 1
+#     and word 3 are each trained with their own object (1 and 2
+#     respectively) *and* with a shared object (3), 7 trials apiece (28
+#     trials total). Word 1 gets a 9-trial head start before word 3 is
+#     introduced, and the back end of the sequence is increasingly
+#     dominated by word 3 -- a primacy/recency structure (see
+#     figures/primacy1x1.pdf, figures/recency1x1.pdf), not a cleanly
+#     blocked early/then-late design. (Word "2" never appears in the
+#     original file -- see the relabeling note below -- so in the resulting
+#     xslData object these are words 1 and 2, not 1 and 3.)
+#   - Stream 2 (o2, w2) is unambiguous filler (word 4-object 4, word
+#     5-object 5, word 6-object 6, always self-paired) included "to
+#     encourage participants to actually learn 1-to-1 mappings" -- not part
+#     of the analytic manipulation.
+#   - The objects-as-cues condition has no separate real ordering file in
+#     that repo; it is constructed here as an exact word/object role swap
+#     of the same 28-row schedule, per the paper's own description of it as
+#     that reversal.
+#
+# Both streams' trials are interleaved trial-by-trial in the order given
+# (row 1's canonical trial, row 1's filler trial, row 2's canonical trial,
+# ...), for 56 total training trials per condition.
+#
+# NOTE on accuracy: no `accuracy` is set. Both word 1 and word 3 are
+# genuinely ambiguous (each trained equally often with its own object and
+# the shared one), and xslData's accuracy/mafc_test() convention has no way
+# to represent an item with two legitimate targets (see the long-form
+# discussion of this limitation in this file's git history / prior
+# revision) -- forcing a single number on either item would be arbitrary.
+# Use tests/bakeoff_comparison/kachergis2012_highlighting_fit.R, which reads
+# the model's own-target vs. shared-target preference directly off the
+# returned association matrix, to evaluate model fit to this dataset.
+#
+# NOT added to the shared `xsl_datasets` collection, consistent with the
+# above -- an empty accuracy vector here is fine on its own (xslData allows
+# it), but xsl_run() falls back to get_perf()'s diag()-based scoring when
+# `test` is unset, which isn't meaningful for this design either, and
+# get_crossvalidated_group_fits() would then aggregate that meaningless
+# score across every dataset in xsl_datasets.
 #
 # Run with data-raw/ as the working directory.
 
 devtools::load_all("..")
 
-build_replication <- function(pe_word, pl_word, i_word, e_obj, l_obj, n_early = 7, n_late = 7) {
-  early <- replicate(n_early, list(words = c(pe_word, i_word), objects = e_obj), simplify = FALSE)
-  late <- replicate(n_late, list(words = c(pl_word, i_word), objects = l_obj), simplify = FALSE)
-  c(early, late)
-}
+ordering_path <- "../../associative_word_learning/orderings/highlighting.txt"
+raw_lines <- readLines(ordering_path)
+raw_lines <- raw_lines[!grepl("^\\s*(#|$)", raw_lines)] # drop comment/blank lines
+ordering <- read.table(text = raw_lines, col.names = c("o1", "w1", "o2", "w2"))
+stopifnot(nrow(ordering) == 28)
 
-## ---- Words as cues: 2 words + 1 object per trial; 6 words, 4 objects ----
-## Replication A: words 1 (PE), 2 (PL), 3 (I); objects 1 (E), 2 (L)
-## Replication B: words 4 (PE), 5 (PL), 6 (I); objects 3 (E), 4 (L)
-words_cues_trials <- c(
-  build_replication(1, 2, 3, 1, 2),
-  build_replication(4, 5, 6, 3, 4)
-)
+# Word "2" is never used (nobody's own-target *or* shared-target index),
+# which leaves a gap in the word vocabulary {1,3,4,5,6}. uncfam_model()
+# indexes its association matrix positionally (via bare numeric row/column
+# numbers, not by name), so a non-consecutive vocabulary causes an
+# out-of-bounds error partway through training -- close the gap by
+# relabeling words to consecutive integers (order-preserving); objects
+# {1..6} are already consecutive and need no relabeling.
+word_relabel <- c(`1` = 1, `3` = 2, `4` = 3, `5` = 4, `6` = 5)
+relabel_words <- function(x) unname(word_relabel[as.character(x)])
+
+# Interleave: each row contributes one canonical (stream 1) trial and one
+# filler (stream 2) trial, in that order.
 words_cues_train <- list(
-  words = lapply(words_cues_trials, `[[`, "words"),
-  objects = lapply(words_cues_trials, `[[`, "objects")
+  words = as.vector(rbind(relabel_words(ordering$w1), relabel_words(ordering$w2))),
+  objects = as.vector(rbind(ordering$o1, ordering$o2))
+) |> lapply(as.list)
+
+# Objects as cues: exact role swap (word <-> object) of the same schedule,
+# per the paper's description of it as the reversal of words-as-cues.
+objects_cues_train <- list(
+  words = words_cues_train$objects,
+  objects = words_cues_train$words
 )
 
-# Reported response proportions (Results & Discussion): PE-E = .69, PL-L =
-# .82, I preferring E over L = .51 vs .25 (collapsed across the two
-# replications, per the paper's own footnote). I items -> NA (see above).
 words_as_cues <- xslData(
   train = words_cues_train,
-  accuracy = c(0.69, 0.82, NA, 0.69, 0.82, NA),
   n_subj = 67,
   label = "Kachergis2012-highlighting-words",
-  condition = "words as cues (2 words, 1 object per trial)",
+  condition = "words as cues (sequential 1 word + 1 object trials)",
   description = paste(
-    "Highlighting design: early stage has cues PE and I jointly predicting",
-    "outcome E (7 trials); late stage has PL and I jointly predicting L (7",
-    "trials); replicated twice (words 1-3/objects 1-2, words 4-6/objects",
-    "3-4) for 28 total training trials, 6 words, 4 objects. Test is 6AFC",
-    "(choose the best object for each word). Accuracy for the ambiguous I",
-    "items (words 3, 6) is NA -- see the limitation noted in",
+    "56 training trials (28 canonical + 28 unambiguous filler, interleaved),",
+    "read directly from associative_word_learning/orderings/highlighting.txt",
+    "(word indices relabeled to consecutive integers; original word 3 is",
+    "word 2 here -- word 2 in the original numbering was never used).",
+    "Canonical manipulation: word 1 and word 2 are each trained 7x with their",
+    "own object (1, 2) and 7x with a shared object (3); word 1 precedes word",
+    "2 into the schedule by 9 trials, and the tail of the schedule is",
+    "increasingly dominated by word 2 (primacy/recency structure). Filler:",
+    "words 3/4/5 each trained only with their own same-numbered object",
+    "(objects 4/5/6 respectively).",
+    "No accuracy vector -- see the limitation noted in",
     "data-raw/add_kachergis2012_highlighting.R.",
     "Kachergis, G. (2012). Learning Nouns with Domain-General Associative",
     "Learning Mechanisms. Proceedings of the 34th Annual Meeting of the",
@@ -80,45 +117,16 @@ words_as_cues <- xslData(
   )
 )
 
-## ---- Objects as cues: 2 objects + 1 word per trial; 4 words, 6 objects ----
-## Replication A: objects 1 (PE), 2 (PL), 3 (I); words 1 (E), 2 (L)
-## Replication B: objects 4 (PE), 5 (PL), 6 (I); words 3 (E), 4 (L)
-## (train$words/objects are swapped relative to words-as-cues since here
-## objects are the cues and the word is the single outcome per trial; the
-## *test* is still "given word, choose best object" in both conditions.)
-build_replication_obj_cues <- function(pe_obj, pl_obj, i_obj, e_word, l_word, n_early = 7, n_late = 7) {
-  early <- replicate(n_early, list(objects = c(pe_obj, i_obj), words = e_word), simplify = FALSE)
-  late <- replicate(n_late, list(objects = c(pl_obj, i_obj), words = l_word), simplify = FALSE)
-  c(early, late)
-}
-objects_cues_trials <- c(
-  build_replication_obj_cues(1, 2, 3, 1, 2),
-  build_replication_obj_cues(4, 5, 6, 3, 4)
-)
-objects_cues_train <- list(
-  words = lapply(objects_cues_trials, `[[`, "words"),
-  objects = lapply(objects_cues_trials, `[[`, "objects")
-)
-
-# Reported response proportions: PE-E = .60, PL-L = .71 (both words are
-# unambiguously *tested*, even though object 3/6 -- the ambiguous cue --
-# pulls some of their probability mass; that's exactly what the model
-# should reproduce, so no NA is needed here, unlike words-as-cues).
 objects_as_cues <- xslData(
   train = objects_cues_train,
-  accuracy = c(0.60, 0.71, 0.60, 0.71),
   n_subj = 67,
   label = "Kachergis2012-highlighting-objects",
-  condition = "objects as cues (2 objects, 1 word per trial)",
+  condition = "objects as cues (word/object role swap of the words-as-cues schedule)",
   description = paste(
-    "Highlighting design with cue/outcome roles reversed relative to",
-    "Kachergis2012-highlighting-words: early stage has cues PE and I",
-    "(objects) jointly predicting outcome E (word, 7 trials); late stage",
-    "has PL and I predicting L (7 trials); replicated twice (objects",
-    "1-3/words 1-2, objects 4-6/words 3-4) for 28 total training trials, 4",
-    "words, 6 objects. Test is still 'given word, choose best object'",
-    "(6AFC); accuracy is well-defined for both tested words here since the",
-    "ambiguous item (I) is a cue, not a tested word.",
+    "Exact word/object role swap of Kachergis2012-highlighting-words' 56",
+    "training trials, per the paper's description of this condition as that",
+    "reversal. No separate real ordering file for this condition exists in",
+    "associative_word_learning/orderings/.",
     "Kachergis, G. (2012). Learning Nouns with Domain-General Associative",
     "Learning Mechanisms. Proceedings of the 34th Annual Meeting of the",
     "Cognitive Science Society."
