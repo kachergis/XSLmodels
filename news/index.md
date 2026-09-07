@@ -17,20 +17,24 @@
 - Added two standalone datasets, documented but deliberately not
   appended to `xsl_datasets`: `kachergis2012_highlighting` (Kachergis,
   2012, CogSci) and `kachergis_initial_accuracy` (an unpublished MTurk
-  initial-accuracy manipulation). `kachergis2012_highlighting`’s
-  training trials are read directly from the real per-trial ordering
-  file used for the published experiment, not reconstructed from the
-  paper’s prose – every trial turns out to be a single word-object pair,
-  not the simultaneous joint-cue trial the paper’s Figure 2 describes,
-  with two words each trained equally often with their own object and a
-  shared object, one entering the schedule several trials before the
-  other (a primacy/recency design, not a blocked early/late one). Both
-  ambiguous words have two legitimate targets, which doesn’t fit
-  `xslData`’s one-correct-object-per-word convention, so no `accuracy`
-  is set at all – forcing a number on either item would be arbitrary,
-  and (for `kachergis2012_highlighting` specifically) appending it to
-  `xsl_datasets` with an `NA` would silently poison every other
-  dataset’s aggregate fit in
+  initial-accuracy manipulation). `kachergis2012_highlighting`‘s
+  training trials are genuine simultaneous 2-cue trials (2 words + 1
+  object, or 2 objects + 1 word, per trial, matching the paper’s Figure
+  2), read directly from the real per-trial ordering file for the real
+  N=67 dataset behind the paper’s published statistics – confirmed by
+  reproducing its exact reported response proportions and chi-square
+  values (an earlier version of this dataset, built from a different,
+  superficially similar file before that real data was located, did not
+  reproduce them, and has been replaced). Each condition replicates the
+  classic 3-role highlighting structure (PE, PL, I) twice;
+  words-as-cues’ PL items have their real target at a different index
+  than their own word index, and its I items have two legitimate targets
+  – neither fits `xslData`’s one-correct-object-per-word `accuracy`
+  convention, so only its two PE items get a real accuracy value (the
+  rest are `NA`). Objects-as-cues has no such issue and gets a real
+  accuracy value for all 4 of its items. Because of the partial-NA
+  accuracy vector, `kachergis2012_highlighting` is kept standalone: an
+  `NA` would silently poison every other dataset’s aggregate fit in
   [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)/[`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md),
   which sum/average SSE across all of `xsl_datasets`.
   `kachergis_initial_accuracy` has no such blocker but is kept
@@ -38,9 +42,11 @@
   [`?help`](https://rdrr.io/r/utils/help.html) pages and
   `data-raw/add_kachergis2012_highlighting.R`/`add_kachergis_initial_accuracy.R`
   for full construction details, and
-  `tests/bakeoff_comparison/kachergis2012_highlighting_fit.R` for how to
-  evaluate a model against the design (reading its predicted own-
-  vs. shared-target preference directly off the association matrix)
+  `tests/bakeoff_comparison/kachergis2012_highlighting_fit.R` for a
+  custom scorer that fits a model against all four of the paper’s
+  reported proportions (PE-E, PL-L, I-E, I-L) directly off the
+  association matrix, the way the paper’s own (non-package) fitting
+  procedure did
 - Added
   [`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md),
   a Kalman-filter generalization of
