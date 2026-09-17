@@ -39,6 +39,7 @@ reference:
       - xsl_datasets
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
+      - gangwani2011_category
       - rollins_corpus
       - fm_corpus
       - xslData-class
