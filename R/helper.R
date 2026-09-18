@@ -42,6 +42,21 @@ shannon_entropy <- function(p) {
   -sum(log2(p_norm) * p_norm)
 }
 
+#' Cosine similarity of two vectors
+#'
+#' Used by the distributed-memory models ([minerva2()], [todam()]): `a . b /
+#' (||a|| ||b||)`. Returns 0 (rather than `NaN`) when either vector has zero
+#' norm, since that just means "no signal yet" for these models (e.g. an
+#' empty memory trace before any training).
+#'
+#' @param a,b Numeric vectors of the same length
+#' @keywords internal
+cos_sim <- function(a, b) {
+  denom <- sqrt(sum(a ^ 2)) * sqrt(sum(b ^ 2))
+  if (denom == 0) return(0)
+  sum(a * b) / denom
+}
+
 
 #' Update known
 #'
@@ -89,7 +104,8 @@ show_models <- function() {
   c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
     "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
-    "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa")
+    "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa",
+    "minerva2", "todam", "rem")
 }
 
 #' Show available datasets in the package
@@ -226,6 +242,24 @@ xsl_model_registry <- function() {
     fgt2009_rsa = list(
       constructor = function() fgt2009_rsa(alpha = 1),
       lower = 0.1, upper = 20
+    ),
+    # minerva2()/todam() also take a `D` (feature-vector dimensionality)
+    # argument; it's a fixed representational hyperparameter, not a free
+    # cognitive parameter, so -- like fgt2009()'s alpha-only entries above --
+    # it's left out of the DEoptim bounds here (only the leading `X` is fit).
+    minerva2 = list(
+      constructor = function() minerva2(X = 5, D = 100),
+      lower = 0.1, upper = 50
+    ),
+    todam = list(
+      constructor = function() todam(X = 5, D = 500),
+      lower = 0.1, upper = 50
+    ),
+    # likewise rem()'s `w` (feature count) is a fixed hyperparameter, left
+    # out of the bounds below (only g, u, c are fit)
+    rem = list(
+      constructor = function() rem(g = 0.4, u = 0.3, c = 0.7, w = 12),
+      lower = c(0.05, 0.01, 0.5), upper = c(0.95, 1.0, 0.999)
     )
   )
 }

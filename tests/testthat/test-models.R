@@ -393,3 +393,67 @@ test_that("fgt2009_sweep_alpha() returns per-alpha SSE", {
   expect_equal(out$alpha, c(1, 8))
   expect_true(all(is.finite(out$sse)))
 })
+
+test_that("minerva2()/todam()/rem() learn an unambiguous pairing above chance", {
+  # each word co-occurs with its correct referent twice (vs. once with each
+  # distractor); a memory model that's actually sensitive to co-occurrence
+  # frequency should end up with diag(m) as each row's max most of the time
+  dat <- get_example_unambiguous_condition()
+  set.seed(42)
+  mods <- list(minerva2 = minerva2(X = 5, D = 50),
+              todam = todam(X = 5, D = 100),
+              rem = rem(g = 0.4, u = 0.3, c = 0.7, w = 12))
+  for (nm in names(mods)) {
+    r <- xsl_run(mods[[nm]], dat, control = xslControl(n_sim = 100))
+    m <- r$fits[[1]]$matrix
+    expect_true(all(is.finite(m)), info = nm)
+    perf <- r$fits[[1]]$perf
+    expect_gt(mean(perf), 1 / 3, label = paste(nm, "mean accuracy"))
+  }
+})
+
+test_that("minerva2() compares the echo's object half against object vectors, not the whole echo", {
+  # regression test: the standalone prototype this was ported from compared
+  # the full 2D echo content vector against each D-dim object vector
+  # (mismatched lengths -- R recycles instead of erroring), silently folding
+  # the word half of the echo into the object comparison. Sanity check here:
+  # a word that always co-occurs with one object should overwhelmingly
+  # prefer that object over one it's never been paired with.
+  dat <- xslData(
+    train = list(words = as.list(rep(1, 8)), objects = as.list(rep(1, 8))),
+    accuracy = c(0.9), label = "single pairing"
+  )
+  set.seed(7)
+  r <- xsl_run(minerva2(X = 8, D = 50), dat, control = xslControl(n_sim = 50))
+  m <- r$fits[[1]]$matrix
+  expect_equal(unname(which.max(m[1, ])), 1)
+})
+
+test_that("todam()'s first-trial attention weighting doesn't propagate NaN", {
+  # regression test: the "v2" prototype this was ported from computed each
+  # trial's attention weights as a raw cos_sim(item, M), which is 0/0 = NaN
+  # on trial 1 (M starts at the zero vector) and poisons M with NaN from
+  # then on. A single-trial run must stay finite.
+  dat <- xslData(train = list(words = list(c(1, 2)), objects = list(c(1, 2))),
+                 accuracy = c(0.5, 0.5), label = "first trial")
+  set.seed(3)
+  m <- xsl_run(todam(X = 5, D = 50), dat, control = xslControl(n_sim = 10))$fits[[1]]$matrix
+  expect_true(all(is.finite(m)))
+})
+
+test_that("rem()'s per-simulation choice weights are row-normalized before aggregation", {
+  # regression test: REM's summed likelihood-ratio odds are heavy-tailed (a
+  # lucky match on a single rare feature value can inflate one trace's odds
+  # by orders of magnitude), so raw per-simulation magnitudes for the same
+  # word/object pair can span 10-100000+ across simulations. xsl_run()
+  # aggregates simulations by summing their matrices, which would let
+  # whichever simulation got lucky dominate the n_sim-simulation average.
+  # Each simulation's returned matrix must instead be row-normalized (one
+  # probability distribution over objects per word), so summing n_sim of
+  # them gives every simulated "subject" equal weight: rowSums(m) == n_sim
+  # for every word that appeared in training.
+  dat <- get_example_unambiguous_condition()
+  control <- xslControl(n_sim = 40)
+  m <- xsl_run(rem(g = 0.4, u = 0.3, c = 0.7, w = 12), dat, control = control)$fits[[1]]$matrix
+  expect_equal(unname(rowSums(m)), rep(control$n_sim, nrow(m)), tolerance = 1e-6)
+})
