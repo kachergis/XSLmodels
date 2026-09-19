@@ -24,6 +24,9 @@ reference:
       - softmax_rl
       - fgt2009
       - fgt2009_rsa
+      - minerva2
+      - todam
+      - rem
   - title: Running and fitting models
     contents:
       - xsl_run
