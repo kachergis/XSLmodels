@@ -3,56 +3,49 @@
 # unpublished manuscript; see https://github.com/kachergis/initial_accuracyXSL)
 # as its own package dataset `kachergis_initial_accuracy`.
 #
-# Design (from paper/ms.Rmd): 18 word-object pairs, familiarized one at a
-# time (unambiguous), then studied cross-situationally (2 words + 2 objects
-# per trial, 3 blocks x 9 trials = 27 trials, 3 exposures/pair). In the High
-# Initial Accuracy (HIA) condition, 12/18 pairs are studied with their true
-# familiarization partner (66.6% "initially accurate"); in the Low Initial
-# Accuracy (LIA) condition, only 6/18 are (33.3% "initially accurate") --
-# the rest are studied "switched" with another initially-inaccurate item's
-# partner. Test is 18AFC (all 18 studied objects) using the *familiarization*
-# pairing as ground truth, regardless of what was (mis)paired at study.
+# Design: 18 word-object pairs are first shown one at a time
+# ("familiarization"), then studied cross-situationally (2 words + 2 objects
+# per trial, 3 blocks x 9 trials = 27 trials, 3 exposures per pair). For
+# "initially accurate" items the study pairing matches the familiarization
+# pairing; for "initially inaccurate" items it doesn't -- the word was
+# familiarized with a *different* object, which is then consistently studied
+# with some other word. 12/18 items are initially accurate in the High Initial
+# Accuracy (HIA) condition, 6/18 in Low Initial Accuracy (LIA). Test is
+# 19AFC (18 studied objects + 1 novel), and the correct answer is always the
+# *study* pairing -- confirmed against the raw data: for every test trial,
+# `correctAns` is the object the tested word co-occurred with at study, and
+# for every initially inaccurate item it differs from that word's
+# familiarization object.
 #
-# Reconstructing the item-level design directly from the raw per-subject data
-# in analysis/data/preprocessed_data.Rdata (not the paper text) because the
-# real word/object *content* was randomly assigned per subject, but the
-# *structural* switch design (which canonical item indices are accurate vs.
-# inaccurate, and which get swapped with which) turns out to be identical
-# for every subject within a condition -- i.e. a fixed, shared template. This
-# was confirmed empirically: aggregating study-phase word x object
-# co-occurrence counts by condition gives exact integer (0 or 3) cell counts
-# for every subject, with zero cross-subject variance.
+# The raw data index words/objects by per-participant canonical indices 0-17
+# (`w1ind`/`o1ind` in `study`, `word_ind` in `test`); stimulus *content* was
+# randomized per participant, but the structural design (which indices are
+# switched, and with what) is identical for every participant in a condition.
+# In those indices, the familiarization pairing is word v <-> object
+# xor(v, 1), and the study pairing is a condition-specific permutation.
 #
-# xslData's convention requires a tested word's correct referent to share its
-# index (`m[w, w]`), but the familiarization-correct pairing here is not
-# word_i <-> object_i -- it's a fixed derangement pairing adjacent indices
-# (word i <-> object (i xor 1), i.e. 0<->1, 2<->3, ..., 16<->17). We relabel
-# *object* indices by `xor(o, 1)` throughout, which makes the
-# familiarization-correct pairing become the diagonal, satisfying the
-# package's convention while preserving the actual co-occurrence structure
-# (a relabeling of columns is a lossless isomorphism).
+# xslData's convention is that a tested word's correct referent shares its
+# index (m[w, w]). We therefore relabel every *object* by the word it is
+# studied with, so the study (= test-correct) pairing is the diagonal. The
+# familiarization trials then pair each initially inaccurate word with an
+# off-diagonal object -- the one it was first (mis)taught.
 #
-# Familiarization is represented explicitly as 18 real (unambiguous,
-# single-word/single-object) training trials prepended to the 27 study
-# trials, rather than by hacking a model-specific `start_matrix`: because
-# familiarization always pairs word i with its own relabeled diagonal
-# partner, every model in the package builds up the diagonal from these
-# familiarization trials using its own normal per-trial dynamics (decay,
-# entropy, etc.) -- this works uniformly across every model in the package,
-# including ones (like rescorla_wagner()) that don't support `start_matrix`.
+# (An earlier version of this script put the *familiarization* pairing on the
+# diagonal, and keyed per-item accuracy by `init_word_ind` -- the word
+# originally shown with the tested word's object -- rather than by the tested
+# word itself. That scored every model's accuracy on initially inaccurate
+# items as its probability of choosing the wrong, familiarization object.)
 #
-# Study-phase trial order was randomized per subject (only the resulting
-# word->object pairing counts were fixed by design, not the specific
-# yoking of trials): we use one representative, non-memory-aid-excluded
-# subject's real trial sequence per condition, extracted from `study`.
+# Familiarization is represented as 18 real, unambiguous (1 word, 1 object)
+# training trials preceding the 27 study trials, so every model learns from
+# it with its own ordinary per-trial update. Study-phase trial order was
+# randomized per participant (only the pairing structure was fixed): this
+# dataset uses one representative, non-excluded participant's real trial
+# sequence per condition. For per-participant fits using each participant's
+# own sequence, see analysis/model/fit_with_XSLmodels.R in initial_accuracyXSL.
 #
-# Per-item accuracy is the group mean (@ 35 -> 34/31 subjects after
-# excluding 5 participants who reported using an external memory aid, as in
-# ms.Rmd's `analysis/paper/ms.Rmd` reported analysis) of `test$correct`,
-# keyed by the canonical (un-relabeled, since accuracy is per *word*) item
-# index -- reproducing the paper's Figure 2 crossover pattern almost exactly:
-# HIA accurate M=.56 > LIA accurate M=.48; HIA inaccurate M=.30 < LIA
-# inaccurate M=.34.
+# Per-item accuracy is the group mean of `test$correct` for each tested word,
+# after excluding the 5 participants who reported using a memory aid.
 #
 # Run with data-raw/ as the working directory. Requires
 # ../../initial_accuracyXSL/analysis/data/preprocessed_data.Rdata (a sibling
@@ -65,77 +58,74 @@ raw_data_path <- "../../initial_accuracyXSL/analysis/data/preprocessed_data.Rdat
 stopifnot(file.exists(raw_data_path))
 load(raw_data_path) # study, test, qdat1, qdat2, fam, stud_long
 
-# ---- exclude the 5 participants who reported using a memory aid (ms.Rmd) ----
-memaid <- subset(qdat2, memory_aid == "yes") %>% rename(uniqueId = uniqueid)
-test <- subset(test, !is.element(uniqueId, memaid$uniqueId))
+# ---- exclude the 5 participants who reported using a memory aid ----
+memaid <- subset(qdat2, memory_aid == "yes")$uniqueid
+test <- subset(test, !uniqueId %in% memaid)
+study <- subset(study, uniqueId %in% unique(test$uniqueId))
 
-relabel_obj <- function(o) bitwXor(as.integer(o), 1L) # 0<->1, 2<->3, ..., 16<->17
-
-# ---- per-item human accuracy (group mean by canonical word index 0-17) ----
-item_accuracy <- function(cond) {
-  t2 <- subset(test, condition == cond & !is.na(init_word_ind))
-  a <- aggregate(correct ~ init_word_ind, data = t2, mean)
-  a[order(a$init_word_ind), ]$correct
+# word (0-17) -> the object (0-17) it is studied with; identical for every
+# participant in a condition, which is checked here
+study_map <- function(cond) {
+  maps <- lapply(split(subset(study, condition == cond), ~uniqueId), function(s) {
+    m <- tapply(c(s$o1ind, s$o2ind), c(s$w1ind, s$w2ind), unique)
+    stopifnot(all(lengths(m) == 1))
+    unlist(m)[as.character(0:17)]
+  })
+  stopifnot(all(vapply(maps, identical, logical(1), maps[[1]])))
+  maps[[1]]
 }
 
-n_subj <- function(cond) length(unique(subset(test, condition == cond)$uniqueId))
+build_condition <- function(cond) {
+  o_study <- study_map(cond)
+  relab <- setNames(0:17 + 1L, o_study) # object -> (1-based) word it is studied with
+  R <- function(o) unname(relab[as.character(o)])
 
-# ---- familiarization: 18 unambiguous trials, word i with its own (relabeled) partner ----
-familiarization_trials <- list(
-  words = as.list(1:18),
-  objects = as.list(1:18)
-)
-
-# ---- study: one representative subject's real 27-trial sequence, relabeled ----
-build_study_trials <- function(cond) {
-  s <- subset(study, condition == cond & uniqueId %in% unique(test$uniqueId))
-  subj <- sort(unique(s$uniqueId))[1]
-  s <- subset(s, uniqueId == subj)
+  s <- subset(study, condition == cond)
+  s <- subset(s, uniqueId == sort(unique(s$uniqueId))[1])
   s <- s[order(s$trial), ]
   stopifnot(nrow(s) == 27)
-  list(
-    words = lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L),
-    objects = lapply(seq_len(nrow(s)), \(i) relabel_obj(c(s$o1ind[i], s$o2ind[i])) + 1L)
-  )
-}
 
-build_condition <- function(cond, label) {
-  study_trials <- build_study_trials(cond)
   train <- list(
-    words = c(familiarization_trials$words, study_trials$words),
-    objects = c(familiarization_trials$objects, study_trials$objects)
+    # familiarization: word v with object xor(v, 1)
+    words = c(as.list(1:18), lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
+    objects = c(as.list(R(bitwXor(0:17, 1L))),
+                lapply(seq_len(nrow(s)), \(i) R(c(s$o1ind[i], s$o2ind[i]))))
   )
+
+  t2 <- subset(test, condition == cond & !is.na(init_acc))
+  acc <- aggregate(correct ~ word_ind, data = t2, mean)
+  stopifnot(identical(acc$word_ind, 0:17))
+  # sanity: initially accurate items are exactly those familiarized on the diagonal
+  n_accurate <- sum(unlist(train$objects[1:18]) == 1:18)
+  stopifnot(n_accurate == if (cond == "High Initial Accuracy") 12 else 6)
+
   xslData(
     train = train,
-    accuracy = item_accuracy(cond),
-    n_subj = n_subj(cond),
-    label = label,
+    accuracy = acc$correct,
+    n_subj = length(unique(t2$uniqueId)),
+    label = cond,
     condition = cond,
     description = paste(
       "Kachergis, Grimmick, & Gureckis, 'Modeling error-driven",
       "cross-situational word learning' (unpublished ms.). 18",
-      "word-object pairs: familiarized one at a time (18 unambiguous",
-      "trials, included here as the first 18 training trials), then",
-      "studied cross-situationally (2 words + 2 objects/trial, 3",
-      "blocks x 9 trials = 27 trials, included as the remaining",
-      "training trials; 3 exposures/pair). In the", label,
-      "condition,", if (cond == "High Initial Accuracy") "12/18" else "6/18",
-      "pairs are studied with their true familiarization partner",
-      "('initially accurate'); the rest are studied switched with",
-      "another initially-inaccurate item's partner. Object indices are",
-      "relabeled (word i's familiarization partner is object",
-      "xor(i-1, 1) + 1, not object i) so the diagonal m[w, w] is",
-      "always the familiarization-correct (i.e. test-correct) pairing,",
-      "per xslData convention. Test is 18AFC; accuracy is the group",
-      "mean per item (n_subj subjects, after excluding 5 participants",
-      "who reported using a memory aid)."
+      "word-object pairs: familiarized one at a time (the first 18",
+      "training trials), then studied cross-situationally (2 words + 2",
+      "objects/trial, 27 trials, 3 exposures/pair). In the", cond,
+      "condition,", n_accurate, "of 18 words are familiarized with the",
+      "object they are later studied with ('initially accurate'); the",
+      "rest are familiarized with a different object. Objects are",
+      "indexed by the word they are studied with, so the diagonal m[w, w]",
+      "is the study (= test-correct) pairing; an initially inaccurate",
+      "word's familiarization object is off-diagonal. Test is 19AFC;",
+      "accuracy is the group mean per tested word (n_subj participants,",
+      "after excluding 5 who reported using a memory aid)."
     )
   )
 }
 
 kachergis_initial_accuracy <- list(
-  `High Initial Accuracy` = build_condition("High Initial Accuracy", "High Initial Accuracy"),
-  `Low Initial Accuracy` = build_condition("Low Initial Accuracy", "Low Initial Accuracy")
+  `High Initial Accuracy` = build_condition("High Initial Accuracy"),
+  `Low Initial Accuracy` = build_condition("Low Initial Accuracy")
 )
 
 print(kachergis_initial_accuracy[["High Initial Accuracy"]])

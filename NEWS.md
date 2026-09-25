@@ -1,3 +1,8 @@
+# XSLmodels (development version)
+
+## Bug Fixes
+- `kachergis_initial_accuracy` put the *familiarization* pairing on the diagonal (the `xslData` "correct referent" slot), but the experiment's test-correct answer is always the *study* pairing. For every initially inaccurate item these differ, so any model's accuracy on those items was actually its probability of choosing the wrong, familiarization object. Its per-item `accuracy` was also keyed by `init_word_ind` (the word originally familiarized with the tested word's correct object) rather than by the tested word. Both are fixed: objects are now indexed by the word they are studied with, so the study pairing is the diagonal and an initially inaccurate word's familiarization object is off-diagonal, and `accuracy` is keyed by the tested word. `tests/bakeoff_comparison/kachergis_initial_accuracy_fit.R` and `kachergis_initial_accuracy_persubject_fit.R` are updated and rerun accordingly
+
 # XSLmodels 0.3.0
 
 ## New Features
