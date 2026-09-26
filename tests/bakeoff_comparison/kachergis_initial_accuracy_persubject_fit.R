@@ -59,9 +59,14 @@ build_subject <- function(uid) {
   relab <- setNames(as.integer(names(o_study)) + 1L, unlist(o_study))
   R <- function(o) unname(relab[as.character(o)])
   fam_obj <- R(bitwXor(0:17, 1L))
+  # familiarization trials in the order shown (`fam` records each trial's object)
+  obj_index <- setNames(c(s$o1ind, s$o2ind), c(s$obj1, s$obj2))
+  f <- fam[fam$uniqueId == uid, ]
+  fam_o <- unname(obj_index[as.character(f$obj[order(f$timestamp)])])
+  stopifnot(length(fam_o) == 18, setequal(fam_o, 0:17))
   train <- list(
-    words = c(as.list(1:18), lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
-    objects = c(as.list(fam_obj), lapply(seq_len(nrow(s)), \(i) R(c(s$o1ind[i], s$o2ind[i]))))
+    words = c(as.list(bitwXor(fam_o, 1L) + 1L), lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
+    objects = c(as.list(R(fam_o)), lapply(seq_len(nrow(s)), \(i) R(c(s$o1ind[i], s$o2ind[i]))))
   )
   dat <- xslData(train = train, label = uid, condition = cond)
 

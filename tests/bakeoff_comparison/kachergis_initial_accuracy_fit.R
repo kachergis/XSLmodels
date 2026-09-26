@@ -35,9 +35,12 @@ lia <- kachergis_initial_accuracy[["Low Initial Accuracy"]]
 conds <- list(`High IA` = hia, `Low IA` = lia)
 
 # item-level classification (word index 1-18): initially accurate words are
-# exactly those whose familiarization trial (the first 18 training trials)
-# pairs them with their own, diagonal (= study/test-correct) object
-initially_accurate <- map(conds, \(d) which(unlist(d$train$objects[1:18]) == 1:18))
+# exactly those whose familiarization trial (among the first 18 training
+# trials) pairs them with their own, diagonal (= study/test-correct) object
+initially_accurate <- map(conds, function(d) {
+  w <- unlist(d$train$words[1:18]); o <- unlist(d$train$objects[1:18])
+  sort(w[w == o])
+})
 item_type <- function(cond_name, word_idx) {
   ifelse(word_idx %in% initially_accurate[[cond_name]], "accurate", "inaccurate")
 }

@@ -38,7 +38,11 @@
 #
 # Familiarization is represented as 18 real, unambiguous (1 word, 1 object)
 # training trials preceding the 27 study trials, so every model learns from
-# it with its own ordinary per-trial update. Study-phase trial order was
+# it with its own ordinary per-trial update. They are in the order
+# participants actually saw them, which in the raw indices is the same for
+# every participant (odd-numbered words first, then even; checked below) --
+# not word-index order, which matters for any model with decay or whose
+# update depends on how many objects have been seen so far. Study-phase trial order was
 # randomized per participant (only the pairing structure was fixed): this
 # dataset uses one representative, non-excluded participant's real trial
 # sequence per condition. For per-participant fits using each participant's
@@ -81,6 +85,17 @@ study_map <- function(cond) {
   maps[[1]]
 }
 
+# a participant's familiarization order, as raw (0-17) object indices: `fam`
+# records each trial's object by stimulus id
+fam_order <- function(uid) {
+  s <- subset(study, uniqueId == uid)
+  obj_index <- setNames(c(s$o1ind, s$o2ind), c(s$obj1, s$obj2))
+  f <- fam[fam$uniqueId == uid, ]
+  unname(obj_index[as.character(f$obj[order(f$timestamp)])])
+}
+all_orders <- lapply(unique(study$uniqueId), fam_order)
+stopifnot(all(vapply(all_orders, identical, logical(1), all_orders[[1]])))
+
 build_condition <- function(cond) {
   o_study <- study_map(cond)
   relab <- setNames(0:17 + 1L, o_study) # object -> (1-based) word it is studied with
@@ -91,10 +106,12 @@ build_condition <- function(cond) {
   s <- s[order(s$trial), ]
   stopifnot(nrow(s) == 27)
 
+  # familiarization: word v with object xor(v, 1), in the order shown
+  fam_o <- fam_order(unique(s$uniqueId))
   train <- list(
-    # familiarization: word v with object xor(v, 1)
-    words = c(as.list(1:18), lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
-    objects = c(as.list(R(bitwXor(0:17, 1L))),
+    words = c(as.list(bitwXor(fam_o, 1L) + 1L),
+              lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
+    objects = c(as.list(R(fam_o)),
                 lapply(seq_len(nrow(s)), \(i) R(c(s$o1ind[i], s$o2ind[i]))))
   )
 
@@ -102,7 +119,7 @@ build_condition <- function(cond) {
   acc <- aggregate(correct ~ word_ind, data = t2, mean)
   stopifnot(identical(acc$word_ind, 0:17))
   # sanity: initially accurate items are exactly those familiarized on the diagonal
-  n_accurate <- sum(unlist(train$objects[1:18]) == 1:18)
+  n_accurate <- sum(unlist(train$objects[1:18]) == unlist(train$words[1:18]))
   stopifnot(n_accurate == if (cond == "High Initial Accuracy") 12 else 6)
 
   xslData(
