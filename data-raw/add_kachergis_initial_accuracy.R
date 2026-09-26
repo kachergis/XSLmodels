@@ -45,7 +45,8 @@
 # own sequence, see analysis/model/fit_with_XSLmodels.R in initial_accuracyXSL.
 #
 # Per-item accuracy is the group mean of `test$correct` for each tested word,
-# after excluding the 5 participants who reported using a memory aid.
+# after excluding the 5 participants who reported using a memory aid and the
+# 4 whose median test response time was under 400 ms.
 #
 # Run with data-raw/ as the working directory. Requires
 # ../../initial_accuracyXSL/analysis/data/preprocessed_data.Rdata (a sibling
@@ -58,9 +59,14 @@ raw_data_path <- "../../initial_accuracyXSL/analysis/data/preprocessed_data.Rdat
 stopifnot(file.exists(raw_data_path))
 load(raw_data_path) # study, test, qdat1, qdat2, fam, stud_long
 
-# ---- exclude the 5 participants who reported using a memory aid ----
+# ---- exclusions (as in the initial_accuracyXSL manuscript) ----
+# the 5 participants who reported using a memory aid, and the 4 whose median
+# test response time was under 400 ms (too fast to have searched a
+# 19-object display; all scored at or near 0)
 memaid <- subset(qdat2, memory_aid == "yes")$uniqueid
-test <- subset(test, !uniqueId %in% memaid)
+fast <- test %>% filter(!uniqueId %in% memaid) %>% group_by(uniqueId) %>%
+  summarise(med_rt = median(rt), .groups = "drop") %>% filter(med_rt < 400) %>% pull(uniqueId)
+test <- subset(test, !uniqueId %in% c(memaid, fast))
 study <- subset(study, uniqueId %in% unique(test$uniqueId))
 
 # word (0-17) -> the object (0-17) it is studied with; identical for every
@@ -118,7 +124,8 @@ build_condition <- function(cond) {
       "is the study (= test-correct) pairing; an initially inaccurate",
       "word's familiarization object is off-diagonal. Test is 19AFC;",
       "accuracy is the group mean per tested word (n_subj participants,",
-      "after excluding 5 who reported using a memory aid)."
+      "after excluding 5 who reported using a memory aid and 4 with",
+      "median test response times under 400 ms)."
     )
   )
 }

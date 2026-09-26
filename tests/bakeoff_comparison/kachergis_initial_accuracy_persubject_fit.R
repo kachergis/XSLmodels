@@ -35,8 +35,14 @@ raw_data_path <- "../../../initial_accuracyXSL/analysis/data/preprocessed_data.R
 stopifnot(file.exists(raw_data_path))
 load(raw_data_path) # study, test, qdat1, qdat2
 
-memaid <- subset(qdat2, memory_aid == "yes") %>% rename(uniqueId = uniqueid)
-test <- subset(test, !is.element(uniqueId, memaid$uniqueId))
+# ---- exclusions (as in the initial_accuracyXSL manuscript) ----
+# the 5 participants who reported using a memory aid, and the 4 whose median
+# test response time was under 400 ms (too fast to have searched a
+# 19-object display; all scored at or near 0)
+memaid <- subset(qdat2, memory_aid == "yes")$uniqueid
+fast <- test %>% filter(!uniqueId %in% memaid) %>% group_by(uniqueId) %>%
+  summarise(med_rt = median(rt), .groups = "drop") %>% filter(med_rt < 400) %>% pull(uniqueId)
+test <- subset(test, !uniqueId %in% c(memaid, fast))
 study <- subset(study, uniqueId %in% unique(test$uniqueId))
 
 ## ---- build one subject's real trial-order xslData (train only) + 2-value target ----
