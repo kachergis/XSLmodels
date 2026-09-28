@@ -1,3 +1,8 @@
+# XSLmodels (development version)
+
+## New Features
+- Added `uncfam_gamma()`, a variant of `uncfam()` that decouples familiarity's contribution to a trial's attentional allocation from uncertainty's. `uncfam()`'s allocation weight is `exp(B * entropy) * assocs` -- entropy gets a free exponent (`B`), but familiarity (`assocs`) enters linearly with an implicit weight of 1 and no free parameter of its own. `uncfam_gamma()` adds one parameter, `gamma`, raising familiarity to a free power instead (`assocs^gamma`); `gamma = 1` reproduces `uncfam()` exactly. Cross-validated against all of `xsl_datasets`, it beats plain `uncfam()` in every fold of a 5-fold split (mean test SSE 0.48 vs. 0.56), with a best-fit `gamma` around 0.3 (familiarity's pull *dampens* with diminishing returns). A separate analysis fitting this same free-`gamma` substrate to active cross-situational word learning (learners choosing which items to see named next, rather than a fixed passive sequence) instead found a best-fit `gamma` around 2 (amplified, not dampened) -- see `?uncfam_gamma` for the full comparison
+
 # XSLmodels 0.3.0
 
 ## New Features

@@ -83,6 +83,37 @@ test_that("uncfam_attention() falls back to uncfam()'s unscaled rate on a single
   expect_equal(attention$fits[[1]]$matrix, plain$fits[[1]]$matrix)
 })
 
+test_that("uncfam_gamma(gamma = 1) is identical to uncfam()", {
+  # gamma raises familiarity (assocs) to a free power instead of uncfam()'s
+  # implicit linear weight (assocs^1); gamma = 1 must reproduce uncfam()
+  # exactly, on a real multi-trial dataset (not just a degenerate one-trial
+  # case where every term is trivially equal).
+  dat <- get_example_ambiguous_condition()
+  plain <- xsl_run(uncfam(X = .1, B = .98, C = 1), dat)
+  gamma1 <- xsl_run(uncfam_gamma(X = .1, B = .98, C = 1, gamma = 1), dat)
+  expect_equal(gamma1$fits[[1]]$matrix, plain$fits[[1]]$matrix)
+})
+
+test_that("uncfam_gamma()'s gamma actually changes the allocation away from uncfam()'s", {
+  # get_example_ambiguous_condition() only has 2 trials with entirely
+  # disjoint words/objects, so every trial's `assocs` are uniform (all
+  # freshly-seen pairs at the same startval) -- and gamma raising a uniform
+  # value to any power, then renormalizing, is a no-op. Needs a dataset
+  # where some pairs are more familiar than others within the same later
+  # trial for gamma to have anything to bite on: repeat pairs 1-2 on trial 2,
+  # then present all four again on trial 3, so 1-2 and 3-4 differ in
+  # familiarity within that trial.
+  dat <- xslData(train = list(
+    words   = list(c(1, 2, 3, 4), c(1, 2), c(1, 2, 3, 4)),
+    objects = list(c(1, 2, 3, 4), c(1, 2), c(1, 2, 3, 4))
+  ), label = "repeat-then-full")
+  plain <- xsl_run(uncfam(X = .1, B = .98, C = 1), dat)
+  dampened <- xsl_run(uncfam_gamma(X = .1, B = .98, C = 1, gamma = 0.3), dat)
+  amplified <- xsl_run(uncfam_gamma(X = .1, B = .98, C = 1, gamma = 2), dat)
+  expect_false(isTRUE(all.equal(dampened$fits[[1]]$matrix, plain$fits[[1]]$matrix)))
+  expect_false(isTRUE(all.equal(amplified$fits[[1]]$matrix, plain$fits[[1]]$matrix)))
+})
+
 test_that("uncfam_predictive()'s unnormalized update never drives an association negative", {
   # regression test: without the pmax(..., 0) floor documented in
   # model-uncfam_predictive.R, a large learning rate can overshoot an

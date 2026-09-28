@@ -86,7 +86,7 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
 #' @examples
 #' show_models()
 show_models <- function() {
-  c("baseline", "decay", "uncfam", "uncfam_attention", "uncfam_predictive",
+  c("baseline", "decay", "uncfam", "uncfam_gamma", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
     "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
     "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa")
@@ -148,6 +148,14 @@ xsl_model_registry <- function() {
     uncfam = list(
       constructor = function() uncfam(X = 0.1, C = 1, B = 0.98),
       lower = c(0.01, 0.8, 0.8), upper = c(0.5, 1.0, 1.0)
+    ),
+    uncfam_gamma = list(
+      constructor = function() uncfam_gamma(X = 0.1, C = 1, B = 0.98, gamma = 1),
+      # gamma's best-fit sign is context-dependent (see ?uncfam_gamma) -- a
+      # group fit to all 53 xsl_datasets conditions lands around 0.3, well
+      # inside these bounds in either direction, so they're left wide rather
+      # than anchored near 1
+      lower = c(0.01, 0.8, 0.8, 0.1), upper = c(0.5, 1.0, 1.0, 6)
     ),
     uncfam_attention = list(
       constructor = function() uncfam_attention(X = 0.1, C = 1, B = 0.98),
