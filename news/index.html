@@ -38,6 +38,13 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="xslmodels-development-version">XSLmodels (development version)<a class="anchor" aria-label="anchor" href="#xslmodels-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>Added <code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code>, a variant of <code><a href="../reference/uncfam.html">uncfam()</a></code> that decouples familiarity’s contribution to a trial’s attentional allocation from uncertainty’s. <code><a href="../reference/uncfam.html">uncfam()</a></code>’s allocation weight is <code>exp(B * entropy) * assocs</code> – entropy gets a free exponent (<code>B</code>), but familiarity (<code>assocs</code>) enters linearly with an implicit weight of 1 and no free parameter of its own. <code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code> adds one parameter, <code>gamma</code>, raising familiarity to a free power instead (<code>assocs^gamma</code>); <code>gamma = 1</code> reproduces <code><a href="../reference/uncfam.html">uncfam()</a></code> exactly. Cross-validated against all of <code>xsl_datasets</code>, it beats plain <code><a href="../reference/uncfam.html">uncfam()</a></code> in every fold of a 5-fold split (mean test SSE 0.48 vs. 0.56), with a best-fit <code>gamma</code> around 0.3 (familiarity’s pull <em>dampens</em> with diminishing returns). A separate analysis fitting this same free-<code>gamma</code> substrate to active cross-situational word learning (learners choosing which items to see named next, rather than a fixed passive sequence) instead found a best-fit <code>gamma</code> around 2 (amplified, not dampened) – see <code><a href="../reference/uncfam_gamma.html">?uncfam_gamma</a></code> for the full comparison</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="xslmodels-030">XSLmodels 0.3.0<a class="anchor" aria-label="anchor" href="#xslmodels-030"></a></h2>
 <div class="section level3">
 <h3 id="new-features-0-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>

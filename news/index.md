@@ -1,5 +1,35 @@
 # Changelog
 
+## XSLmodels (development version)
+
+### New Features
+
+- Added
+  [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
+  a variant of
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  that decouples familiarity’s contribution to a trial’s attentional
+  allocation from uncertainty’s.
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)’s
+  allocation weight is `exp(B * entropy) * assocs` – entropy gets a free
+  exponent (`B`), but familiarity (`assocs`) enters linearly with an
+  implicit weight of 1 and no free parameter of its own.
+  [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
+  adds one parameter, `gamma`, raising familiarity to a free power
+  instead (`assocs^gamma`); `gamma = 1` reproduces
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  exactly. Cross-validated against all of `xsl_datasets`, it beats plain
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  in every fold of a 5-fold split (mean test SSE 0.48 vs. 0.56), with a
+  best-fit `gamma` around 0.3 (familiarity’s pull *dampens* with
+  diminishing returns). A separate analysis fitting this same
+  free-`gamma` substrate to active cross-situational word learning
+  (learners choosing which items to see named next, rather than a fixed
+  passive sequence) instead found a best-fit `gamma` around 2
+  (amplified, not dampened) – see
+  [`?uncfam_gamma`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
+  for the full comparison
+
 ## XSLmodels 0.3.0
 
 ### New Features
