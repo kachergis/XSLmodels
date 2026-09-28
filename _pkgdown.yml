@@ -9,6 +9,7 @@ reference:
       - baseline
       - decay
       - uncfam
+      - uncfam_gamma
       - uncfam_attention
       - uncfam_predictive
       - uncfam_sampling
