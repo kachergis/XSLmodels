@@ -9,7 +9,10 @@ is scaled by how much the word's predicted association strength (summed
 over the trial's objects) falls short of the maximum value, rather than
 normalizing to distribute a fixed amount of associative weight across
 the trial. This lets initially mis-paired ("surprising") items draw more
-learning than the un-normalized original model allows.
+learning than the un-normalized original model allows. Associations are
+bounded to `[0, beta]` (with `beta = 1`): without normalization, the
+update can otherwise overshoot below 0 (and diverge) or far above `beta`
+on a word's first exposure.
 
 ## Usage
 

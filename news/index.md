@@ -30,6 +30,28 @@
   [`?uncfam_gamma`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
   for the full comparison
 
+### Bug Fixes
+
+- [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
+  now caps associations at `beta` (1), its stated maximum, as well as
+  flooring them at 0. Its unnormalized update could overshoot far above
+  `beta` on a word’s first exposure: the prediction error is then
+  ~`beta`, and it is scaled by `exp(B * entropy)` of the word’s row,
+  which
+  [`update_known()`](https://www.kachergis.com/XSLmodels/reference/update_known.md)
+  spreads over every object seen so far – so a word first seen after
+  many others could reach an association in the thousands in a single
+  trial (e.g. ~4600 for the 18th of 18 sequentially introduced words at
+  X = .8, B = 1.6, C = .7). That association then dominated the word’s
+  row and collapsed its entropy, locking in the first pairing it was
+  seen with; in the initial-accuracy study this made the model predict
+  learners would choose an initially inaccurate word’s familiarization
+  referent 3-4x as often as they did. **This changes
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)’s
+  fits** wherever the overshoot occurred, including the corpus-fit gains
+  reported for it in `tests/bakeoff_comparison/corpus_report.md` (not
+  rerun here)
+
 ## XSLmodels 0.3.0
 
 ### New Features

@@ -7,7 +7,9 @@ predicted association strength (summed over the trial's objects) falls
 short of the maximum value, rather than normalizing to distribute a fixed
 amount of associative weight across the trial. This lets initially
 mis-paired (&quot;surprising&quot;) items draw more learning than the un-normalized
-original model allows."><meta property="og:description" content="A variant of uncfam() (Kachergis et al. 2012's uncertainty- and
+original model allows. Associations are bounded to [0, beta] (with
+beta = 1): without normalization, the update can otherwise overshoot
+below 0 (and diverge) or far above beta on a word's first exposure."><meta property="og:description" content="A variant of uncfam() (Kachergis et al. 2012's uncertainty- and
 familiarity-biased associative model) that adds an item-level,
 Rescorla-Wagner-style prediction error term: on each trial, the amount
 learned about a word-object association is scaled by how much the word's
@@ -15,7 +17,9 @@ predicted association strength (summed over the trial's objects) falls
 short of the maximum value, rather than normalizing to distribute a fixed
 amount of associative weight across the trial. This lets initially
 mis-paired (&quot;surprising&quot;) items draw more learning than the un-normalized
-original model allows."></head><body>
+original model allows. Associations are bounded to [0, beta] (with
+beta = 1): without normalization, the update can otherwise overshoot
+below 0 (and diverge) or far above beta on a word's first exposure."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -63,7 +67,9 @@ predicted association strength (summed over the trial's objects) falls
 short of the maximum value, rather than normalizing to distribute a fixed
 amount of associative weight across the trial. This lets initially
 mis-paired ("surprising") items draw more learning than the un-normalized
-original model allows.</p>
+original model allows. Associations are bounded to <code>[0, beta]</code> (with
+<code>beta = 1</code>): without normalization, the update can otherwise overshoot
+below 0 (and diverge) or far above <code>beta</code> on a word's first exposure.</p>
     </div>
 
     <div class="section level2">
