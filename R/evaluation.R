@@ -17,6 +17,13 @@
 #'   selections (Luce choice) for that item, calculated as the ratio of the
 #'   correct association (diagonal element) to the total associations for that
 #'   item.
+#'
+#' @details Negative associations (possible in error-driven models such as
+#'   [rescorla_wagner()] and [kalman_filter()]) are treated as 0 before the
+#'   choice rule is applied -- Luce choice is undefined for negative values,
+#'   and would otherwise yield "probabilities" outside \[0, 1\] -- matching
+#'   [predict_referent()]. A word whose associations are then all 0 is
+#'   answered at chance (`1 / ncol(m)`).
 #' @export
 #'
 #' @examples
@@ -29,7 +36,9 @@ get_perf <- function(m, d = NULL) {
   # md <- m ^ d / outer(ones, colSums(m ^ d))
   # diag(md)
   if (is.null(d)) d <- 1
-  diag(m) ^ d / rowSums(m ^ d)
+  m <- pmax(m, 0) ^ d
+  tot <- rowSums(m)
+  ifelse(tot > 0, diag(m) / tot, 1 / ncol(m))
 }
 
 # power choice rule

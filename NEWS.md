@@ -3,6 +3,9 @@
 ## New Features
 - Added `uncfam_gamma()`, a variant of `uncfam()` that decouples familiarity's contribution to a trial's attentional allocation from uncertainty's. `uncfam()`'s allocation weight is `exp(B * entropy) * assocs` -- entropy gets a free exponent (`B`), but familiarity (`assocs`) enters linearly with an implicit weight of 1 and no free parameter of its own. `uncfam_gamma()` adds one parameter, `gamma`, raising familiarity to a free power instead (`assocs^gamma`); `gamma = 1` reproduces `uncfam()` exactly. Cross-validated against all of `xsl_datasets`, it beats plain `uncfam()` in every fold of a 5-fold split (mean test SSE 0.48 vs. 0.56), with a best-fit `gamma` around 0.3 (familiarity's pull *dampens* with diminishing returns). A separate analysis fitting this same free-`gamma` substrate to active cross-situational word learning (learners choosing which items to see named next, rather than a fixed passive sequence) instead found a best-fit `gamma` around 2 (amplified, not dampened) -- see `?uncfam_gamma` for the full comparison
 
+## Bug Fixes
+- `get_perf()` now treats negative associations as 0 before applying the Luce choice rule (as `predict_referent()` already did), and answers a word whose associations are then all 0 at chance (`1 / ncol(m)`) rather than returning `NaN`. Error-driven models (`rescorla_wagner()`, `kalman_filter()`) can learn negative associations, for which `diag(m) / rowSums(m)` gave per-item "probabilities" outside [0, 1] -- which DEoptim could exploit when fitting. In the initial-accuracy study, fitted `rescorla_wagner()` had negative associations for about half of participants and out-of-range predictions for 25 of 61. **This changes those models' fits** wherever negative associations occurred
+
 # XSLmodels 0.3.0
 
 ## New Features
