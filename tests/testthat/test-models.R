@@ -129,6 +129,20 @@ test_that("uncfam_predictive()'s unnormalized update never drives an association
   expect_true(all(m >= 0))
 })
 
+test_that("uncfam_predictive() never pushes an association above beta (1)", {
+  # regression test: on a word's first exposure the prediction error is ~beta
+  # and is scaled by exp(B * entropy) of the word's row, which update_known()
+  # spreads over every object seen so far -- uncapped, a word introduced
+  # after many others jumped to thousands in one trial. Here: 18 words each
+  # shown once with one object, in sequence.
+  dat <- xslData(train = list(words = as.list(1:18), objects = as.list(1:18)))
+  ctrl <- xslControl(keep_traj = TRUE)
+  mod <- uncfam_predictive(X = .8, B = 1.6, C = .7)
+  fit <- mod$model(mod$params, dat$train, ctrl)
+  expect_true(all(vapply(fit$traj, \(m) all(m <= 1), logical(1))))
+  expect_equal(unname(fit$traj[[18]][18, 18]), 1)
+})
+
 test_that("tilles() carries a word's alpha forward across trials it doesn't appear on", {
   # regression test: alpha was declared fresh (rep(NA, voc_sz)) inside the
   # trial loop and only ever filled in for words on the *current* trial
