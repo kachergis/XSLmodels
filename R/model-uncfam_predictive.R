@@ -73,7 +73,16 @@ uncfam_predictive_model <- function(params, data, control) {
         # DEoptim fitting). Association strength isn't meaningful below 0
         # (beta is described as the *maximum* value), so floor it at 0,
         # which removes the runaway feedback loop entirely.
-        m[w, tr_o] <- pmax(m[w, tr_o], 0)
+        #
+        # The same unnormalized update can also overshoot far *above* beta:
+        # on a word's first exposure the prediction error is ~beta, and it is
+        # multiplied by the entropy weight of the word's row, which
+        # update_known() has spread over every object seen so far -- so a
+        # single update can reach thousands for a word first seen late in
+        # training. That association then dominates the word's row and
+        # collapses its entropy (and so its later learning), locking in the
+        # first pairing. Cap associations at beta, the stated maximum.
+        m[w, tr_o] <- pmin(pmax(m[w, tr_o], 0), beta)
       }
 
       index <- (rep - 1) * length(data$words) + t # index for learning trajectory
@@ -95,7 +104,9 @@ uncfam_predictive_model <- function(params, data, control) {
 #' short of the maximum value, rather than normalizing to distribute a fixed
 #' amount of associative weight across the trial. This lets initially
 #' mis-paired ("surprising") items draw more learning than the un-normalized
-#' original model allows.
+#' original model allows. Associations are bounded to `[0, beta]` (with
+#' `beta = 1`): without normalization, the update can otherwise overshoot
+#' below 0 (and diverge) or far above `beta` on a word's first exposure.
 #'
 #' @inheritParams uncfam
 #'

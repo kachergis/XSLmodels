@@ -25,7 +25,9 @@ predicted association strength (summed over the trial's objects) falls
 short of the maximum value, rather than normalizing to distribute a fixed
 amount of associative weight across the trial. This lets initially
 mis-paired ("surprising") items draw more learning than the un-normalized
-original model allows.
+original model allows. Associations are bounded to \verb{[0, beta]} (with
+\code{beta = 1}): without normalization, the update can otherwise overshoot
+below 0 (and diverge) or far above \code{beta} on a word's first exposure.
 }
 \examples{
 mod <- uncfam_predictive(X = .1, C = 1, B = .98)
