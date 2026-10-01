@@ -9,6 +9,7 @@ reference:
       - baseline
       - decay
       - uncfam
+      - uncfam_gamma
       - uncfam_attention
       - uncfam_predictive
       - uncfam_sampling
@@ -24,6 +25,9 @@ reference:
       - softmax_rl
       - fgt2009
       - fgt2009_rsa
+      - minerva2
+      - todam
+      - rem
   - title: Running and fitting models
     contents:
       - xsl_run
@@ -39,6 +43,7 @@ reference:
       - xsl_datasets
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
+      - gangwani2011_category
       - rollins_corpus
       - fm_corpus
       - xslData-class

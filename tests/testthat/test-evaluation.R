@@ -102,3 +102,12 @@ test_that("predict_referent() works on any model's matrix, not just fgt2009", {
     expect_true(all(p >= 0))
   }
 })
+
+test_that("get_perf() treats negative associations as 0 and answers empty rows at chance", {
+  m <- matrix(c( 1, -1,  0,
+                -2,  1,  1,
+                -1, -1, -1), 3, byrow = TRUE)
+  p <- get_perf(m)
+  expect_equal(p, c(1, .5, 1 / 3))
+  expect_true(all(p >= 0 & p <= 1))
+})
