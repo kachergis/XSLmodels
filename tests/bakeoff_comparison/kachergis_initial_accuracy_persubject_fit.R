@@ -16,6 +16,13 @@
 # representative order used to build the shared `kachergis_initial_accuracy`
 # package dataset).
 #
+# Note: the paper's original scripts (and an earlier version of this one)
+# scored every model against the *familiarization* pairing, which for
+# initially inaccurate items is the wrong answer -- the test-correct object is
+# the one a word is *studied* with. The printed "paper's own reported"
+# numbers below come from that mis-scored procedure, so they're kept only as
+# a record, not as a target to reproduce.
+#
 # Requires ../../initial_accuracyXSL/analysis/data/preprocessed_data.Rdata
 # (a sibling checkout of https://github.com/kachergis/initial_accuracyXSL).
 
@@ -28,33 +35,38 @@ raw_data_path <- "../../../initial_accuracyXSL/analysis/data/preprocessed_data.R
 stopifnot(file.exists(raw_data_path))
 load(raw_data_path) # study, test, qdat1, qdat2
 
-memaid <- subset(qdat2, memory_aid == "yes") %>% rename(uniqueId = uniqueid)
-test <- subset(test, !is.element(uniqueId, memaid$uniqueId))
+# ---- exclusions (as in the initial_accuracyXSL manuscript) ----
+# the 5 participants who reported using a memory aid, and the 4 whose median
+# test response time was under 400 ms (too fast to have searched a
+# 19-object display; all scored at or near 0)
+memaid <- subset(qdat2, memory_aid == "yes")$uniqueid
+fast <- test %>% filter(!uniqueId %in% memaid) %>% group_by(uniqueId) %>%
+  summarise(med_rt = median(rt), .groups = "drop") %>% filter(med_rt < 400) %>% pull(uniqueId)
+test <- subset(test, !uniqueId %in% c(memaid, fast))
 study <- subset(study, uniqueId %in% unique(test$uniqueId))
 
-relabel_obj <- function(o) bitwXor(as.integer(o), 1L)
-
-familiarization_trials <- list(words = as.list(1:18), objects = as.list(1:18))
-
-# item-level classification (word index 1-18), same as
-# kachergis_initial_accuracy_fit.R / data-raw/add_kachergis_initial_accuracy.R
-initially_accurate <- list(
-  `High Initial Accuracy` = c(1, 2, 3, 5, 6, 9, 10, 13, 14, 16, 17, 18),
-  `Low Initial Accuracy` = c(5, 6, 9, 10, 13, 14)
-)
-
 ## ---- build one subject's real trial-order xslData (train only) + 2-value target ----
+## Objects are relabeled by the word they're *studied* with, so the diagonal is
+## the study (= test-correct) pairing; familiarization pairs word v with object
+## xor(v, 1) in the raw 0-17 indices, which is off-diagonal for initially
+## inaccurate words. See data-raw/add_kachergis_initial_accuracy.R.
 build_subject <- function(uid) {
   s <- subset(study, uniqueId == uid)
   s <- s[order(s$trial), ]
   cond <- s$condition[1]
-  study_trials <- list(
-    words = lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L),
-    objects = lapply(seq_len(nrow(s)), \(i) relabel_obj(c(s$o1ind[i], s$o2ind[i])) + 1L)
-  )
+  o_study <- tapply(c(s$o1ind, s$o2ind), c(s$w1ind, s$w2ind), unique)
+  stopifnot(all(lengths(o_study) == 1))
+  relab <- setNames(as.integer(names(o_study)) + 1L, unlist(o_study))
+  R <- function(o) unname(relab[as.character(o)])
+  fam_obj <- R(bitwXor(0:17, 1L))
+  # familiarization trials in the order shown (`fam` records each trial's object)
+  obj_index <- setNames(c(s$o1ind, s$o2ind), c(s$obj1, s$obj2))
+  f <- fam[fam$uniqueId == uid, ]
+  fam_o <- unname(obj_index[as.character(f$obj[order(f$timestamp)])])
+  stopifnot(length(fam_o) == 18, setequal(fam_o, 0:17))
   train <- list(
-    words = c(familiarization_trials$words, study_trials$words),
-    objects = c(familiarization_trials$objects, study_trials$objects)
+    words = c(as.list(bitwXor(fam_o, 1L) + 1L), lapply(seq_len(nrow(s)), \(i) c(s$w1ind[i], s$w2ind[i]) + 1L)),
+    objects = c(as.list(R(fam_o)), lapply(seq_len(nrow(s)), \(i) R(c(s$o1ind[i], s$o2ind[i]))))
   )
   dat <- xslData(train = train, label = uid, condition = cond)
 
@@ -63,9 +75,10 @@ build_subject <- function(uid) {
     accurate = mean(t2$correct[t2$init_acc == "True"]),
     inaccurate = mean(t2$correct[t2$init_acc == "False"])
   )
+  accurate_idx <- which(fam_obj == 1:18)
+  stopifnot(setequal(accurate_idx, t2$word_ind[t2$init_acc == "True"] + 1L))
   list(uid = uid, condition = cond, data = dat, human = human,
-      accurate_idx = initially_accurate[[cond]],
-      inaccurate_idx = setdiff(1:18, initially_accurate[[cond]]))
+      accurate_idx = accurate_idx, inaccurate_idx = setdiff(1:18, accurate_idx))
 }
 
 subjects <- map(unique(study$uniqueId), build_subject)

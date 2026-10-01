@@ -13,9 +13,12 @@ kachergis_initial_accuracy
 \description{
 A list of two \code{xslData} objects ("High Initial Accuracy" and "Low Initial
 Accuracy") from an unpublished MTurk cross-situational word learning
-experiment manipulating how many of 18 word-object pairs are "switched"
-(i.e. studied with the wrong partner) relative to an initial
-familiarization phase. Not included in \link{xsl_datasets} (see
+experiment manipulating how many of 18 words are first shown
+("familiarized") with a different object than the one they are then
+cross-situationally studied with. The study pairing is the test-correct
+one, and is on the diagonal (\code{m[w, w]}); an initially inaccurate word's
+familiarization object is off-diagonal. The first 18 training trials are
+the familiarization phase. Not included in \link{xsl_datasets} (see
 \code{data-raw/add_kachergis_initial_accuracy.R} for construction details and
 \code{tests/bakeoff_comparison/kachergis_initial_accuracy_fit.R} for an example
 model comparison).
