@@ -28,6 +28,14 @@ selections, for each item in a given model knowledge matrix. It assesses the
 probability of correctly identifying each referent based on the knowledge
 matrix, providing a measure of model performance per item.
 }
+\details{
+Negative associations (possible in error-driven models such as
+\code{\link[=rescorla_wagner]{rescorla_wagner()}} and \code{\link[=kalman_filter]{kalman_filter()}}) are treated as 0 before the
+choice rule is applied -- Luce choice is undefined for negative values,
+and would otherwise yield "probabilities" outside [0, 1] -- matching
+\code{\link[=predict_referent]{predict_referent()}}. A word whose associations are then all 0 is
+answered at chance (\code{1 / ncol(m)}).
+}
 \examples{
 x <- xsl_run(baseline(), get_example_ambiguous_condition())
 mat <- x$fits[[1]]$matrix
