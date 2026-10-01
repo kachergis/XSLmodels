@@ -29,6 +29,89 @@
   (amplified, not dampened) – see
   [`?uncfam_gamma`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
   for the full comparison
+- Added
+  [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md),
+  [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md),
+  and [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md),
+  three distributed/episodic memory models ported from standalone
+  prototypes that predated this package (Hintzman’s MINERVA2, 1984/1986;
+  Murdock’s TODAM, 1982; Shiffrin & Steyvers’ REM, 1997) and were never
+  wired into it or tested. All three represent words/objects as random
+  feature vectors rather than tallying a single word-by-object
+  association, and turn their native similarity/odds score into a
+  Luce-choice-ready matrix via an exponentiated (`X`-temperature) or
+  likelihood-ratio-based choice rule so they plug into
+  [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md)/[`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
+  like every other model here. Porting surfaced real bugs in the
+  prototypes, fixed along the way (see each model’s `@details`/source
+  comments):
+  [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)‘s
+  prototype compared a 2D echo-content vector against D-dim object
+  vectors (silent recycling, not an error) instead of just the echo’s
+  object half;
+  [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md)’s
+  prototype computed trial-1 attention weights as `cos_sim(item, 0)` =
+  NaN, poisoning memory from the first trial on, and both
+  [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md)
+  prototypes called the long-removed `as.real()`;
+  [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md)’s
+  prototype never actually implemented REM at all (it declared a
+  geometric feature-vector generator but its model/test functions were
+  an unmodified copy of the MINERVA2 prototype’s continuous-Gaussian
+  code) –
+  [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) here
+  is a fresh adaptation of Shiffrin & Steyvers’ storage/odds equations
+  to this package’s associative task. Benchmarking (see
+  [`?minerva2`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)/[`?todam`](https://www.kachergis.com/XSLmodels/reference/todam.md)/[`?rem`](https://www.kachergis.com/XSLmodels/reference/rem.md)
+  performance notes) found
+  [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md)’s raw
+  per-simulation likelihood-ratio odds span several orders of magnitude
+  (a lucky match on one rare feature value can dominate), which would
+  otherwise let a single lucky simulation hijack
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)’s
+  sum-across-simulations aggregation;
+  [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) now
+  row-normalizes each simulation’s choice weights before returning them.
+  All three are registered in
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)/`xsl_model_registry()`,
+  fitting only their choice-rule temperature (`X`) or storage parameters
+  (`g`, `u`, `c`) by default – `D`/`w` (feature-vector dimensionality)
+  are fixed representational hyperparameters, not free cognitive
+  parameters. Speed varies widely: on the full `xsl_datasets` (53
+  conditions) at `n_sim = 500`,
+  [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)
+  takes ~30s,
+  [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md) ~8
+  min, and
+  [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) ~20
+  min –
+  [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md)/[`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md)
+  are impractical to
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
+  at full DEoptim settings (`NP = 100, itermax = 100` would be tens of
+  thousands of evaluations) without sharply reducing
+  `n_sim`/`NP`/`itermax`, as the package’s own fitting examples already
+  do for slow models
+- Added a third standalone dataset, `gangwani2011_category` (Experiment
+  1 of Gangwani, Kachergis & Yu, “Simultaneous Cross-situational
+  Learning of Category and Object Names”; an undergraduate-journal
+  version is Gangwani & Kachergis, *Indiana Undergraduate Journal of
+  Cognitive Science* 5, 2010). A hierarchical design: each training
+  trial shows 2 objects and names 3 words – the two objects’ own 1-to-1
+  names plus one 1-to-many “category” label naming those two objects and
+  two others seen on other trials – so every object carries both a basic
+  name and a category label, and the paper’s finding is that learners
+  violate mutual exclusivity by learning both. A named list of three
+  `xslData` objects (one per training block: ad hoc / natural / ad hoc),
+  sharing one 36-trial co-occurrence schedule. Its 15 x 12 (word x
+  object) association matrix breaks `xslData`’s diagonal-scoring
+  convention the same way `kachergis2012_highlighting` does, so it is
+  kept standalone; score it with `score_gangwani2011_category()` in the
+  new `tests/bakeoff_comparison/gangwani2011_category_fit.R`, which
+  reads 12-AFC name accuracy, 3-AFC category accuracy, and the paper’s
+  headline ME-violation measure straight off any model’s matrix. See
+  [`?gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
+  and `data-raw/add_gangwani2011_category.R`
 
 ### Bug Fixes
 
@@ -67,6 +150,35 @@
   had negative associations for about half of participants and
   out-of-range predictions for 25 of 61. **This changes those models’
   fits** wherever negative associations occurred
+- `kachergis_initial_accuracy` put the *familiarization* pairing on the
+  diagonal (the `xslData` “correct referent” slot), but the experiment’s
+  test-correct answer is always the *study* pairing. For every initially
+  inaccurate item these differ, so any model’s accuracy on those items
+  was actually its probability of choosing the wrong, familiarization
+  object. Its per-item `accuracy` was also keyed by `init_word_ind` (the
+  word originally familiarized with the tested word’s correct object)
+  rather than by the tested word. Both are fixed: objects are now
+  indexed by the word they are studied with, so the study pairing is the
+  diagonal and an initially inaccurate word’s familiarization object is
+  off-diagonal, and `accuracy` is keyed by the tested word. It now also
+  excludes the 4 participants whose median test response time was under
+  400 ms (as the accompanying manuscript does), leaving 34 High IA and
+  27 Low IA participants.
+  `tests/bakeoff_comparison/kachergis_initial_accuracy_fit.R` and
+  `kachergis_initial_accuracy_persubject_fit.R` are updated and rerun
+  accordingly
+- `kachergis_initial_accuracy`’s familiarization trials were in
+  word-index order; they now follow the order participants actually saw
+  them (the same for every participant, recovered from the raw
+  familiarization records). Order matters for the
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  family, whose first-exposure update depends on how many objects have
+  already been seen via
+  [`update_known()`](https://www.kachergis.com/XSLmodels/reference/update_known.md)
+  – for
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
+  it determined how far a word’s familiarization association overshot
+  `beta` before the cap above. The bakeoff scripts are rerun accordingly
 
 ## XSLmodels 0.3.0
 

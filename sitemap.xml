@@ -10,6 +10,7 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/XSLmodels-package.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/baseline.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/bayesian_decay.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/cos_sim.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/create_cooc_matrix.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/decay.html</loc></url>
@@ -18,6 +19,7 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/fgt2009_rsa.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/fgt2009_sweep_alpha.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/fm_corpus.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/get_example_ambiguous_condition.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/get_example_unambiguous_condition.html</loc></url>
@@ -33,12 +35,14 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/kachergis_initial_accuracy.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/kalman_filter.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/mafc_test.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/minerva2.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/multi_sampling.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/nonneg_shannon_entropy.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/plot_training_trials.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/predict_referent.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/propose_but_verify.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/pursuit.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/rem.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/rollins_corpus.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/rsa_listener.html</loc></url>
@@ -47,6 +51,7 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/show_models.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/softmax_rl.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/tilles.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/todam.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/uncfam.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/uncfam_attention.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.html</loc></url>

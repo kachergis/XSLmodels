@@ -210,8 +210,12 @@ they don’t fit its “one correct object per tested word, scored by SSE
 against human accuracy” convention:
 <code>kachergis2012_highlighting</code> and
 <code>kachergis_initial_accuracy</code> (experiments with ambiguous test
-items), and two naturalistic caregiver-speech corpora imported from the
-<a href="https://github.com/mcfrank/wurwur" class="external-link">wurwur</a> package –
+items); <code>gangwani2011_category</code>, a hierarchical design in
+which every object has both a 1-to-1 name and a 1-to-many category label
+(the association matrix is 15 words x 12 objects, and learners violate
+mutual exclusivity – see <code><a href="../reference/gangwani2011_category.html">?gangwani2011_category</a></code> and
+<code>tests/bakeoff_comparison/gangwani2011_category_fit.R</code>); and
+two naturalistic caregiver-speech corpora imported from the <a href="https://github.com/mcfrank/wurwur" class="external-link">wurwur</a> package –
 <code>rollins_corpus</code> (the CHILDES/Rollins corpus fit by Frank,
 Goodman &amp; Tenenbaum, 2009) and <code>fm_corpus</code> (Frank,
 Tenenbaum &amp; Fernald). These corpora have no human referent-selection
@@ -286,7 +290,8 @@ work with models and datasets:</p>
 <span><span class="co">#&gt; [10] "pursuit"            "fazly"              "guess_and_test"    </span></span>
 <span><span class="co">#&gt; [13] "rescorla_wagner"    "tilles"             "bayesian_decay"    </span></span>
 <span><span class="co">#&gt; [16] "kalman_filter"      "softmax_rl"         "fgt2009"           </span></span>
-<span><span class="co">#&gt; [19] "fgt2009_rsa"</span></span>
+<span><span class="co">#&gt; [19] "fgt2009_rsa"        "minerva2"           "todam"             </span></span>
+<span><span class="co">#&gt; [22] "rem"</span></span>
 <span></span>
 <span><span class="co"># See what datasets are available</span></span>
 <span><span class="va">datasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_datasets.html">show_datasets</a></span><span class="op">(</span><span class="op">)</span></span>

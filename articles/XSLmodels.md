@@ -145,8 +145,14 @@ xsl_datasets[[1]]$accuracy
 A few datasets ship separately from `xsl_datasets` because they don’t
 fit its “one correct object per tested word, scored by SSE against human
 accuracy” convention: `kachergis2012_highlighting` and
-`kachergis_initial_accuracy` (experiments with ambiguous test items),
-and two naturalistic caregiver-speech corpora imported from the
+`kachergis_initial_accuracy` (experiments with ambiguous test items);
+`gangwani2011_category`, a hierarchical design in which every object has
+both a 1-to-1 name and a 1-to-many category label (the association
+matrix is 15 words x 12 objects, and learners violate mutual exclusivity
+– see
+[`?gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
+and `tests/bakeoff_comparison/gangwani2011_category_fit.R`); and two
+naturalistic caregiver-speech corpora imported from the
 [wurwur](https://github.com/mcfrank/wurwur) package – `rollins_corpus`
 (the CHILDES/Rollins corpus fit by Frank, Goodman & Tenenbaum, 2009) and
 `fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
@@ -228,7 +234,8 @@ models
 #> [10] "pursuit"            "fazly"              "guess_and_test"    
 #> [13] "rescorla_wagner"    "tilles"             "bayesian_decay"    
 #> [16] "kalman_filter"      "softmax_rl"         "fgt2009"           
-#> [19] "fgt2009_rsa"
+#> [19] "fgt2009_rsa"        "minerva2"           "todam"             
+#> [22] "rem"
 
 # See what datasets are available
 datasets <- show_datasets()

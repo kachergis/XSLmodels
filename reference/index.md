@@ -44,6 +44,12 @@ Cross-situational word learning models
 - [`fgt2009_rsa()`](https://www.kachergis.com/XSLmodels/reference/fgt2009_rsa.md)
   : Frank, Goodman & Tenenbaum word-learning model with pragmatic (RSA)
   reasoning
+- [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)
+  : MINERVA2 episodic memory model
+- [`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md) :
+  TODAM holographic reduced representation model
+- [`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) : REM
+  (Retrieving Effectively from Memory) model
 
 ## Running and fitting models
 
@@ -72,6 +78,9 @@ Cross-situational word learning models
   : Kachergis (2012) highlighting experiment data
 - [`kachergis_initial_accuracy`](https://www.kachergis.com/XSLmodels/reference/kachergis_initial_accuracy.md)
   : Kachergis, Grimmick, & Gureckis initial accuracy experiment data
+- [`gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
+  : Gangwani, Kachergis & Yu simultaneous category + object name
+  learning
 - [`rollins_corpus`](https://www.kachergis.com/XSLmodels/reference/rollins_corpus.md)
   : CHILDES/Rollins naturalistic word-learning corpus (Frank et al.
   2009)

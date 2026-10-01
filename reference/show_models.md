@@ -23,5 +23,6 @@ show_models()
 #> [10] "pursuit"            "fazly"              "guess_and_test"    
 #> [13] "rescorla_wagner"    "tilles"             "bayesian_decay"    
 #> [16] "kalman_filter"      "softmax_rl"         "fgt2009"           
-#> [19] "fgt2009_rsa"       
+#> [19] "fgt2009_rsa"        "minerva2"           "todam"             
+#> [22] "rem"               
 ```
