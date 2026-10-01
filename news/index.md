@@ -51,6 +51,22 @@
   fits** wherever the overshoot occurred, including the corpus-fit gains
   reported for it in `tests/bakeoff_comparison/corpus_report.md` (not
   rerun here)
+- [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md)
+  now treats negative associations as 0 before applying the Luce choice
+  rule (as
+  [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
+  already did), and answers a word whose associations are then all 0 at
+  chance (`1 / ncol(m)`) rather than returning `NaN`. Error-driven
+  models
+  ([`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md),
+  [`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md))
+  can learn negative associations, for which `diag(m) / rowSums(m)` gave
+  per-item “probabilities” outside \[0, 1\] – which DEoptim could
+  exploit when fitting. In the initial-accuracy study, fitted
+  [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  had negative associations for about half of participants and
+  out-of-range predictions for 25 of 61. **This changes those models’
+  fits** wherever negative associations occurred
 
 ## XSLmodels 0.3.0
 

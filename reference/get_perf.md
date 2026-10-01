@@ -32,6 +32,19 @@ selections (Luce choice) for that item, calculated as the ratio of the
 correct association (diagonal element) to the total associations for
 that item.
 
+## Details
+
+Negative associations (possible in error-driven models such as
+[`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+and
+[`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md))
+are treated as 0 before the choice rule is applied – Luce choice is
+undefined for negative values, and would otherwise yield "probabilities"
+outside \[0, 1\] – matching
+[`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md).
+A word whose associations are then all 0 is answered at chance
+(`1 / ncol(m)`).
+
 ## Examples
 
 ``` r

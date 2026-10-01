@@ -79,6 +79,15 @@ selections (Luce choice) for that item, calculated as the ratio of the
 correct association (diagonal element) to the total associations for that
 item.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Negative associations (possible in error-driven models such as
+<code><a href="rescorla_wagner.html">rescorla_wagner()</a></code> and <code><a href="kalman_filter.html">kalman_filter()</a></code>) are treated as 0 before the
+choice rule is applied – Luce choice is undefined for negative values,
+and would otherwise yield "probabilities" outside [0, 1] – matching
+<code><a href="predict_referent.html">predict_referent()</a></code>. A word whose associations are then all 0 is
+answered at chance (<code>1 / ncol(m)</code>).</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
