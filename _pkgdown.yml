@@ -10,6 +10,7 @@ reference:
       - decay
       - uncfam
       - uncfam_gamma
+      - uncfam_elimination
       - uncfam_attention
       - uncfam_predictive
       - uncfam_sampling
