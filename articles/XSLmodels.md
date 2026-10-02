@@ -107,7 +107,7 @@ create_cooc_matrix(ag$trials)
 
 ### 3. Included experimental conditions
 
-A dataset combining 53 experimental conditions is included in the
+A dataset combining 56 experimental conditions is included in the
 package in `xsl_datasets`. For example, here is a summary of one
 experimental condition in the dataset: an asymmetric (3x4; i.e. 3 words
 and 4 objects per trial) condition with 36 training trials, 18 words and

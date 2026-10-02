@@ -10,6 +10,7 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/XSLmodels-package.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/baseline.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/bayesian_decay.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/benitez2020.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/cos_sim.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/create_cooc_matrix.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.html</loc></url>
@@ -60,12 +61,14 @@
 <url><loc>https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/update_known.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/update_params.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/vlach_debrock2017.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xslControl-class.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xslData-class.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xslFit-class.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xslMod-class.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xsl_datasets.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xsl_fit.html</loc></url>
+<url><loc>https://www.kachergis.com/XSLmodels/reference/xsl_holdout_datasets.html</loc></url>
 <url><loc>https://www.kachergis.com/XSLmodels/reference/xsl_run.html</loc></url>
 </urlset>
 

@@ -83,6 +83,12 @@ Cross-situational word learning models
 - [`gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
   : Gangwani, Kachergis & Yu simultaneous category + object name
   learning
+- [`vlach_debrock2017`](https://www.kachergis.com/XSLmodels/reference/vlach_debrock2017.md)
+  : Vlach & DeBrock (2017) spaced/massed repetition experiment data
+- [`benitez2020`](https://www.kachergis.com/XSLmodels/reference/benitez2020.md)
+  : Benitez et al. (2020) temporal-structure-of-naming experiment data
+- [`xsl_holdout_datasets`](https://www.kachergis.com/XSLmodels/reference/xsl_holdout_datasets.md)
+  : Registry of datasets held out from xsl_datasets
 - [`rollins_corpus`](https://www.kachergis.com/XSLmodels/reference/rollins_corpus.md)
   : CHILDES/Rollins naturalistic word-learning corpus (Frank et al.
   2009)

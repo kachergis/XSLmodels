@@ -115,6 +115,58 @@
   thousands of evaluations) without sharply reducing
   `n_sim`/`NP`/`itermax`, as the package’s own fitting examples already
   do for slow models
+- Added 3 more temporal-contiguity conditions to `xsl_datasets` from
+  Kachergis, Yu, & Shiffrin (2009) – the same paper behind the existing
+  `1_max_temp_spat_cont_orig`/`4_no_spat_orig_max_tc` conditions.
+  `data-raw/XSL-dataset-fields.csv` documented 6 “overlap” conditions (3
+  matched pairs of a control and non-control order at the same overlap
+  degree) that were never pulled in; only the 3 control-order ones
+  (`1olap3tr_contr`, `temp_cont_1olap2tr_contr`,
+  `temp_cont_2olap2tr_contr`) have real subject-level accuracy data
+  findable anywhere in the repo (in `data-raw/agg_data/x13_1-21.txt`,
+  per `export_data.R`’s own comments mapping its generic condition
+  labels to these named orders). The other 3 have order files but no
+  discoverable human data, and are deliberately left out rather than
+  guessed. See `data-raw/add_temporal_contiguity_overlap.R`
+- Added a fifth standalone dataset, `benitez2020` (a named list of 7
+  `xslData` objects, one per condition x age-group combination) from
+  Benitez et al. (2020), “The temporal structure of naming events
+  differentially affects children’s and adults’ cross-situational word
+  learning” (data: osf.io/2hmxr).
+  `data-raw/Benitez2020-rep/Benitez2020_XSLdata_extraction.R` already
+  extracted training orders, 2AFC test trials, and response-count
+  matrices from the raw OSF data but stopped short of building `xslData`
+  objects (a literal `# ToDo` in the file); `data-raw/add_benitez2020.R`
+  picks up from there. 8 symmetric word-object pairs, 12 training
+  trials, 8-item 2AFC test; unlike the other standalone datasets, real
+  per-word accuracy is recoverable directly from the provided response
+  matrices (not just an overall mean) – structurally it could join
+  `xsl_datasets` directly, but is kept standalone by choice, as held-out
+  generalization-test data (see `xsl_holdout_datasets`)
+- Added `xsl_holdout_datasets`, a registry of every dataset in the
+  package that is *not* part of `xsl_datasets` and therefore never seen
+  by
+  [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)/[`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md)
+  – i.e. everything available for testing a fitted model’s
+  generalization to genuinely held-out data, along with how to score
+  each one (most need a different scoring approach than `xsl_datasets`’s
+  standard diagonal convention, which is exactly why they’re standalone;
+  `benitez2020` and `kachergis_initial_accuracy` are the two
+  directly-scorable exceptions, kept out of the fitting pool
+  specifically to serve as held-out data)
+- Added a fourth standalone dataset, `vlach_debrock2017` (Vlach &
+  DeBrock, 2017, *Journal of Memory and Language*, “Remember dax?
+  Relations between children’s cross-situational word learning, memory,
+  and language abilities”). 12 symmetric word-object pairs, 2 pairs per
+  training trial, 36 trials, with pairs varying in whether their 6
+  repetitions are massed or spaced (n = 47 children, ages 2-5). The
+  source only reports an overall mean/SD across all pairs and
+  participants, not a per-word breakdown, so `accuracy` is `NA`
+  throughout rather than fabricated – kept standalone (not part of
+  `xsl_datasets`) for the same reason as
+  `kachergis2012_highlighting`/`gangwani2011_category`. See
+  [`?vlach_debrock2017`](https://www.kachergis.com/XSLmodels/reference/vlach_debrock2017.md)
+  and `data-raw/add_vlach_debrock2017.R`
 - Added a third standalone dataset, `gangwani2011_category` (Experiment
   1 of Gangwani, Kachergis & Yu, “Simultaneous Cross-situational
   Learning of Category and Object Names”; an undergraduate-journal
