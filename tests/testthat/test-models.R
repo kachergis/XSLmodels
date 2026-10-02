@@ -94,6 +94,26 @@ test_that("uncfam_gamma(gamma = 1) is identical to uncfam()", {
   expect_equal(gamma1$fits[[1]]$matrix, plain$fits[[1]]$matrix)
 })
 
+test_that("uncfam_elimination(eps = 0) is identical to uncfam()", {
+  dat <- get_example_ambiguous_condition()
+  plain <- xsl_run(uncfam(X = .1, B = .98, C = 1), dat)
+  eps0 <- xsl_run(uncfam_elimination(X = .1, B = .98, C = 1, eps = 0), dat)
+  expect_equal(eps0$fits[[1]]$matrix, plain$fits[[1]]$matrix)
+})
+
+test_that("uncfam_elimination() directs learning to the pair left over by a known pair", {
+  # word 1 is first learned alone with object 1; then words 1 and 2 appear
+  # together with objects 1 and 2. Elimination should favour the 2-2 pairing
+  # over the 2-1 pairing more than uncfam() does.
+  dat <- xslData(train = list(words = list(1, 1, 1, c(1, 2)), objects = list(1, 1, 1, c(1, 2))))
+  run <- function(eps) xsl_run(uncfam_elimination(X = .5, B = .98, C = 1, eps = eps), dat)$fits[[1]]$matrix
+  m0 <- run(0)
+  m5 <- run(5)
+  expect_gt(m5[2, 2], m0[2, 2])
+  expect_gt(m5[2, 2] / m5[2, 1], m0[2, 2] / m0[2, 1])
+  expect_true(all(is.finite(m5)))
+})
+
 test_that("uncfam_gamma()'s gamma actually changes the allocation away from uncfam()'s", {
   # get_example_ambiguous_condition() only has 2 trials with entirely
   # disjoint words/objects, so every trial's `assocs` are uniform (all
