@@ -45,6 +45,9 @@ reference:
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
       - gangwani2011_category
+      - vlach_debrock2017
+      - benitez2020
+      - xsl_holdout_datasets
       - rollins_corpus
       - fm_corpus
       - xslData-class
