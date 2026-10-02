@@ -5,6 +5,29 @@
 ### New Features
 
 - Added
+  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
+  a variant of
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  with learning by elimination (mutual exclusivity). Each on-trial
+  pair’s mutual confidence `P(o|w) * P(w|o)` is computed from the
+  current associations, and a pair gets *elimination support* to the
+  extent that the trial’s other words and objects are already accounted
+  for by each other. That support, weighted by a free parameter `eps`,
+  is added to
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)’s
+  familiarity-and-uncertainty share of the trial’s associative weight
+  before renormalizing; `eps = 0` reproduces
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  exactly. In
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md),
+  an already-known pair on a trial draws weight *away* from the trial’s
+  other pairs; with elimination, knowing one word directs learning to
+  the remaining word-object pairing. Motivated by the initial-accuracy
+  experiment, where learners were more accurate on an initially
+  mis-paired word the more of its study trials it shared with an
+  initially accurate word. Registered in
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)/`xsl_model_registry()`
+- Added
   [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
   a variant of
   [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)

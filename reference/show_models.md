@@ -18,11 +18,11 @@ A character vector of model names
 ``` r
 show_models()
 #>  [1] "baseline"           "decay"              "uncfam"            
-#>  [4] "uncfam_gamma"       "uncfam_attention"   "uncfam_predictive" 
-#>  [7] "uncfam_sampling"    "multi_sampling"     "propose_but_verify"
-#> [10] "pursuit"            "fazly"              "guess_and_test"    
-#> [13] "rescorla_wagner"    "tilles"             "bayesian_decay"    
-#> [16] "kalman_filter"      "softmax_rl"         "fgt2009"           
-#> [19] "fgt2009_rsa"        "minerva2"           "todam"             
-#> [22] "rem"               
+#>  [4] "uncfam_gamma"       "uncfam_elimination" "uncfam_attention"  
+#>  [7] "uncfam_predictive"  "uncfam_sampling"    "multi_sampling"    
+#> [10] "propose_but_verify" "pursuit"            "fazly"             
+#> [13] "guess_and_test"     "rescorla_wagner"    "tilles"            
+#> [16] "bayesian_decay"     "kalman_filter"      "softmax_rl"        
+#> [19] "fgt2009"            "fgt2009_rsa"        "minerva2"          
+#> [22] "todam"              "rem"               
 ```
