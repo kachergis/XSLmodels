@@ -170,3 +170,89 @@
 #' fm_corpus$intents[[1]]
 #' fm_corpus$gold_variants$strict$words
 "fm_corpus"
+
+#' Vlach & DeBrock (2017) spaced/massed repetition experiment data
+#'
+#' An [xslData-class] object from Vlach, H. A., & DeBrock, C. A. (2017).
+#' "Remember dax? Relations between children's cross-situational word
+#' learning, memory, and language abilities." *Journal of Memory and
+#' Language, 93*, 217-230. 12 to-be-learned word-object pairs (symmetric
+#' design: word `i` pairs with object `i`), 2 pairs per training trial, 36
+#' trials; pairs vary in whether their 6 repetitions fall on consecutive
+#' trials (massed) or are spread out (spaced), the paper's memory/spacing
+#' manipulation. `n_subj` is 47 children (ages 2-5).
+#'
+#' No per-word accuracy is available from this dataset, only the paper's
+#' overall mean across all pairs and participants (accuracy = .5583, sd =
+#' .1975; see `data-raw/XSL-dataset-fields.csv`), so `accuracy` is `NA`
+#' throughout. **Not included in [xsl_datasets]** and not scorable by
+#' `xsl_run()`'s built-in per-item SSE -- usable for running/fitting models
+#' and comparing simulated performance against the one real number this
+#' paper reports. See `data-raw/add_vlach_debrock2017.R` for construction
+#' details.
+#'
+#' @examples
+#' m <- xsl_run(baseline(), vlach_debrock2017)$fits[[1]]$matrix
+#' dim(m)
+"vlach_debrock2017"
+
+#' Benitez et al. (2020) temporal-structure-of-naming experiment data
+#'
+#' A named list of 7 [xslData-class] objects from Benitez, V. L., et al.
+#' (2020), "The temporal structure of naming events differentially affects
+#' children's and adults' cross-situational word learning" (data/materials:
+#' \url{https://osf.io/2hmxr/}): one per condition (Interleaved, Massed,
+#' Unstructured) x age-group (kids, adults) combination, except
+#' Unstructured's first training order, which only has child data.
+#' Unstructured has two training orders; its second and third were confirmed
+#' identical by the original extraction and are pooled as "order 2/3".
+#'
+#' 8 symmetric word-object pairs (word `i` pairs with object `i`), 2 pairs
+#' per training trial, 12 trials, followed by an 8-item 2AFC test.
+#' `accuracy` and `response_matrix` are real per-word 2AFC accuracy and raw
+#' response counts for that condition/age-group combination (not an
+#' estimate) -- structurally this could join [xsl_datasets], but is kept
+#' standalone deliberately as held-out generalization-test data; see
+#' `xsl_holdout_datasets`. `data-raw/Benitez2020-rep/Benitez2020_XSLdata_extraction.R`
+#' extracts the raw OSF data into training orders, 2AFC test trials, and
+#' response matrices; `data-raw/add_benitez2020.R` builds the `xslData`
+#' objects from those.
+#'
+#' @examples
+#' benitez2020[["Interleaved, kids"]]$accuracy
+#' m <- xsl_run(baseline(), benitez2020[["Massed, adults"]])$fits[[1]]$matrix
+#' mafc_test(m, benitez2020[["Massed, adults"]]$test)
+"benitez2020"
+
+#' Registry of datasets held out from xsl_datasets
+#'
+#' A named list, one entry per dataset in the package that is **not** part of
+#' [xsl_datasets] and therefore never seen by
+#' [get_group_model_fit()]/[get_crossvalidated_model_fit()] -- i.e. every
+#' dataset available for testing a fitted model's generalization to
+#' genuinely held-out data. This is a lookup table (dataset name -> how to
+#' score it), not a copy of the data itself -- look up the dataset by its own
+#' name (e.g. `benitez2020`, `vlach_debrock2017`) to use it.
+#'
+#' Each entry has:
+#' \describe{
+#'   \item{`scorable`}{Whether the dataset can be scored with the package's
+#'     standard diagonal convention (`xsl_run()` + `mafc_test()`/`get_perf()`)
+#'     out of the box.}
+#'   \item{`scoring`}{How to actually score a model's fit against it.}
+#'   \item{`note`}{Why it's held out, or any caveat for using it.}
+#' }
+#'
+#' Most of these are standalone for a structural reason (partial-`NA`
+#' accuracy, a non-square association matrix, or no human accuracy data at
+#' all, e.g. the naturalistic corpora) -- see each dataset's own `?help`
+#' page for the full rationale. `benitez2020` and `kachergis_initial_accuracy`
+#' are the exceptions: both are directly scorable the same way
+#' `xsl_datasets` conditions are, and are kept out of the group/CV fitting
+#' pool specifically to have real held-out data to test generalization
+#' against.
+#'
+#' @examples
+#' xsl_holdout_datasets$benitez2020$scoring
+#' names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
+"xsl_holdout_datasets"

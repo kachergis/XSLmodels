@@ -5,7 +5,7 @@
 \alias{xsl_datasets}
 \title{Cross-situational word learning experiment data}
 \format{
-An object of class \code{list} of length 53.
+An object of class \code{list} of length 56.
 }
 \usage{
 xsl_datasets
