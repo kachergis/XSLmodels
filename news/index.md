@@ -230,6 +230,30 @@
 
 ### Bug Fixes
 
+- [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  and
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
+  drew new hypotheses with `sample(tr_o, ...)`. On a trial with a single
+  object, `tr_o` is one value, and when that value is an integer `k`,
+  R’s `sample(k, n)` draws from `1:k` rather than returning `k` – so a
+  word seen alone with an object usually hypothesized a *different*
+  object, one not even on the trial
+  ([`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  hypothesized the right object ~1/8 of the time in an 8-object toy).
+  Both now index into `tr_o`
+  (`tr_o[sample.int(length(tr_o), n, replace = TRUE)]`, as
+  [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
+  already did). No `xsl_datasets` condition has single-object trials, so
+  fits to it are unchanged; `kachergis_initial_accuracy` (18
+  single-object familiarization trials per condition) and the
+  naturalistic corpora (`rollins_corpus`, `fm_corpus`) are affected.
+  Integer-labelled data (e.g. `kachergis_initial_accuracy`) was affected
+  before this release too; the corpora were not – they reached these
+  models as string labels, for which
+  [`sample()`](https://rdrr.io/r/base/sample.html) behaves as intended –
+  until [\#14](https://github.com/kachergis/XSLmodels/issues/14) began
+  handing models integer positions, so for the corpora this is a
+  regression in 0.4.0.
 - Models indexed their association matrices by raw word/object value
   (`m[tr_w, tr_o]`) rather than by position in the sorted vocabulary,
   which is only correct for labels that are exactly `1..N`
