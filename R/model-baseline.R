@@ -7,7 +7,7 @@ baseline_model <- function(params, data, control) {
   ref_sz <- length(ref) # number of objects
   keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
-  m <- matrix(0, voc_sz, ref_sz) # association matrix
+  m <- if (is.null(control[["start_matrix"]])) matrix(0, voc_sz, ref_sz) else control[["start_matrix"]] # association matrix
   colnames(m) <- ref
   rownames(m) <- voc
   perf <- matrix(0, reps, voc_sz) # a row for each block
@@ -44,6 +44,7 @@ baseline <- function() {
     description = "Simple co-occurrence baseline model",
     model = baseline_model,
     params = list(),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }

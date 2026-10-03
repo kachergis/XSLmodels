@@ -125,6 +125,7 @@ uncfam_predictive <- function(X, B, C) {
     ),
     model = uncfam_predictive_model,
     params = list(X = X, B = B, C = C),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }

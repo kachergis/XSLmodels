@@ -9,7 +9,7 @@ softmax_rl_model <- function(params, data, control) {
   voc_sz <- length(voc) # vocabulary size
   ref_sz <- length(ref) # number of objects
 
-  q <- matrix(0, voc_sz, ref_sz) # Q[w,o]: value of guessing object o for word w
+  q <- if (is.null(control[["start_matrix"]])) matrix(0, voc_sz, ref_sz) else control[["start_matrix"]] # Q[w,o]: value of guessing object o for word w
   colnames(q) <- ref; rownames(q) <- voc
   keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
@@ -107,6 +107,7 @@ softmax_rl <- function(alpha, beta) {
     ),
     model = softmax_rl_model,
     params = list(alpha = alpha, beta = beta),
-    stochastic = TRUE
+    stochastic = TRUE,
+    supports_start_matrix = TRUE
   )
 }

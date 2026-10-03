@@ -16,6 +16,12 @@ xsl_run <- function(model, data, control = xslControl()) {
   if ("xslData" %in% class(data)) data <- list(data)
   stopifnot(all(map_lgl(data, \(d) "xslData" %in% class(d))))
 
+  if (!is.null(control$start_matrix) && !isTRUE(model$supports_start_matrix)) {
+    stop("model '", model$name, "' does not use control$start_matrix, so it ",
+         "would be silently ignored; pass the prior learning as training ",
+         "trials instead", call. = FALSE)
+  }
+
   model_fun <- model$model
   model_params <- model$params
 
@@ -120,7 +126,15 @@ relabel_fit <- function(s, voc, ref) {
 # one without is taken to already be in sorted word/object order.
 align_start_matrix <- function(control, voc, ref) {
   sm <- control$start_matrix
-  if (is.null(sm) || is.null(rownames(sm)) || is.null(colnames(sm))) return(control)
+  if (is.null(sm)) return(control)
+  if (is.null(rownames(sm)) || is.null(colnames(sm))) {
+    if (nrow(sm) != length(voc) || ncol(sm) != length(ref)) {
+      stop("control$start_matrix is ", nrow(sm), " x ", ncol(sm), " but the ",
+           "training data has ", length(voc), " words x ", length(ref),
+           " objects", call. = FALSE)
+    }
+    return(control)
+  }
   ri <- match(as.character(voc), rownames(sm))
   ci <- match(as.character(ref), colnames(sm))
   if (anyNA(ri) || anyNA(ci)) {

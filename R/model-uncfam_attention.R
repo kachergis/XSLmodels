@@ -101,6 +101,7 @@ uncfam_attention <- function(X, B, C) {
     ),
     model = uncfam_attention_model,
     params = list(X = X, B = B, C = C),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }

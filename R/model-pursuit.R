@@ -127,6 +127,7 @@ pursuit <- function(gamma, threshold, lambda) {
     description = "Stevens et al. 2014 pursuit model",
     model = pursuit_model,
     params = list(gamma = gamma, threshold = threshold, lambda = lambda),
-    stochastic = TRUE
+    stochastic = TRUE,
+    supports_start_matrix = TRUE
   )
 }

@@ -109,6 +109,7 @@ uncfam_elimination <- function(X, B, C, eps) {
     description = "uncfam() with learning by elimination (mutual exclusivity)",
     model = uncfam_elimination_model,
     params = list(X = X, B = B, C = C, eps = eps),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }
