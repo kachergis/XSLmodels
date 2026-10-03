@@ -80,7 +80,11 @@ propose_but_verify_model <- function(params, data, control) {
         need_hypoths <- tr_w
       }
       store <- need_hypoths
-      new_hyps <- sample(tr_o, length(store), replace = TRUE) # select new random refs from trial
+      # select new random refs from trial. Index into tr_o rather than
+      # sample(tr_o, ...): when a trial has a single object, tr_o is one
+      # integer k and sample(k, ...) draws from 1:k -- i.e. mostly objects
+      # not on the trial (see test-models.R)
+      new_hyps <- tr_o[sample.int(length(tr_o), length(store), replace = TRUE)]
       for (w in seq_along(store)) {
         if (length(store) == 0) next
         m[need_hypoths[w], new_hyps[w]] <- alpha
