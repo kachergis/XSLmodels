@@ -87,8 +87,10 @@ pursuit_model <- function(params, data, control) {
       if (length(hypo) > 1) hypo <- sample(hypo, 1) # (choose one if >1 strongest)
       if (!is.element(hypo, tr_o)) { # not on trial, so weaken:
         m[w, hypo] <- m[w, hypo] * (1 - gamma) # disconfirmed
-        # not on trial, so random new hypothesized referent
-        new_hyp <- sample(tr_o, 1, replace = TRUE)
+        # not on trial, so random new hypothesized referent -- indexed into
+        # tr_o, not sample(tr_o, 1): a single-object trial makes tr_o one
+        # integer k, and sample(k, 1) draws from 1:k (see test-models.R)
+        new_hyp <- tr_o[sample.int(length(tr_o), 1)]
         m[w, new_hyp] <- m[w, new_hyp] + gamma * (1 - m[w, new_hyp])
       } else {
         m[w, hypo] <- m[w, hypo] + gamma * (1 - m[w, hypo]) # confirmed: strengthen

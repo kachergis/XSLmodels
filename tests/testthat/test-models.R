@@ -522,3 +522,37 @@ test_that("rem()'s per-simulation choice weights are row-normalized before aggre
   m <- xsl_run(rem(g = 0.4, u = 0.3, c = 0.7, w = 12), dat, control = control)$fits[[1]]$matrix
   expect_equal(unname(rowSums(m)), rep(control$n_sim, nrow(m)), tolerance = 1e-6)
 })
+
+test_that("propose_but_verify() proposes from the objects on a single-object trial", {
+  # regression: new hypotheses were drawn with sample(tr_o, n, replace = TRUE).
+  # Models receive object *positions*, so on a trial with one object tr_o is a
+  # single integer k, and sample(k, n) draws from 1:k -- a word seen alone with
+  # object 8 hypothesized object 8 only ~1/8 of the time. Word 8's only exposure
+  # here is alone with object 8, so every simulation must hypothesize object 8.
+  dat <- xslData(
+    train = list(words = list(1:7, 8L), objects = list(1:7, 8L)),
+    label = "single-object proposal test"
+  )
+  m <- xsl_run(propose_but_verify(alpha = 1, alpha_increase = 0), dat,
+               control = xslControl(n_sim = 50))$fits[[1]]$matrix
+  expect_equal(unname(m["8", "8"] / sum(m["8", ])), 1, tolerance = 1e-6)
+})
+
+test_that("pursuit() re-proposes from the objects on a single-object trial", {
+  # regression: when a word's strongest hypothesis was absent from a trial, its
+  # new hypothesis was drawn with sample(tr_o, 1) -- which, on a single-object
+  # trial, samples from 1:k rather than from the one object present. Word 8
+  # first hypothesizes object 1 (trial 2, where 1 is the only object), then is
+  # seen alone with object 8 (trial 3): object 1 is absent, so the new
+  # hypothesis can only be object 8 -- never any of objects 2-7, which word 8
+  # never co-occurred with.
+  dat <- xslData(
+    train = list(words = list(1:7, 8L, 8L), objects = list(1:7, 1L, 8L)),
+    label = "single-object re-proposal test"
+  )
+  n_sim <- 50
+  lex <- xsl_run(pursuit(gamma = .5, threshold = .5, lambda = .01), dat,
+                 control = xslControl(n_sim = n_sim))$fits[[1]]$matrix
+  expect_equal(unname(lex["8", "8"]), n_sim, tolerance = 1e-6)  # added to the lexicon every time
+  expect_lt(sum(lex["8", as.character(2:7)]), 1e-6)              # never anything off-trial
+})
