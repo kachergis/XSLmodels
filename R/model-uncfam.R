@@ -98,7 +98,8 @@ uncfam <- function(X, B, C, variant = c("entropy", "novelty",
     description = "Kachergis et al. 2012 uncertainty- and familiarity-biased associative model",
     model = uncfam_model,
     params = list(X = X, B = B, C = C, variant = variant),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }
 

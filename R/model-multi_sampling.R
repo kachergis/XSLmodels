@@ -20,7 +20,7 @@ multi_sampling_model <- function(params, data, control) {
   ref_sz <- length(ref) # number of objects
   keep_traj <- isTRUE(control[["keep_traj"]])
   traj <- list()
-  m <- matrix(0, voc_sz, ref_sz) # association matrix
+  m <- if (is.null(control[["start_matrix"]])) matrix(0, voc_sz, ref_sz) else control[["start_matrix"]] # association matrix
   colnames(m) <- ref
   rownames(m) <- voc
   perf <- matrix(0, reps, voc_sz) # a row for each block
@@ -114,7 +114,8 @@ multi_sampling <- function(C, X, B, K = 1) {
     description = "Multi-sampling associative model",
     model = multi_sampling_model,
     params = list(C = C, X = X, B = B, K = K),
-    stochastic = TRUE
+    stochastic = TRUE,
+    supports_start_matrix = TRUE
   )
 }
 

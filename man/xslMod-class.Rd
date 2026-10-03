@@ -14,7 +14,8 @@ xslMod(
   description = character(),
   model,
   params = numeric(),
-  stochastic = logical()
+  stochastic = logical(),
+  supports_start_matrix = FALSE
 )
 
 new_xslMod(x = list())
@@ -31,6 +32,10 @@ new_xslMod(x = list())
 \item{params}{List of parameters}
 
 \item{stochastic}{Logical indicating whether model is stochastic}
+
+\item{supports_start_matrix}{Logical: does \code{model} initialize from
+\code{control$start_matrix}? \code{xsl_run()} errors if a start matrix is supplied
+to a model that doesn't, rather than letting it be silently ignored.}
 }
 \value{
 An object of class xslMod

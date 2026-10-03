@@ -8,13 +8,18 @@
 #' @param model Model fitting function
 #' @param params List of parameters
 #' @param stochastic Logical indicating whether model is stochastic
+#' @param supports_start_matrix Logical: does `model` initialize from
+#'   `control$start_matrix`? `xsl_run()` errors if a start matrix is supplied
+#'   to a model that doesn't, rather than letting it be silently ignored.
 #'
 #' @return An object of class xslMod
 #' @export
 xslMod <- function(name = character(), description = character(),
-                   model, params = numeric(), stochastic = logical()) {
+                   model, params = numeric(), stochastic = logical(),
+                   supports_start_matrix = FALSE) {
   new_xslMod(list(name = name, description = description,
-                  model = model, params = params, stochastic = stochastic))
+                  model = model, params = params, stochastic = stochastic,
+                  supports_start_matrix = supports_start_matrix))
 }
 
 #' Constructor for xslMod S3 class

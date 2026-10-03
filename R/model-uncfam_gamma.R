@@ -112,6 +112,7 @@ uncfam_gamma <- function(X, B, C, gamma) {
     description = "uncfam() with a free familiarity exponent (gamma)",
     model = uncfam_gamma_model,
     params = list(X = X, B = B, C = C, gamma = gamma),
-    stochastic = FALSE
+    stochastic = FALSE,
+    supports_start_matrix = TRUE
   )
 }
