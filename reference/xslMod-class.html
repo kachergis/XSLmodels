@@ -57,7 +57,8 @@ Constructor for xslMod S3 class"></head><body>
 <span>  description <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">model</span>,</span>
 <span>  params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  stochastic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  stochastic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  supports_start_matrix <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">new_xslMod</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -89,6 +90,12 @@ Constructor for xslMod S3 class"></head><body>
 
 <dt id="arg-stochastic">stochastic<a class="anchor" aria-label="anchor" href="#arg-stochastic"></a></dt>
 <dd><p>Logical indicating whether model is stochastic</p></dd>
+
+
+<dt id="arg-supports-start-matrix">supports_start_matrix<a class="anchor" aria-label="anchor" href="#arg-supports-start-matrix"></a></dt>
+<dd><p>Logical: does <code>model</code> initialize from
+<code>control$start_matrix</code>? <code><a href="xsl_run.html">xsl_run()</a></code> errors if a start matrix is supplied
+to a model that doesn't, rather than letting it be silently ignored.</p></dd>
 
 </dl></div>
     <div class="section level2">

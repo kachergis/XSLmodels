@@ -16,7 +16,8 @@ xslMod(
   description = character(),
   model,
   params = numeric(),
-  stochastic = logical()
+  stochastic = logical(),
+  supports_start_matrix = FALSE
 )
 
 new_xslMod(x = list())
@@ -47,6 +48,13 @@ new_xslMod(x = list())
 - stochastic:
 
   Logical indicating whether model is stochastic
+
+- supports_start_matrix:
+
+  Logical: does `model` initialize from `control$start_matrix`?
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  errors if a start matrix is supplied to a model that doesn't, rather
+  than letting it be silently ignored.
 
 ## Value
 

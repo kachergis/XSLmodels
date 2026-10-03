@@ -188,8 +188,74 @@
   [`?gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
   and `data-raw/add_gangwani2011_category.R`
 
+### Other changes
+
+- `control$start_matrix` is no longer silently ignored. Only some models
+  initialized from it; the rest dropped it without warning (so e.g. a
+  familiarization phase passed as a start matrix simply vanished for
+  them). Models now declare `supports_start_matrix` in
+  [`xslMod()`](https://www.kachergis.com/XSLmodels/reference/xslMod-class.md),
+  and
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  errors if a start matrix is given to one that doesn’t, or if it
+  doesn’t match the training data’s dimensions.
+  [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md),
+  [`decay()`](https://www.kachergis.com/XSLmodels/reference/decay.md),
+  [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md),
+  [`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md),
+  [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md),
+  and
+  [`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)
+  now support it, joining the
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  family,
+  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md),
+  and
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md).
+  The remaining models
+  ([`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md),
+  [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md),
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md),
+  [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md),
+  [`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md),
+  [`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)/[`fgt2009_rsa()`](https://www.kachergis.com/XSLmodels/reference/fgt2009_rsa.md),
+  [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)/[`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md)/[`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md))
+  have no single association matrix a start matrix maps onto (or would
+  need a model-specific convention, e.g. a variance as well as a mean),
+  so prior learning should be passed to them as training trials, as
+  `kachergis_initial_accuracy` does. A custom model built with
+  [`xslMod()`](https://www.kachergis.com/XSLmodels/reference/xslMod-class.md)
+  must set `supports_start_matrix = TRUE` to receive one. Runs without a
+  start matrix are unchanged
+
 ### Bug Fixes
 
+- Models indexed their association matrices by raw word/object value
+  (`m[tr_w, tr_o]`) rather than by position in the sorted vocabulary,
+  which is only correct for labels that are exactly `1..N`
+  ([\#14](https://github.com/kachergis/XSLmodels/issues/14)): a
+  vocabulary with a gap crashed (“subscript out of bounds”), and a raw
+  value that still fell in range silently updated the wrong row. Fixed
+  once, in
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md):
+  models now receive each dataset’s words/objects as positions, and the
+  original labels are restored on the returned matrix, `perf`, and
+  trajectory. Test trials are scored by label, and a `start_matrix` with
+  dimnames is aligned to the data by label. Checked against every
+  registry model on every bundled dataset (23 models x 75 datasets,
+  fixed seed): 1721 of 1725 runs are bit-identical, including all of
+  `xsl_datasets` and the standalone datasets, whose labels are already
+  `1..N`. The 4 that differ are
+  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  and
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
+  on `rollins_corpus`/`fm_corpus`, where the fix corrects a real error:
+  both compared a column *position* against the trial’s object *labels*,
+  which can never match for character labels, so on the corpora every
+  hypothesis was treated as disconfirmed and none was ever verified.
+  **The `propose_but_verify` and `pursuit` results in
+  `tests/bakeoff_comparison/corpus_report.md` are therefore invalid**
+  (including pursuit’s reported collapse on FM) and need rerunning
 - [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
   now caps associations at `beta` (1), its stated maximum, as well as
   flooring them at 0. Its unnormalized update could overshoot far above
