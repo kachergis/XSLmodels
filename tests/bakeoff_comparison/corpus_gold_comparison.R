@@ -28,6 +28,9 @@ suppressMessages({
 set.seed(1)
 out_dir <- "tests/bakeoff_comparison"
 N_SIM <- 50          # simulations averaged for stochastic models
+# rem() takes ~11 min per simulation on FM, so it gets a smaller budget
+# (results for it are noisier than the other stochastic models')
+N_SIM_OVERRIDE <- c(rem = 4L)
 
 corpora <- list(
   Rollins = rollins_corpus,
@@ -60,8 +63,9 @@ build_models <- function(corpus) {
 
 # --- run + score ----------------------------------------------------------
 
-score_one <- function(mod, corpus) {
-  ctrl <- if (isTRUE(mod$stochastic)) xslControl(n_sim = N_SIM) else xslControl()
+score_one <- function(mod, corpus, mn) {
+  n_sim <- if (mn %in% names(N_SIM_OVERRIDE)) N_SIM_OVERRIDE[[mn]] else N_SIM
+  ctrl <- if (isTRUE(mod$stochastic)) xslControl(n_sim = n_sim) else xslControl()
   tryCatch({
     m <- suppressWarnings(xsl_run(mod, corpus$data, control = ctrl)$fits[[1]]$matrix)
     # some models (e.g. tilles) return an unnamed matrix; voc/ref are the
@@ -89,7 +93,7 @@ results <- lapply(names(corpora), function(cn) {
   mods <- build_models(corpus)
   lapply(names(mods), function(mn) {
     message(sprintf("[%s] %s ...", cn, mn))
-    s <- score_one(mods[[mn]], corpus)
+    s <- score_one(mods[[mn]], corpus, mn)
     if (is.null(s)) return(NULL)
     s$model <- mn
     s$corpus <- cn

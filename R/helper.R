@@ -23,11 +23,12 @@ create_cooc_matrix <- function(train) {
   m <- matrix(0, nrow = length(words), ncol = length(objects),
               dimnames = list(words, objects))
 
-  # iterate over training trials
-  for (i in seq_along(words)) {
-    m[train$words[[i]], train$objects[[i]]] <- m[train$words[[i]], train$objects[[i]]] + 1
+  for (i in seq_along(train$words)) {
+    w <- as.character(stats::na.omit(train$words[[i]]))
+    o <- as.character(stats::na.omit(train$objects[[i]]))
+    m[w, o] <- m[w, o] + 1
   }
-  return(m)
+  m
 }
 
 #' Calculates Shannon entropy of a supplied vector, after normalizing it

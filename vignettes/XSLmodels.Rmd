@@ -32,9 +32,9 @@ Whether you already have human data from an experiment that you would like to fi
 
 Cross-situational word learning (XSL) datasets are defined with the `xslData` class, which requires defining minimally a training phase and a testing phase.
 Each trial of the training phase presents participants (or models) with one or more words and one or more referents (i.e. objects).
-In this package, each word $w$ and object $o$ is referred to by index (i.e., $w_i$, $o_j$), and the to-be-learned word-object pairs are assumed to have the same index (i.e. $w_i = o_i$).
-Thus, each dataset defines a list `train` of `words` and `objects` indices on each trial, also defined in lists (to allow for a potentially varying number of words/objects per trial).
-The `test` trials are defined by a list of the available objects on each test trial.
+Words and objects can be given any labels -- numbers or strings -- and a word's correct referent is the object with the same label (i.e. $w_i$ is meant to be learned as $o_i$).
+Thus, each dataset defines a list `train` of the `words` and `objects` presented on each trial, also defined in lists (to allow for a potentially varying number of words/objects per trial).
+The `test` trials are defined by a list of the tested word and a list of the available objects on each test trial.
 A dataset can also be given a short `label`, and a longer (maybe per-item?) `condition`.
 
 If you already have collected a sample of human participants, you can optionally include per-item `accuracy`, a vector of length equal to the number of to-be-learned items) and the number of participants (`n_subj`).
@@ -54,16 +54,16 @@ xslData(train = list(words = list(c(1, 2), c(2, 3)),
 
 ## 1. Structure of an experimental condition
 
-`get_example_ambiguous_condition()` and `get_example_unambiguous_condition()` return simple example experimental conditions, which consist of a list of training *trials*, an optional vector *perf* containing the per-word performance of people on the test trials, and an optional list of test trials, enumerating each to-be-tested word and the set of referents to be presented for choosing among. 
-The list of training trials is further composed of a list of the words presented on each trial, and a list of the referents (*objs*) presented on each trial.
+`get_example_ambiguous_condition()` and `get_example_unambiguous_condition()` return simple example experimental conditions, which consist of the training trials (`train`), an optional vector `accuracy` containing people's per-word performance on the test trials, and an optional list of test trials (`test`), enumerating each to-be-tested word and the set of referents presented for choosing among.
+`train` is in turn a list of the words presented on each trial, and a list of the referents (`objects`) presented on each trial.
 
 ```{r}
 ag <- get_example_ambiguous_condition()
 ag
 ```
 
-Shown above, the example ambiguous condition has three training trials (`ag$trials`). 
-On the first trial words 1 and 2 appear (`ag$trials$words[[1]]`) alongside referents 1 and 2 (`ag$trials$objs[[1]]`; order of words/referents within a trial is irrelevant).
+Shown above, the example ambiguous condition has two training trials (`ag$train`).
+On the first trial words 1 and 2 appear (`ag$train$words[[1]]`) alongside referents 2 and 1 (`ag$train$objects[[1]]`; the order of words/referents within a trial is irrelevant).
 
 ## 2. Viewing an experiment's structure
 
@@ -71,7 +71,7 @@ One common way to summarize the structure of a cross-situational word learning e
 `create_cooc_matrix()` will return a word x object matrix showing the tallied co-occurrences of each word with each object across all of the training trials.
 
 ```{r}
-create_cooc_matrix(ag$trials)
+create_cooc_matrix(ag$train)
 ```
 
 ## 3. Included experimental conditions
@@ -93,25 +93,31 @@ names(xsl_datasets[[1]])
 xsl_datasets[[1]]$accuracy
 ```
 
-A few datasets ship separately from `xsl_datasets` because they don't fit its
-"one correct object per tested word, scored by SSE against human accuracy"
-convention: `kachergis2012_highlighting` and `kachergis_initial_accuracy`
-(experiments with ambiguous test items); `gangwani2011_category`, a hierarchical
-design in which every object has both a 1-to-1 name and a 1-to-many category
-label (the association matrix is 15 words x 12 objects, and learners violate
-mutual exclusivity -- see `?gangwani2011_category` and
-`tests/bakeoff_comparison/gangwani2011_category_fit.R`); and two naturalistic
-caregiver-speech corpora imported from the
-[wurwur](https://github.com/mcfrank/wurwur) package --
-`rollins_corpus` (the CHILDES/Rollins corpus fit by Frank, Goodman & Tenenbaum,
-2009) and `fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
-referent-selection data; each bundles the training `xslData` in `$data` with a
-gold-standard lexicon in `$gold`, scored with `get_fscore()` / `get_roc()`
-rather than SSE:
+Several more datasets ship separately from `xsl_datasets`, so that they are
+never seen by `get_group_model_fit()` / `get_crossvalidated_model_fit()`.
+Most are standalone because they don't fit the "one correct object per tested
+word, scored by SSE against human accuracy" convention:
 
-```{r, eval = FALSE}
-m <- xsl_run(fgt2009(alpha = 7), rollins_corpus$data)$fits[[1]]$matrix
-get_roc_max(m, gold_lexicon = rollins_corpus$gold)
+- `kachergis2012_highlighting`: some test items have two legitimate targets,
+  so its accuracy is partly `NA`.
+- `gangwani2011_category`: a hierarchical design in which every object has both
+  a 1-to-1 name and a 1-to-many category label (a 15 word x 12 object matrix;
+  learners violate mutual exclusivity -- see `?gangwani2011_category`).
+- `vlach_debrock2017`: only an overall mean accuracy is reported, not per word.
+- `rollins_corpus` and `fm_corpus`: two naturalistic caregiver-speech corpora
+  imported from the [wurwur](https://github.com/mcfrank/wurwur) package, with
+  no human referent-selection data. Each bundles the training `xslData` in
+  `$data` with a gold-standard lexicon in `$gold`, scored with `get_fscore()` /
+  `get_roc()` rather than SSE (see `vignette("corpora")`).
+
+Two others, `kachergis_initial_accuracy` and `benitez2020`, fit the convention
+fine but are held out on purpose, as data for testing how well a model fit to
+`xsl_datasets` generalizes (section 11). `xsl_holdout_datasets` lists every
+standalone dataset and how to score a model against it:
+
+```{r}
+str(xsl_holdout_datasets$benitez2020)
+names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
 ```
 
 
@@ -185,6 +191,8 @@ The package includes several types of models:
 - `uncfam()` - Uncertainty and familiarity biased model
 - `uncfam_attention()` - `uncfam()` with learning rate scaled to trial uncertainty
 - `uncfam_predictive()` - `uncfam()` with an added item-level prediction-error term
+- `uncfam_gamma()` - `uncfam()` with a free exponent on familiarity's contribution to attention
+- `uncfam_elimination()` - `uncfam()` with learning by elimination (mutual exclusivity)
 - `fazly()` - Fazly et al. model
 - `rescorla_wagner()` - Rescorla-Wagner model
 - `bayesian_decay()` - Bayesian decay model
@@ -207,9 +215,72 @@ The package includes several types of models:
   Tune the lexicon-size prior with `fgt2009_sweep_alpha()`.
 - `fgt2009_rsa()` - `fgt2009()` with a Rational Speech Act pragmatic speaker layer
 
+**Episodic / distributed memory models:**
+- `minerva2()` - Hintzman's MINERVA2: stores each trial as a trace of random feature vectors, and retrieves by similarity
+- `todam()` - Murdock's TODAM: a single composite memory vector of convolved word-object associations
+- `rem()` - Shiffrin & Steyvers' REM, adapted to this package's associative task (slow on large corpora)
+
 **Baseline models:**
 - `baseline()` - Simple co-occurrence baseline
 - `decay()` - Decay model
 - `tilles()` - Tilles model
 
 Each model can be run with different parameters and compared to human data to understand which learning mechanisms best explain cross-situational word learning behavior.
+
+## 10. Prior learning: training trials or a start matrix
+
+Some experiments teach part of the vocabulary before the cross-situational
+phase -- e.g. `kachergis_initial_accuracy`, which first shows each word with
+one object. There are two ways to give a model that prior learning.
+
+The general one is to include it as ordinary training trials, as
+`kachergis_initial_accuracy` does (its first 18 trials each show one word with
+one object). Every model learns from these with its own update rule.
+
+Alternatively, a model can start from a given association matrix via
+`xslControl(start_matrix = ...)`. Only models with a single word-by-object
+association matrix support this: `baseline()`, `decay()`,
+`rescorla_wagner()`, `softmax_rl()`, the `uncfam()` family (including
+`uncfam_sampling()` and `multi_sampling()`), `propose_but_verify()`, and
+`pursuit()`. Any other model (e.g. `fazly()`, `kalman_filter()`, or the
+episodic-memory models) stops with an error rather than silently ignoring it.
+A start matrix with dimnames is matched to the data's words/objects by label.
+
+```{r}
+d <- get_example_ambiguous_condition()
+prior <- matrix(0, 4, 4, dimnames = list(1:4, 1:4))
+prior["1", "1"] <- .5   # word 1 already partly learned
+mod <- uncfam(X = .1, B = .98, C = 1)
+xsl_run(mod, d)$fits[[1]]$perf
+xsl_run(mod, d, control = xslControl(start_matrix = prior))$fits[[1]]$perf
+```
+
+Note that the two encodings aren't interchangeable: what a start-matrix value
+"means" differs by model (a count, a probability, a Q-value), and
+prior-learning trials interact with mechanisms such as `uncfam_attention()`'s
+running average of trial uncertainty.
+
+## 11. Testing generalization on held-out datasets
+
+Parameters fit to `xsl_datasets` can be checked against data the fit never
+saw. `xsl_holdout_datasets` says which held-out datasets can be scored the
+standard way; here, a model fit to a few `xsl_datasets` conditions is scored
+on each `benitez2020` and `kachergis_initial_accuracy` condition, next to the
+no-free-parameter `baseline()`:
+
+```{r, generalization}
+fit <- xsl_fit(decay(C = .98), data = xsl_datasets[1:5], lower = .8, upper = 1,
+               deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 10, trace = FALSE))
+fitted_decay <- update_params(decay(C = .98), fit[[1]]$optim$bestmem)
+
+holdout <- c(benitez2020, kachergis_initial_accuracy)
+data.frame(
+  condition = names(holdout),
+  decay_sse = sapply(holdout, \(d) xsl_run(fitted_decay, d)$sse),
+  baseline_sse = sapply(holdout, \(d) xsl_run(baseline(), d)$sse),
+  row.names = NULL
+)
+```
+
+A model that fits `xsl_datasets` well but does worse than `baseline()` on held-out
+data is likely overfitting the particular conditions it was fit to.
