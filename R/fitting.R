@@ -178,9 +178,13 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
   stopifnot("xslMod" %in% class(model))
   if ("xslData" %in% class(data)) data <- list(data)
   stopifnot(all(map_lgl(data, \(d) "xslData" %in% class(d))))
+  # with a parallel DEoptim backend the objective's closure is shipped to
+  # worker processes; an unforced argument would be evaluated there, where
+  # the caller's variables don't exist, so every evaluation would fail
+  force(control)
 
   if (by_data) data_wrap <- data else data_wrap <- list(data)
-  map(data_wrap, function(dat) {
+  fits <- map(data_wrap, function(dat) {
     run_wrapper <- \(params) {
       # some models are numerically unstable for certain parameter draws
       # (e.g. producing NA associations); treat those as an infinitely bad
@@ -200,4 +204,10 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
       DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
     }
   })
+  if (any(!map_lgl(fits, \(f) is.finite(f$optim$bestval)))) {
+    warning("every parameter evaluation failed for at least one fit (bestval = Inf); ",
+            "check that xsl_run(model, data, control) works at parameters within the bounds",
+            call. = FALSE)
+  }
+  fits
 }
