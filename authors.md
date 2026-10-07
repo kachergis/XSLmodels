@@ -12,7 +12,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/kachergis/XSLmodels/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/kachergis/XSLmodels/blob/v0.4.0/DESCRIPTION)
 
 Kachergis G, Braginsky M, Liang K (2026). *XSLmodels: Run and Optimize
 Cross-Situational Word Learning Models*. R package version 0.4.0,
