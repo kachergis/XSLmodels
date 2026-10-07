@@ -58,6 +58,22 @@ test_that("co-occurrence matrix creation works", {
   expect_equal(sum(cooc_matrix), 12)
 })
 
+test_that("create_cooc_matrix() tallies every trial, by label", {
+  # regression: it looped over the number of distinct *words* rather than
+  # trials -- erroring when there were more words than trials, and silently
+  # dropping trials when there were fewer -- and indexed by raw label (#14)
+  ag <- get_example_ambiguous_condition()   # 4 words, 2 trials
+  expect_equal(sum(create_cooc_matrix(ag$train)), 8)
+
+  d <- xsl_datasets[[1]]   # 18 words, 36 trials of 3 words x 4 objects
+  expect_equal(sum(create_cooc_matrix(d$train)), 36 * 3 * 4)
+
+  gapped <- list(words = list(c(10, 30), c(30, 50)), objects = list(c(10, 30), c(30, 50)))
+  m <- create_cooc_matrix(gapped)
+  expect_equal(m["30", "30"], 2)
+  expect_equal(m["10", "50"], 0)
+})
+
 test_that("model running works with example data", {
   # Test with example ambiguous condition
   ex_data <- get_example_ambiguous_condition()

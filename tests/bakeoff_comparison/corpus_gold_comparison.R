@@ -25,9 +25,17 @@ suppressMessages({
   library(ggplot2)
 })
 
-set.seed(1)
 out_dir <- "tests/bakeoff_comparison"
 N_SIM <- 50          # simulations averaged for stochastic models
+# rem() takes ~11 min per simulation on FM, so it's left out of this comparison
+SKIP_MODELS <- "rem"
+
+# each model x corpus gets its own seed, so a result doesn't depend on which
+# models ran before it (or on SKIP_MODELS), and any one can be re-scored alone
+seed_for <- function(model, corpus) {
+  codes <- utf8ToInt(paste(model, corpus))
+  sum(codes * seq_along(codes))
+}
 
 corpora <- list(
   Rollins = rollins_corpus,
@@ -37,7 +45,7 @@ corpora <- list(
 # --- model set -------------------------------------------------------------
 
 reg <- XSLmodels:::xsl_model_registry()
-assoc_names <- setdiff(names(reg), c("fgt2009", "fgt2009_rsa"))
+assoc_names <- setdiff(names(reg), c("fgt2009", "fgt2009_rsa", SKIP_MODELS))
 
 suggest_alpha <- function(n) max(1, round(7 * sqrt(n / 600)))
 
@@ -60,7 +68,7 @@ build_models <- function(corpus) {
 
 # --- run + score ----------------------------------------------------------
 
-score_one <- function(mod, corpus) {
+score_one <- function(mod, corpus, mn) {
   ctrl <- if (isTRUE(mod$stochastic)) xslControl(n_sim = N_SIM) else xslControl()
   tryCatch({
     m <- suppressWarnings(xsl_run(mod, corpus$data, control = ctrl)$fits[[1]]$matrix)
@@ -89,7 +97,8 @@ results <- lapply(names(corpora), function(cn) {
   mods <- build_models(corpus)
   lapply(names(mods), function(mn) {
     message(sprintf("[%s] %s ...", cn, mn))
-    s <- score_one(mods[[mn]], corpus)
+    set.seed(seed_for(mn, cn))
+    s <- score_one(mods[[mn]], corpus, mn)
     if (is.null(s)) return(NULL)
     s$model <- mn
     s$corpus <- cn

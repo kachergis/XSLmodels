@@ -72,9 +72,28 @@ test_that("xsl_fit scores an erroring model as an infinitely bad fit instead of 
     params = list(p = 0.5),
     stochastic = FALSE
   )
-  fit <- xsl_fit(always_errors, get_example_ambiguous_condition(),
-                 lower = 0, upper = 1, deoptim_control = fast_control)
+  expect_warning(
+    fit <- xsl_fit(always_errors, get_example_ambiguous_condition(),
+                   lower = 0, upper = 1, deoptim_control = fast_control),
+    "every parameter evaluation failed"
+  )
   expect_true(is.infinite(fit[[1]]$optim$bestval))
+})
+
+test_that("xsl_fit works with a parallel DEoptim backend and a control held in a variable", {
+  # regression test: `control` was a lazy promise inside the objective, so
+  # parallel workers evaluated `my_ctrl` in their own (empty) global
+  # environment and every evaluation silently became Inf
+  skip_on_cran()
+  skip_if_not_installed("parallelly")
+  old <- options(mc.cores = 2)
+  on.exit(options(old))
+  my_ctrl <- xslControl()
+  dc <- DEoptim::DEoptim.control(NP = 4, itermax = 1, trace = FALSE,
+                                 parallelType = "parallel", packages = list("XSLmodels"))
+  fit <- suppressWarnings(xsl_fit(decay(C = 0.98), xsl_datasets[1:2], lower = 0.8, upper = 1.0,
+                                  control = my_ctrl, deoptim_control = dc))
+  expect_true(is.finite(fit[[1]]$optim$bestval))
 })
 
 test_that("xsl_fit fits a simple model without error", {
