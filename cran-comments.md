@@ -17,8 +17,8 @@ None (first submission; no reverse dependencies).
 
 ## Additional notes
 
-* Two functions (`plot_training_trials()`) depend on the Suggested packages
-  `gganimate` and `viridis`, and are guarded with `requireNamespace()` so the
+* `plot_training_trials()` depends on the Suggested packages `gganimate` and
+  `viridis`, and is guarded with `requireNamespace()` so the
   package degrades gracefully when they are unavailable. Its example is
   wrapped in `\donttest{}`.
 * `fgt2009()`/`fgt2009_rsa()` perform MCMC inference and their examples/tests

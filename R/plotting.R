@@ -52,6 +52,8 @@ plot_training_trials <- function(train, filename = NULL) {
       df <- bind_rows(df, matrix_to_long(m, t))
       next
     }
+    tr_w <- as.character(tr_w)  # index by label, not position (#14)
+    tr_o <- as.character(tr_o)
     m[tr_w, tr_o] <- m[tr_w, tr_o] + 1
     df_t <- matrix_to_long(m, t)
     df <- bind_rows(df, df_t)

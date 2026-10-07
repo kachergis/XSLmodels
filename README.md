@@ -47,6 +47,9 @@ Get cross-validated (5-fold) model fit:
 cross_val_fit_uncfam <- get_crossvalidated_model_fit("uncfam")
 ```
 
+Datasets held out from those fits -- for testing how well a fitted model
+generalizes -- are listed, with how to score each, in `xsl_holdout_datasets`.
+
 
 For more details, see [this vignette](https://www.kachergis.com/XSLmodels/articles/XSLmodels.html).
 

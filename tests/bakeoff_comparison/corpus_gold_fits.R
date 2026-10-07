@@ -44,7 +44,7 @@ corpora <- list(Rollins = rollins_corpus, FM = fm_corpus)
 
 det_models   <- c("decay", "uncfam", "uncfam_attention", "uncfam_predictive",
                   "fazly", "rescorla_wagner", "tilles", "bayesian_decay",
-                  "kalman_filter")
+                  "kalman_filter", "uncfam_gamma", "uncfam_elimination")
 stoch_models <- c("propose_but_verify", "guess_and_test", "softmax_rl")
 
 # --- objective (evaluated on the parallel workers) ----------------------
