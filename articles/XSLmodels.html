@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">XSLmodels</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis &amp; Mika Braginsky</h4>
             
-            <h4 data-toc-skip class="date">2026-10-03</h4>
+            <h4 data-toc-skip class="date">2026-10-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/XSLmodels.Rmd" class="external-link"><code>vignettes/XSLmodels.Rmd</code></a></small>
       <div class="d-none name"><code>XSLmodels.Rmd</code></div>
@@ -94,23 +94,19 @@ how the model(s) should be tested.</p>
 <code>xslData</code> class, which requires defining minimally a training
 phase and a testing phase. Each trial of the training phase presents
 participants (or models) with one or more words and one or more
-referents (i.e. objects). In this package, each word
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
-and object
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>o</mi><annotation encoding="application/x-tex">o</annotation></semantics></math>
-is referred to by index (i.e.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>i</mi></msub><annotation encoding="application/x-tex">w_i</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>o</mi><mi>j</mi></msub><annotation encoding="application/x-tex">o_j</annotation></semantics></math>),
-and the to-be-learned word-object pairs are assumed to have the same
-index
-(i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><mo>=</mo><msub><mi>o</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">w_i = o_i</annotation></semantics></math>).
-Thus, each dataset defines a list <code>train</code> of
-<code>words</code> and <code>objects</code> indices on each trial, also
-defined in lists (to allow for a potentially varying number of
+referents (i.e. objects). Words and objects can be given any labels –
+numbers or strings – and a word’s correct referent is the object with
+the same label
+(i.e. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>w</mi><mi>i</mi></msub><annotation encoding="application/x-tex">w_i</annotation></semantics></math>
+is meant to be learned as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>o</mi><mi>i</mi></msub><annotation encoding="application/x-tex">o_i</annotation></semantics></math>).
+Thus, each dataset defines a list <code>train</code> of the
+<code>words</code> and <code>objects</code> presented on each trial,
+also defined in lists (to allow for a potentially varying number of
 words/objects per trial). The <code>test</code> trials are defined by a
-list of the available objects on each test trial. A dataset can also be
-given a short <code>label</code>, and a longer (maybe per-item?)
-<code>condition</code>.</p>
+list of the tested word and a list of the available objects on each test
+trial. A dataset can also be given a short <code>label</code>, and a
+longer (maybe per-item?) <code>condition</code>.</p>
 <p>If you already have collected a sample of human participants, you can
 optionally include per-item <code>accuracy</code>, a vector of length
 equal to the number of to-be-learned items) and the number of
@@ -137,14 +133,14 @@ parameters.</p>
 </h3>
 <p><code><a href="../reference/get_example_ambiguous_condition.html">get_example_ambiguous_condition()</a></code> and
 <code><a href="../reference/get_example_unambiguous_condition.html">get_example_unambiguous_condition()</a></code> return simple example
-experimental conditions, which consist of a list of training
-<em>trials</em>, an optional vector <em>perf</em> containing the
-per-word performance of people on the test trials, and an optional list
-of test trials, enumerating each to-be-tested word and the set of
-referents to be presented for choosing among. The list of training
-trials is further composed of a list of the words presented on each
-trial, and a list of the referents (<em>objs</em>) presented on each
-trial.</p>
+experimental conditions, which consist of the training trials
+(<code>train</code>), an optional vector <code>accuracy</code>
+containing people’s per-word performance on the test trials, and an
+optional list of test trials (<code>test</code>), enumerating each
+to-be-tested word and the set of referents presented for choosing among.
+<code>train</code> is in turn a list of the words presented on each
+trial, and a list of the referents (<code>objects</code>) presented on
+each trial.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_example_ambiguous_condition.html">get_example_ambiguous_condition</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">ag</span></span>
@@ -154,11 +150,11 @@ trial.</p>
 <span><span class="co">#&gt;             words: 4</span></span>
 <span><span class="co">#&gt;           objects: 4</span></span>
 <span><span class="co">#&gt;        accuracies: 4</span></span></code></pre></div>
-<p>Shown above, the example ambiguous condition has three training
-trials (<code>ag$trials</code>). On the first trial words 1 and 2 appear
-(<code>ag$trials$words[[1]]</code>) alongside referents 1 and 2
-(<code>ag$trials$objs[[1]]</code>; order of words/referents within a
-trial is irrelevant).</p>
+<p>Shown above, the example ambiguous condition has two training trials
+(<code>ag$train</code>). On the first trial words 1 and 2 appear
+(<code>ag$train$words[[1]]</code>) alongside referents 2 and 1
+(<code>ag$train$objects[[1]]</code>; the order of words/referents within
+a trial is irrelevant).</p>
 </div>
 <div class="section level3">
 <h3 id="viewing-an-experiments-structure">2. Viewing an experiment’s structure<a class="anchor" aria-label="anchor" href="#viewing-an-experiments-structure"></a>
@@ -171,8 +167,12 @@ strength of association between each word and object.
 showing the tallied co-occurrences of each word with each object across
 all of the training trials.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/create_cooc_matrix.html">create_cooc_matrix</a></span><span class="op">(</span><span class="va">ag</span><span class="op">$</span><span class="va">trials</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;0 x 0 matrix&gt;</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/create_cooc_matrix.html">create_cooc_matrix</a></span><span class="op">(</span><span class="va">ag</span><span class="op">$</span><span class="va">train</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   1 2 3 4</span></span>
+<span><span class="co">#&gt; 1 1 1 0 0</span></span>
+<span><span class="co">#&gt; 2 1 1 0 0</span></span>
+<span><span class="co">#&gt; 3 0 0 1 1</span></span>
+<span><span class="co">#&gt; 4 0 0 1 1</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="included-experimental-conditions">3. Included experimental conditions<a class="anchor" aria-label="anchor" href="#included-experimental-conditions"></a>
@@ -205,27 +205,46 @@ each tested word.)</p>
 <span><span class="va">xsl_datasets</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">accuracy</span></span>
 <span><span class="co">#&gt;  [1] 0.28 0.12 0.16 0.32 0.08 0.08 0.36 0.16 0.04 0.12 0.20 0.40 0.44 0.20 0.12</span></span>
 <span><span class="co">#&gt; [16] 0.08 0.20 0.08</span></span></code></pre></div>
-<p>A few datasets ship separately from <code>xsl_datasets</code> because
-they don’t fit its “one correct object per tested word, scored by SSE
-against human accuracy” convention:
-<code>kachergis2012_highlighting</code> and
-<code>kachergis_initial_accuracy</code> (experiments with ambiguous test
-items); <code>gangwani2011_category</code>, a hierarchical design in
-which every object has both a 1-to-1 name and a 1-to-many category label
-(the association matrix is 15 words x 12 objects, and learners violate
-mutual exclusivity – see <code><a href="../reference/gangwani2011_category.html">?gangwani2011_category</a></code> and
-<code>tests/bakeoff_comparison/gangwani2011_category_fit.R</code>); and
-two naturalistic caregiver-speech corpora imported from the <a href="https://github.com/mcfrank/wurwur" class="external-link">wurwur</a> package –
-<code>rollins_corpus</code> (the CHILDES/Rollins corpus fit by Frank,
-Goodman &amp; Tenenbaum, 2009) and <code>fm_corpus</code> (Frank,
-Tenenbaum &amp; Fernald). These corpora have no human referent-selection
-data; each bundles the training <code>xslData</code> in
-<code>$data</code> with a gold-standard lexicon in <code>$gold</code>,
-scored with <code><a href="../reference/get_fscore.html">get_fscore()</a></code> / <code><a href="../reference/get_roc.html">get_roc()</a></code> rather
-than SSE:</p>
+<p>Several more datasets ship separately from <code>xsl_datasets</code>,
+so that they are never seen by <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code> /
+<code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code>. Most are standalone because
+they don’t fit the “one correct object per tested word, scored by SSE
+against human accuracy” convention:</p>
+<ul>
+<li>
+<code>kachergis2012_highlighting</code>: some test items have two
+legitimate targets, so its accuracy is partly <code>NA</code>.</li>
+<li>
+<code>gangwani2011_category</code>: a hierarchical design in which
+every object has both a 1-to-1 name and a 1-to-many category label (a 15
+word x 12 object matrix; learners violate mutual exclusivity – see
+<code><a href="../reference/gangwani2011_category.html">?gangwani2011_category</a></code>).</li>
+<li>
+<code>vlach_debrock2017</code>: only an overall mean accuracy is
+reported, not per word.</li>
+<li>
+<code>rollins_corpus</code> and <code>fm_corpus</code>: two
+naturalistic caregiver-speech corpora imported from the <a href="https://github.com/mcfrank/wurwur" class="external-link">wurwur</a> package, with no
+human referent-selection data. Each bundles the training
+<code>xslData</code> in <code>$data</code> with a gold-standard lexicon
+in <code>$gold</code>, scored with <code><a href="../reference/get_fscore.html">get_fscore()</a></code> /
+<code><a href="../reference/get_roc.html">get_roc()</a></code> rather than SSE (see
+<code><a href="../articles/corpora.html">vignette("corpora")</a></code>).</li>
+</ul>
+<p>Two others, <code>kachergis_initial_accuracy</code> and
+<code>benitez2020</code>, fit the convention fine but are held out on
+purpose, as data for testing how well a model fit to
+<code>xsl_datasets</code> generalizes (section 11).
+<code>xsl_holdout_datasets</code> lists every standalone dataset and how
+to score a model against it:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/fgt2009.html">fgt2009</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">7</span><span class="op">)</span>, <span class="va">rollins_corpus</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">$</span><span class="va">fits</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">matrix</span></span>
-<span><span class="fu"><a href="../reference/get_roc.html">get_roc_max</a></span><span class="op">(</span><span class="va">m</span>, gold_lexicon <span class="op">=</span> <span class="va">rollins_corpus</span><span class="op">$</span><span class="va">gold</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span><span class="op">$</span><span class="va">benitez2020</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 3</span></span>
+<span><span class="co">#&gt;  $ scorable: logi TRUE</span></span>
+<span><span class="co">#&gt;  $ scoring : chr "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)"</span></span>
+<span><span class="co">#&gt;  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span>, <span class="va">`[[`</span>, <span class="st">"scorable"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; [1] "benitez2020"                "kachergis_initial_accuracy"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -428,8 +447,11 @@ Uncertainty and familiarity biased model -
 <code><a href="../reference/uncfam_attention.html">uncfam_attention()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with learning
 rate scaled to trial uncertainty - <code><a href="../reference/uncfam_predictive.html">uncfam_predictive()</a></code> -
 <code><a href="../reference/uncfam.html">uncfam()</a></code> with an added item-level prediction-error term -
-<code><a href="../reference/fazly.html">fazly()</a></code> - Fazly et al. model -
-<code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner model -
+<code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with a free exponent
+on familiarity’s contribution to attention -
+<code><a href="../reference/uncfam_elimination.html">uncfam_elimination()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with learning
+by elimination (mutual exclusivity) - <code><a href="../reference/fazly.html">fazly()</a></code> - Fazly et
+al. model - <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner model -
 <code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> - Bayesian decay model -
 <code><a href="../reference/kalman_filter.html">kalman_filter()</a></code> - Kalman filter associative model
 (adaptive, uncertainty-scaled learning rate)</p>
@@ -450,12 +472,93 @@ referential intention (a batch model; ported from the
 <code><a href="../reference/fgt2009_sweep_alpha.html">fgt2009_sweep_alpha()</a></code>. - <code><a href="../reference/fgt2009_rsa.html">fgt2009_rsa()</a></code> -
 <code><a href="../reference/fgt2009.html">fgt2009()</a></code> with a Rational Speech Act pragmatic speaker
 layer</p>
+<p><strong>Episodic / distributed memory models:</strong> -
+<code><a href="../reference/minerva2.html">minerva2()</a></code> - Hintzman’s MINERVA2: stores each trial as a
+trace of random feature vectors, and retrieves by similarity -
+<code><a href="../reference/todam.html">todam()</a></code> - Murdock’s TODAM: a single composite memory vector
+of convolved word-object associations - <code><a href="../reference/rem.html">rem()</a></code> - Shiffrin
+&amp; Steyvers’ REM, adapted to this package’s associative task (slow on
+large corpora)</p>
 <p><strong>Baseline models:</strong> - <code><a href="../reference/baseline.html">baseline()</a></code> - Simple
 co-occurrence baseline - <code><a href="../reference/decay.html">decay()</a></code> - Decay model -
 <code><a href="../reference/tilles.html">tilles()</a></code> - Tilles model</p>
 <p>Each model can be run with different parameters and compared to human
 data to understand which learning mechanisms best explain
 cross-situational word learning behavior.</p>
+</div>
+<div class="section level3">
+<h3 id="prior-learning-training-trials-or-a-start-matrix">10. Prior learning: training trials or a start matrix<a class="anchor" aria-label="anchor" href="#prior-learning-training-trials-or-a-start-matrix"></a>
+</h3>
+<p>Some experiments teach part of the vocabulary before the
+cross-situational phase – e.g. <code>kachergis_initial_accuracy</code>,
+which first shows each word with one object. There are two ways to give
+a model that prior learning.</p>
+<p>The general one is to include it as ordinary training trials, as
+<code>kachergis_initial_accuracy</code> does (its first 18 trials each
+show one word with one object). Every model learns from these with its
+own update rule.</p>
+<p>Alternatively, a model can start from a given association matrix via
+<code>xslControl(start_matrix = ...)</code>. Only models with a single
+word-by-object association matrix support this: <code><a href="../reference/baseline.html">baseline()</a></code>,
+<code><a href="../reference/decay.html">decay()</a></code>, <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code>,
+<code><a href="../reference/softmax_rl.html">softmax_rl()</a></code>, the <code><a href="../reference/uncfam.html">uncfam()</a></code> family (including
+<code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code> and <code><a href="../reference/multi_sampling.html">multi_sampling()</a></code>),
+<code><a href="../reference/propose_but_verify.html">propose_but_verify()</a></code>, and <code><a href="../reference/pursuit.html">pursuit()</a></code>. Any other
+model (e.g. <code><a href="../reference/fazly.html">fazly()</a></code>, <code><a href="../reference/kalman_filter.html">kalman_filter()</a></code>, or the
+episodic-memory models) stops with an error rather than silently
+ignoring it. A start matrix with dimnames is matched to the data’s
+words/objects by label.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_example_ambiguous_condition.html">get_example_ambiguous_condition</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">4</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">prior</span><span class="op">[</span><span class="st">"1"</span>, <span class="st">"1"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">.5</span>   <span class="co"># word 1 already partly learned</span></span>
+<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/uncfam.html">uncfam</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fl">.1</span>, B <span class="op">=</span> <span class="fl">.98</span>, C <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">d</span><span class="op">)</span><span class="op">$</span><span class="va">fits</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perf</span></span>
+<span><span class="co">#&gt;         1         2         3         4 </span></span>
+<span><span class="co">#&gt; 0.3888889 0.3888889 0.3888889 0.3888889</span></span>
+<span><span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">d</span>, control <span class="op">=</span> <span class="fu"><a href="../reference/xslControl-class.html">xslControl</a></span><span class="op">(</span>start_matrix <span class="op">=</span> <span class="va">prior</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">fits</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perf</span></span>
+<span><span class="co">#&gt;         1         2         3         4 </span></span>
+<span><span class="co">#&gt; 0.9451155 0.3593462 0.3888889 0.3888889</span></span></code></pre></div>
+<p>Note that the two encodings aren’t interchangeable: what a
+start-matrix value “means” differs by model (a count, a probability, a
+Q-value), and prior-learning trials interact with mechanisms such as
+<code><a href="../reference/uncfam_attention.html">uncfam_attention()</a></code>’s running average of trial
+uncertainty.</p>
+</div>
+<div class="section level3">
+<h3 id="testing-generalization-on-held-out-datasets">11. Testing generalization on held-out datasets<a class="anchor" aria-label="anchor" href="#testing-generalization-on-held-out-datasets"></a>
+</h3>
+<p>Parameters fit to <code>xsl_datasets</code> can be checked against
+data the fit never saw. <code>xsl_holdout_datasets</code> says which
+held-out datasets can be scored the standard way; here, a model fit to a
+few <code>xsl_datasets</code> conditions is scored on each
+<code>benitez2020</code> and <code>kachergis_initial_accuracy</code>
+condition, next to the no-free-parameter <code><a href="../reference/baseline.html">baseline()</a></code>:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_fit.html">xsl_fit</a></span><span class="op">(</span><span class="fu"><a href="../reference/decay.html">decay</a></span><span class="op">(</span>C <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, lower <span class="op">=</span> <span class="fl">.8</span>, upper <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>               deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>NP <span class="op">=</span> <span class="fl">10</span>, itermax <span class="op">=</span> <span class="fl">10</span>, trace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">fitted_decay</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/update_params.html">update_params</a></span><span class="op">(</span><span class="fu"><a href="../reference/decay.html">decay</a></span><span class="op">(</span>C <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, <span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">holdout</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">benitez2020</span>, <span class="va">kachergis_initial_accuracy</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">holdout</span><span class="op">)</span>,</span>
+<span>  decay_sse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">holdout</span>, \<span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="va">fitted_decay</span>, <span class="va">d</span><span class="op">)</span><span class="op">$</span><span class="va">sse</span><span class="op">)</span>,</span>
+<span>  baseline_sse <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">holdout</span>, \<span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/baseline.html">baseline</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">d</span><span class="op">)</span><span class="op">$</span><span class="va">sse</span><span class="op">)</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;                          condition decay_sse baseline_sse</span></span>
+<span><span class="co">#&gt; 1                Interleaved, kids 0.1560054    0.1758034</span></span>
+<span><span class="co">#&gt; 2              Interleaved, adults 0.1556145    0.1666667</span></span>
+<span><span class="co">#&gt; 3                     Massed, kids 0.1374258    0.1390123</span></span>
+<span><span class="co">#&gt; 4                   Massed, adults 0.1134279    0.1133333</span></span>
+<span><span class="co">#&gt; 5     Unstructured (order 1), kids 0.4451216    0.4506173</span></span>
+<span><span class="co">#&gt; 6   Unstructured (order 2/3), kids 0.4965327    0.4843750</span></span>
+<span><span class="co">#&gt; 7 Unstructured (order 2/3), adults 1.0515461    1.0733333</span></span>
+<span><span class="co">#&gt; 8            High Initial Accuracy 0.2919295    0.1846444</span></span>
+<span><span class="co">#&gt; 9             Low Initial Accuracy 0.1920520    0.1146664</span></span></code></pre></div>
+<p>A model that fits <code>xsl_datasets</code> well but does worse than
+<code><a href="../reference/baseline.html">baseline()</a></code> on held-out data is likely overfitting the
+particular conditions it was fit to.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

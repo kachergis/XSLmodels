@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">XSLmodels</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis</h4>
             
-            <h4 data-toc-skip class="date">2026-10-03</h4>
+            <h4 data-toc-skip class="date">2026-10-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/corpora.Rmd" class="external-link"><code>vignettes/corpora.Rmd</code></a></small>
       <div class="d-none name"><code>corpora.Rmd</code></div>
@@ -361,33 +361,53 @@ lexicon.</caption>
 </tr>
 <tr class="odd">
 <td align="left">uncfam_sampling</td>
-<td align="right">0.377</td>
-<td align="right">0.353</td>
+<td align="right">0.394</td>
+<td align="right">0.360</td>
 </tr>
 <tr class="even">
 <td align="left">multi_sampling</td>
-<td align="right">0.377</td>
-<td align="right">0.353</td>
+<td align="right">0.394</td>
+<td align="right">0.352</td>
 </tr>
 <tr class="odd">
-<td align="left">uncfam_attention</td>
-<td align="right">0.371</td>
-<td align="right">0.354</td>
+<td align="left">uncfam</td>
+<td align="right">0.377</td>
+<td align="right">0.360</td>
 </tr>
 <tr class="even">
-<td align="left">uncfam</td>
-<td align="right">0.371</td>
-<td align="right">0.353</td>
+<td align="left">uncfam_gamma</td>
+<td align="right">0.377</td>
+<td align="right">0.360</td>
 </tr>
 <tr class="odd">
-<td align="left">guess_and_test</td>
+<td align="left">uncfam_elimination</td>
+<td align="right">0.377</td>
+<td align="right">0.360</td>
+</tr>
+<tr class="even">
+<td align="left">uncfam_attention</td>
+<td align="right">0.377</td>
+<td align="right">0.351</td>
+</tr>
+<tr class="odd">
+<td align="left">propose_but_verify</td>
 <td align="right">0.409</td>
-<td align="right">0.297</td>
+<td align="right">0.318</td>
 </tr>
 <tr class="even">
 <td align="left">softmax_rl</td>
-<td align="right">0.407</td>
-<td align="right">0.258</td>
+<td align="right">0.376</td>
+<td align="right">0.336</td>
+</tr>
+<tr class="odd">
+<td align="left">pursuit</td>
+<td align="right">0.400</td>
+<td align="right">0.307</td>
+</tr>
+<tr class="even">
+<td align="left">guess_and_test</td>
+<td align="right">0.396</td>
+<td align="right">0.304</td>
 </tr>
 <tr class="odd">
 <td align="left">baseline</td>
@@ -395,19 +415,19 @@ lexicon.</caption>
 <td align="right">0.268</td>
 </tr>
 <tr class="even">
+<td align="left">minerva2</td>
+<td align="right">0.359</td>
+<td align="right">0.267</td>
+</tr>
+<tr class="odd">
 <td align="left">rescorla_wagner</td>
 <td align="right">0.312</td>
 <td align="right">0.290</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">decay</td>
 <td align="right">0.320</td>
 <td align="right">0.272</td>
-</tr>
-<tr class="even">
-<td align="left">propose_but_verify</td>
-<td align="right">0.321</td>
-<td align="right">0.236</td>
 </tr>
 <tr class="odd">
 <td align="left">kalman_filter</td>
@@ -415,14 +435,14 @@ lexicon.</caption>
 <td align="right">0.211</td>
 </tr>
 <tr class="even">
-<td align="left">pursuit</td>
-<td align="right">0.353</td>
-<td align="right">0.048</td>
+<td align="left">uncfam_predictive</td>
+<td align="right">0.235</td>
+<td align="right">0.185</td>
 </tr>
 <tr class="odd">
-<td align="left">uncfam_predictive</td>
-<td align="right">0.208</td>
-<td align="right">0.091</td>
+<td align="left">todam</td>
+<td align="right">0.174</td>
+<td align="right">0.048</td>
 </tr>
 <tr class="even">
 <td align="left">tilles</td>
@@ -431,6 +451,9 @@ lexicon.</caption>
 </tr>
 </tbody>
 </table>
+<p><code><a href="../reference/rem.html">rem()</a></code> is left out: at roughly 11 minutes per simulation
+on FM, averaging the 50 simulations used for the other stochastic models
+isn’t practical.</p>
 <p>Reading the table:</p>
 <ul>
 <li>
@@ -439,7 +462,7 @@ on top</strong> (F around 0.45 on both corpora), with
 <code>fgt2009</code> close behind.</li>
 <li>
 <strong><code>fgt2009</code> trades recall for precision.</strong>
-On FM its precision is ~0.71 against ~0.2–0.34 for the others: the
+On FM its precision is ~0.71 against ~0.15–0.34 for the others: the
 geometric size prior makes it commit to a small, mostly-correct lexicon
 rather than a large noisy one. Whether that is the right tradeoff
 depends on what you want the lexicon for.</li>
@@ -447,10 +470,12 @@ depends on what you want the lexicon for.</li>
 <code>fgt2009_rsa</code>): at <code>alpha = 20</code> the learned
 lexicon is sparse enough that no word names two co-present objects, so
 the pragmatic speaker reduces to the literal one.</li>
-<li>The middle of the pack is a tight cluster around F = 0.35 – the
-three <code>uncfam</code> variants and the two sampling versions all
-land there, which is reassuring since the sampling models are meant to
-approximate <code><a href="../reference/uncfam.html">uncfam()</a></code>.</li>
+<li>The middle of the pack is a tight cluster around F = 0.35–0.40: the
+<code>uncfam</code> variants, the two sampling versions (which are meant
+to approximate <code><a href="../reference/uncfam.html">uncfam()</a></code>), and the hypothesis-testing models
+(<code>propose_but_verify</code>, <code>pursuit</code>,
+<code>guess_and_test</code>), which do relatively better on Rollins than
+on FM.</li>
 <li>
 <strong>Every model now runs on both corpora</strong>, but several
 needed fixes to get there. The sampling/RL models were built for
@@ -458,15 +483,21 @@ controlled experiments of a few dozen trials; running them on 4763
 naturalistic utterances exposed a memory blow-up
 (<code><a href="../reference/xslControl-class.html">xslControl()</a></code>’s <code>keep_traj = FALSE</code> default), an
 error on the many non-referential utterances with no objects present,
-and two latent bugs (<code><a href="../reference/softmax_rl.html">softmax_rl()</a></code> and
-<code><a href="../reference/guess_and_test.html">guess_and_test()</a></code> comparing a sampled guess to object
+and latent bugs: <code><a href="../reference/softmax_rl.html">softmax_rl()</a></code> and
+<code><a href="../reference/guess_and_test.html">guess_and_test()</a></code> compared a sampled guess to object
 <em>positions</em> vs <em>labels</em>; <code><a href="../reference/guess_and_test.html">guess_and_test()</a></code>
-also mishandling a word repeated within one utterance;
-<code><a href="../reference/tilles.html">tilles()</a></code> coercing its labels with <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer()</a></code>
-and returning an unnamed matrix). <code>pursuit</code> and
-<code>tilles</code> still learn near-empty or diffuse lexicons on FM at
-the registry’s default parameters – read the low scores as “this
-parameterisation doesn’t transfer”, not “the model is broken”.</li>
+mishandled a word repeated within one utterance; <code><a href="../reference/tilles.html">tilles()</a></code>
+coerced its labels with <code><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer()</a></code> and returned an
+unnamed matrix; and <code><a href="../reference/propose_but_verify.html">propose_but_verify()</a></code> and
+<code><a href="../reference/pursuit.html">pursuit()</a></code> drew hypotheses from the wrong set on utterances
+with a single object present (common in both corpora).</li>
+<li>
+<code>tilles</code> and <code>todam</code> still learn diffuse
+lexicons at their default parameters: their best threshold is 0, i.e. no
+threshold separates correct pairings from the rest. For
+<code>tilles</code>, fitting its parameters lifts F to ~0.40–0.43
+(below), so read the low default score as “this parameterisation doesn’t
+transfer”, not “the model is broken”.</li>
 </ul>
 <div class="section level3">
 <h3 id="fitting-to-a-corpus">Fitting to a corpus<a class="anchor" aria-label="anchor" href="#fitting-to-a-corpus"></a>
@@ -477,9 +508,10 @@ model’s parameters, maximizing the same best-threshold F against the
 gold lexicon (these corpora have no accuracy vector, so
 <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code>’s SSE objective does not apply).
 <code><a href="../reference/fgt2009.html">fgt2009()</a></code> is fit by an <code>alpha</code> sweep instead.
-<code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code> / <code><a href="../reference/multi_sampling.html">multi_sampling()</a></code> are left
-at defaults – averaging many simulations per DEoptim evaluation over
-4763 utterances is impractical.</p>
+<code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code>, <code><a href="../reference/multi_sampling.html">multi_sampling()</a></code>,
+<code><a href="../reference/pursuit.html">pursuit()</a></code>, and the episodic-memory models are left at
+defaults – averaging many simulations per DEoptim evaluation over 4763
+utterances is impractical.</p>
 <table class="table">
 <caption>Best-threshold F: registry default vs. fit to the
 corpus.</caption>
@@ -520,81 +552,95 @@ corpus.</caption>
 <td align="right">0.515</td>
 </tr>
 <tr class="even">
+<td align="left">softmax_rl</td>
+<td align="right">0.360</td>
+<td align="right">0.447</td>
+<td align="right">0.299</td>
+<td align="right">0.429</td>
+</tr>
+<tr class="odd">
 <td align="left">fazly</td>
 <td align="right">0.450</td>
-<td align="right">0.468</td>
+<td align="right">0.463</td>
 <td align="right">0.407</td>
 <td align="right">0.412</td>
 </tr>
+<tr class="even">
+<td align="left">uncfam_gamma</td>
+<td align="right">0.377</td>
+<td align="right">0.450</td>
+<td align="right">0.360</td>
+<td align="right">0.425</td>
+</tr>
 <tr class="odd">
-<td align="left">softmax_rl</td>
-<td align="right">0.361</td>
-<td align="right">0.449</td>
-<td align="right">0.276</td>
-<td align="right">0.463</td>
+<td align="left">uncfam_attention</td>
+<td align="right">0.377</td>
+<td align="right">0.420</td>
+<td align="right">0.351</td>
+<td align="right">0.417</td>
 </tr>
 <tr class="even">
-<td align="left">uncfam_attention</td>
-<td align="right">0.371</td>
-<td align="right">0.438</td>
-<td align="right">0.354</td>
-<td align="right">0.443</td>
+<td align="left">tilles</td>
+<td align="right">0.080</td>
+<td align="right">0.427</td>
+<td align="right">0.048</td>
+<td align="right">0.400</td>
 </tr>
 <tr class="odd">
 <td align="left">uncfam</td>
-<td align="right">0.371</td>
-<td align="right">0.422</td>
-<td align="right">0.353</td>
-<td align="right">0.446</td>
+<td align="right">0.377</td>
+<td align="right">0.420</td>
+<td align="right">0.360</td>
+<td align="right">0.388</td>
 </tr>
 <tr class="even">
 <td align="left">guess_and_test</td>
-<td align="right">0.378</td>
+<td align="right">0.372</td>
 <td align="right">0.440</td>
-<td align="right">0.308</td>
-<td align="right">0.362</td>
+<td align="right">0.292</td>
+<td align="right">0.368</td>
 </tr>
 <tr class="odd">
-<td align="left">tilles</td>
-<td align="right">0.080</td>
-<td align="right">0.417</td>
-<td align="right">0.048</td>
-<td align="right">0.385</td>
-</tr>
-<tr class="even">
-<td align="left">uncfam_predictive</td>
-<td align="right">0.208</td>
+<td align="left">uncfam_elimination</td>
+<td align="right">0.377</td>
+<td align="right">0.404</td>
 <td align="right">0.360</td>
-<td align="right">0.091</td>
-<td align="right">0.411</td>
-</tr>
-<tr class="odd">
-<td align="left">propose_but_verify</td>
-<td align="right">0.310</td>
-<td align="right">0.365</td>
-<td align="right">0.246</td>
-<td align="right">0.326</td>
+<td align="right">0.400</td>
 </tr>
 <tr class="even">
+<td align="left">propose_but_verify</td>
+<td align="right">0.400</td>
+<td align="right">0.438</td>
+<td align="right">0.325</td>
+<td align="right">0.360</td>
+</tr>
+<tr class="odd">
 <td align="left">rescorla_wagner</td>
 <td align="right">0.312</td>
-<td align="right">0.348</td>
+<td align="right">0.389</td>
 <td align="right">0.290</td>
-<td align="right">0.324</td>
+<td align="right">0.343</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">decay</td>
 <td align="right">0.320</td>
 <td align="right">0.382</td>
 <td align="right">0.272</td>
 <td align="right">0.288</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">kalman_filter</td>
 <td align="right">0.303</td>
 <td align="right">0.382</td>
 <td align="right">0.211</td>
-<td align="right">0.274</td>
+<td align="right">0.275</td>
+</tr>
+<tr class="even">
+<td align="left">uncfam_predictive</td>
+<td align="right">0.235</td>
+<td align="right">0.333</td>
+<td align="right">0.185</td>
+<td align="right">0.233</td>
 </tr>
 </tbody>
 </table>
@@ -602,14 +648,20 @@ corpus.</caption>
 <li>
 <strong>Fitting lifts every model</strong>, and by a lot for the
 ones whose registry defaults were tuned on controlled experiments:
-<code>tilles</code> (+0.34 on both corpora),
-<code>uncfam_predictive</code> (+0.15 / +0.32), <code>softmax_rl</code>
-(+0.09 / +0.19).</li>
+<code>tilles</code> (+0.35 on both corpora), <code>softmax_rl</code>
+(+0.09 / +0.13), <code>uncfam_predictive</code> (+0.10 / +0.05).</li>
 <li>
 <strong><code>bayesian_decay</code> fit to FM reaches F =
 0.56</strong> – clearly the strongest result – with <code>fgt2009</code>
 next at 0.53. <code>fazly</code> barely moves (its defaults were already
 near-optimal for these corpora).</li>
+<li>
+<strong><code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code> is the best <code>uncfam</code>
+variant once fit</strong> (0.45 / 0.43, vs 0.42 / 0.39 for
+<code><a href="../reference/uncfam.html">uncfam()</a></code>), with a fitted familiarity exponent of 1.56 on
+Rollins and 0.77 on FM – so neither corpus is consistent with
+familiarity entering linearly, but they disagree on the direction.
+<code><a href="../reference/uncfam_elimination.html">uncfam_elimination()</a></code> gains less (0.40 / 0.40).</li>
 <li>
 <code>fgt2009_rsa</code> fit (best of an <code>alpha</code> sweep)
 lands just below <code>fgt2009</code> (0.45 / 0.52 vs 0.45 / 0.53) – the
@@ -617,12 +669,11 @@ pragmatic layer neither helps nor hurts once <code>alpha</code> is
 chosen, because the fitted lexicon is still too sparse for a word to
 name two co-present objects.</li>
 <li>The fitted parameters are in <code>corpus_gold_fits.rds</code>.
-<code>kalman_filter</code>’s <code>sigma2_obs</code> sits right at its
-upper bound, but that is a plateau, not a real constraint: the three
-Kalman parameters share a scale redundancy and the F landscape is flat
-in <code>sigma2_obs</code> above a few hundred, so the fit is the same F
-whether the bound is 500 or 20000. Read its fitted
-<code>sigma2_obs</code> as “large”, not as an estimate.</li>
+<code>kalman_filter</code>’s <code>sigma2_obs</code> lands high (1511 /
+1923, against an upper bound of 2000), but that is a plateau, not an
+estimate: the three Kalman parameters share a scale redundancy and the F
+landscape is flat in <code>sigma2_obs</code> above a few hundred. Read
+its fitted <code>sigma2_obs</code> as “large”.</li>
 </ul>
 </div>
 </div>

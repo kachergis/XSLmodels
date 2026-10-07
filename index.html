@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">XSLmodels</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,6 +82,7 @@ install.packages("XSLmodels")
 <pre><code><span><span class="va">group_fit_uncfam</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_group_model_fit.html">get_group_model_fit</a></span><span class="op">(</span><span class="st">"uncfam"</span><span class="op">)</span></span></code></pre>
 <p>Get cross-validated (5-fold) model fit:</p>
 <pre><code><span><span class="va">cross_val_fit_uncfam</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit</a></span><span class="op">(</span><span class="st">"uncfam"</span><span class="op">)</span></span></code></pre>
+<p>Datasets held out from those fits – for testing how well a fitted model generalizes – are listed, with how to score each, in <code>xsl_holdout_datasets</code>.</p>
 <p>For more details, see <a href="https://www.kachergis.com/XSLmodels/articles/XSLmodels.html">this vignette</a>.</p>
 <p>Models can also be run and scored against gold-standard lexicons from naturalistic child-directed speech corpora (rather than fit to lab experiment accuracy) – see the <a href="https://www.kachergis.com/XSLmodels/articles/corpora.html">corpora vignette</a>.</p>
 </div>

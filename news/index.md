@@ -1,6 +1,6 @@
 # Changelog
 
-## XSLmodels (development version)
+## XSLmodels 0.4.0
 
 ### New Features
 
@@ -228,8 +228,46 @@
   must set `supports_start_matrix = TRUE` to receive one. Runs without a
   start matrix are unchanged
 
+### Documentation
+
+- The main vignette now covers every model and dataset added since 0.3.0
+  ([`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
+  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
+  [`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md)/[`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md)/[`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md);
+  `vlach_debrock2017`, `benitez2020`, `xsl_holdout_datasets`), and adds
+  two sections: passing prior learning to a model as training trials
+  vs. a `start_matrix`, and testing a fitted model’s generalization on
+  the held-out datasets. Its description of the dataset structure used
+  field names (`trials`, `objs`, `perf`) that no longer exist – so its
+  [`create_cooc_matrix()`](https://www.kachergis.com/XSLmodels/reference/create_cooc_matrix.md)
+  example was silently printing an empty matrix – and said words/objects
+  must be referred to by index, which no longer holds
+
 ### Bug Fixes
 
+- [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
+  with a parallel DEoptim backend
+  (`DEoptim.control(parallelType = "parallel")`) silently returned
+  `bestval = Inf` when `control` was passed as a variable
+  (e.g. `ctrl <- xslControl(n_sim = 100); xsl_fit(..., control = ctrl)`):
+  `control` was never forced, so the objective shipped to the worker
+  processes carried an unevaluated promise that each worker tried to
+  evaluate in its own empty global environment, every evaluation
+  errored, and the error was converted to `Inf`. `control` is now forced
+  before fitting, and
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
+  warns when every evaluation of a fit failed instead of returning an
+  all-`Inf` result silently. Serial fits were unaffected.
+- [`create_cooc_matrix()`](https://www.kachergis.com/XSLmodels/reference/create_cooc_matrix.md)
+  looped over the number of distinct *words* rather than the number of
+  trials: with more words than trials it errored, and with fewer
+  (e.g. its own documented example, `xsl_datasets[[1]]`: 18 words, 36
+  trials) it silently tallied only the first trials. It also indexed by
+  raw label (the same issue as
+  [\#14](https://github.com/kachergis/XSLmodels/issues/14)). Both fixed;
+  [`plot_training_trials()`](https://www.kachergis.com/XSLmodels/reference/plot_training_trials.md)
+  now indexes by label too. No model uses either function, so no fits
+  change
 - [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
   and
   [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
@@ -245,15 +283,17 @@
   [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
   already did). No `xsl_datasets` condition has single-object trials, so
   fits to it are unchanged; `kachergis_initial_accuracy` (18
-  single-object familiarization trials per condition) and the
-  naturalistic corpora (`rollins_corpus`, `fm_corpus`) are affected.
-  Integer-labelled data (e.g. `kachergis_initial_accuracy`) was affected
-  before this release too; the corpora were not – they reached these
-  models as string labels, for which
-  [`sample()`](https://rdrr.io/r/base/sample.html) behaves as intended –
-  until [\#14](https://github.com/kachergis/XSLmodels/issues/14) began
-  handing models integer positions, so for the corpora this is a
-  regression in 0.4.0.
+  single-object familiarization trials per condition),
+  `kachergis2012_highlighting`’s words-as-cues condition (28 trials
+  naming two words with one object), and the naturalistic corpora
+  (`rollins_corpus`, `fm_corpus`) are affected. Integer-labelled data
+  (e.g. `kachergis_initial_accuracy`) was affected before this release
+  too; the corpora were not – they reached these models as string
+  labels, for which [`sample()`](https://rdrr.io/r/base/sample.html)
+  behaves as intended – until
+  [\#14](https://github.com/kachergis/XSLmodels/issues/14) began handing
+  models integer positions, so for the corpora this is a regression in
+  0.4.0.
 - Models indexed their association matrices by raw word/object value
   (`m[tr_w, tr_o]`) rather than by position in the sorted vocabulary,
   which is only correct for labels that are exactly `1..N`
@@ -277,9 +317,14 @@
   both compared a column *position* against the trial’s object *labels*,
   which can never match for character labels, so on the corpora every
   hypothesis was treated as disconfirmed and none was ever verified.
-  **The `propose_but_verify` and `pursuit` results in
-  `tests/bakeoff_comparison/corpus_report.md` are therefore invalid**
-  (including pursuit’s reported collapse on FM) and need rerunning
+  (Handing these models integer positions also exposed the single-object
+  [`sample()`](https://rdrr.io/r/base/sample.html) bug above on the same
+  corpora; both fixes are needed for correct corpus results.) The
+  `propose_but_verify` and `pursuit` results previously in
+  `tests/bakeoff_comparison/corpus_report.md` were therefore invalid
+  (including pursuit’s reported collapse on FM); the report and
+  [`vignette("corpora")`](https://www.kachergis.com/XSLmodels/articles/corpora.md)
+  have been rerun on the fixed code
 - [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
   now caps associations at `beta` (1), its stated maximum, as well as
   flooring them at 0. Its unnormalized update could overshoot far above

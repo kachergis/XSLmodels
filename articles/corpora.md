@@ -303,60 +303,77 @@ heuristic `round(7 * sqrt(n / 600))`.
 | fazly              |   0.450 | 0.407 |
 | fgt2009_rsa        |   0.395 | 0.421 |
 | fgt2009            |   0.385 | 0.421 |
-| uncfam_sampling    |   0.377 | 0.353 |
-| multi_sampling     |   0.377 | 0.353 |
-| uncfam_attention   |   0.371 | 0.354 |
-| uncfam             |   0.371 | 0.353 |
-| guess_and_test     |   0.409 | 0.297 |
-| softmax_rl         |   0.407 | 0.258 |
+| uncfam_sampling    |   0.394 | 0.360 |
+| multi_sampling     |   0.394 | 0.352 |
+| uncfam             |   0.377 | 0.360 |
+| uncfam_gamma       |   0.377 | 0.360 |
+| uncfam_elimination |   0.377 | 0.360 |
+| uncfam_attention   |   0.377 | 0.351 |
+| propose_but_verify |   0.409 | 0.318 |
+| softmax_rl         |   0.376 | 0.336 |
+| pursuit            |   0.400 | 0.307 |
+| guess_and_test     |   0.396 | 0.304 |
 | baseline           |   0.377 | 0.268 |
+| minerva2           |   0.359 | 0.267 |
 | rescorla_wagner    |   0.312 | 0.290 |
 | decay              |   0.320 | 0.272 |
-| propose_but_verify |   0.321 | 0.236 |
 | kalman_filter      |   0.303 | 0.211 |
-| pursuit            |   0.353 | 0.048 |
-| uncfam_predictive  |   0.208 | 0.091 |
+| uncfam_predictive  |   0.235 | 0.185 |
+| todam              |   0.174 | 0.048 |
 | tilles             |   0.080 | 0.048 |
 
 Best-threshold F of the learned lexicon vs. the gold lexicon. {.table}
+
+[`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) is left
+out: at roughly 11 minutes per simulation on FM, averaging the 50
+simulations used for the other stochastic models isn’t practical.
 
 Reading the table:
 
 - **`bayesian_decay` and `fazly` come out on top** (F around 0.45 on
   both corpora), with `fgt2009` close behind.
 - **`fgt2009` trades recall for precision.** On FM its precision is
-  ~0.71 against ~0.2–0.34 for the others: the geometric size prior makes
-  it commit to a small, mostly-correct lexicon rather than a large noisy
-  one. Whether that is the right tradeoff depends on what you want the
-  lexicon for.
+  ~0.71 against ~0.15–0.34 for the others: the geometric size prior
+  makes it commit to a small, mostly-correct lexicon rather than a large
+  noisy one. Whether that is the right tradeoff depends on what you want
+  the lexicon for.
 - The RSA layer makes no difference on FM (`fgt2009` == `fgt2009_rsa`):
   at `alpha = 20` the learned lexicon is sparse enough that no word
   names two co-present objects, so the pragmatic speaker reduces to the
   literal one.
-- The middle of the pack is a tight cluster around F = 0.35 – the three
-  `uncfam` variants and the two sampling versions all land there, which
-  is reassuring since the sampling models are meant to approximate
-  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md).
+- The middle of the pack is a tight cluster around F = 0.35–0.40: the
+  `uncfam` variants, the two sampling versions (which are meant to
+  approximate
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)),
+  and the hypothesis-testing models (`propose_but_verify`, `pursuit`,
+  `guess_and_test`), which do relatively better on Rollins than on FM.
 - **Every model now runs on both corpora**, but several needed fixes to
   get there. The sampling/RL models were built for controlled
   experiments of a few dozen trials; running them on 4763 naturalistic
   utterances exposed a memory blow-up
   ([`xslControl()`](https://www.kachergis.com/XSLmodels/reference/xslControl-class.md)’s
   `keep_traj = FALSE` default), an error on the many non-referential
-  utterances with no objects present, and two latent bugs
-  ([`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md)
+  utterances with no objects present, and latent bugs:
+  [`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md)
   and
   [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
-  comparing a sampled guess to object *positions* vs *labels*;
+  compared a sampled guess to object *positions* vs *labels*;
   [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
-  also mishandling a word repeated within one utterance;
+  mishandled a word repeated within one utterance;
   [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
-  coercing its labels with
-  [`as.integer()`](https://rdrr.io/r/base/integer.html) and returning an
-  unnamed matrix). `pursuit` and `tilles` still learn near-empty or
-  diffuse lexicons on FM at the registry’s default parameters – read the
-  low scores as “this parameterisation doesn’t transfer”, not “the model
-  is broken”.
+  coerced its labels with
+  [`as.integer()`](https://rdrr.io/r/base/integer.html) and returned an
+  unnamed matrix; and
+  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  and
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
+  drew hypotheses from the wrong set on utterances with a single object
+  present (common in both corpora).
+- `tilles` and `todam` still learn diffuse lexicons at their default
+  parameters: their best threshold is 0, i.e. no threshold separates
+  correct pairings from the rest. For `tilles`, fitting its parameters
+  lifts F to ~0.40–0.43 (below), so read the low default score as “this
+  parameterisation doesn’t transfer”, not “the model is broken”.
 
 ### Fitting to a corpus
 
@@ -368,48 +385,58 @@ lexicon (these corpora have no accuracy vector, so
 SSE objective does not apply).
 [`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 is fit by an `alpha` sweep instead.
-[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md)
-/
-[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)
-are left at defaults – averaging many simulations per DEoptim evaluation
-over 4763 utterances is impractical.
+[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md),
+[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md),
+[`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md),
+and the episodic-memory models are left at defaults – averaging many
+simulations per DEoptim evaluation over 4763 utterances is impractical.
 
 | model              | Rollins_default | Rollins_fitted | FM_default | FM_fitted |
 |:-------------------|----------------:|---------------:|-----------:|----------:|
 | bayesian_decay     |           0.449 |          0.465 |      0.450 |     0.560 |
 | fgt2009            |              NA |          0.452 |         NA |     0.529 |
 | fgt2009_rsa        |              NA |          0.447 |         NA |     0.515 |
-| fazly              |           0.450 |          0.468 |      0.407 |     0.412 |
-| softmax_rl         |           0.361 |          0.449 |      0.276 |     0.463 |
-| uncfam_attention   |           0.371 |          0.438 |      0.354 |     0.443 |
-| uncfam             |           0.371 |          0.422 |      0.353 |     0.446 |
-| guess_and_test     |           0.378 |          0.440 |      0.308 |     0.362 |
-| tilles             |           0.080 |          0.417 |      0.048 |     0.385 |
-| uncfam_predictive  |           0.208 |          0.360 |      0.091 |     0.411 |
-| propose_but_verify |           0.310 |          0.365 |      0.246 |     0.326 |
-| rescorla_wagner    |           0.312 |          0.348 |      0.290 |     0.324 |
+| softmax_rl         |           0.360 |          0.447 |      0.299 |     0.429 |
+| fazly              |           0.450 |          0.463 |      0.407 |     0.412 |
+| uncfam_gamma       |           0.377 |          0.450 |      0.360 |     0.425 |
+| uncfam_attention   |           0.377 |          0.420 |      0.351 |     0.417 |
+| tilles             |           0.080 |          0.427 |      0.048 |     0.400 |
+| uncfam             |           0.377 |          0.420 |      0.360 |     0.388 |
+| guess_and_test     |           0.372 |          0.440 |      0.292 |     0.368 |
+| uncfam_elimination |           0.377 |          0.404 |      0.360 |     0.400 |
+| propose_but_verify |           0.400 |          0.438 |      0.325 |     0.360 |
+| rescorla_wagner    |           0.312 |          0.389 |      0.290 |     0.343 |
 | decay              |           0.320 |          0.382 |      0.272 |     0.288 |
-| kalman_filter      |           0.303 |          0.382 |      0.211 |     0.274 |
+| kalman_filter      |           0.303 |          0.382 |      0.211 |     0.275 |
+| uncfam_predictive  |           0.235 |          0.333 |      0.185 |     0.233 |
 
 Best-threshold F: registry default vs. fit to the corpus. {.table}
 
 - **Fitting lifts every model**, and by a lot for the ones whose
   registry defaults were tuned on controlled experiments: `tilles`
-  (+0.34 on both corpora), `uncfam_predictive` (+0.15 / +0.32),
-  `softmax_rl` (+0.09 / +0.19).
+  (+0.35 on both corpora), `softmax_rl` (+0.09 / +0.13),
+  `uncfam_predictive` (+0.10 / +0.05).
 - **`bayesian_decay` fit to FM reaches F = 0.56** – clearly the
   strongest result – with `fgt2009` next at 0.53. `fazly` barely moves
   (its defaults were already near-optimal for these corpora).
+- **[`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
+  is the best `uncfam` variant once fit** (0.45 / 0.43, vs 0.42 / 0.39
+  for
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)),
+  with a fitted familiarity exponent of 1.56 on Rollins and 0.77 on FM –
+  so neither corpus is consistent with familiarity entering linearly,
+  but they disagree on the direction.
+  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md)
+  gains less (0.40 / 0.40).
 - `fgt2009_rsa` fit (best of an `alpha` sweep) lands just below
   `fgt2009` (0.45 / 0.52 vs 0.45 / 0.53) – the pragmatic layer neither
   helps nor hurts once `alpha` is chosen, because the fitted lexicon is
   still too sparse for a word to name two co-present objects.
 - The fitted parameters are in `corpus_gold_fits.rds`. `kalman_filter`’s
-  `sigma2_obs` sits right at its upper bound, but that is a plateau, not
-  a real constraint: the three Kalman parameters share a scale
-  redundancy and the F landscape is flat in `sigma2_obs` above a few
-  hundred, so the fit is the same F whether the bound is 500 or 20000.
-  Read its fitted `sigma2_obs` as “large”, not as an estimate.
+  `sigma2_obs` lands high (1511 / 1923, against an upper bound of 2000),
+  but that is a plateau, not an estimate: the three Kalman parameters
+  share a scale redundancy and the F landscape is flat in `sigma2_obs`
+  above a few hundred. Read its fitted `sigma2_obs` as “large”.
 
 ## References
 

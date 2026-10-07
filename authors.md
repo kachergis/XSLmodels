@@ -15,13 +15,13 @@ Source:
 [`DESCRIPTION`](https://github.com/kachergis/XSLmodels/blob/master/DESCRIPTION)
 
 Kachergis G, Braginsky M, Liang K (2026). *XSLmodels: Run and Optimize
-Cross-Situational Word Learning Models*. R package version 0.3.0,
+Cross-Situational Word Learning Models*. R package version 0.4.0,
 <https://www.kachergis.com/XSLmodels/>.
 
     @Manual{,
       title = {XSLmodels: Run and Optimize Cross-Situational Word Learning Models},
       author = {George Kachergis and Mika Braginsky and Kevin Liang},
       year = {2026},
-      note = {R package version 0.3.0},
+      note = {R package version 0.4.0},
       url = {https://www.kachergis.com/XSLmodels/},
     }

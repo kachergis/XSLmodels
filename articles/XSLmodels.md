@@ -24,15 +24,15 @@ Cross-situational word learning (XSL) datasets are defined with the
 `xslData` class, which requires defining minimally a training phase and
 a testing phase. Each trial of the training phase presents participants
 (or models) with one or more words and one or more referents
-(i.e. objects). In this package, each word $`w`$ and object $`o`$ is
-referred to by index (i.e., $`w_i`$, $`o_j`$), and the to-be-learned
-word-object pairs are assumed to have the same index
-(i.e. $`w_i = o_i`$). Thus, each dataset defines a list `train` of
-`words` and `objects` indices on each trial, also defined in lists (to
-allow for a potentially varying number of words/objects per trial). The
-`test` trials are defined by a list of the available objects on each
-test trial. A dataset can also be given a short `label`, and a longer
-(maybe per-item?) `condition`.
+(i.e. objects). Words and objects can be given any labels – numbers or
+strings – and a word’s correct referent is the object with the same
+label (i.e. $`w_i`$ is meant to be learned as $`o_i`$). Thus, each
+dataset defines a list `train` of the `words` and `objects` presented on
+each trial, also defined in lists (to allow for a potentially varying
+number of words/objects per trial). The `test` trials are defined by a
+list of the tested word and a list of the available objects on each test
+trial. A dataset can also be given a short `label`, and a longer (maybe
+per-item?) `condition`.
 
 If you already have collected a sample of human participants, you can
 optionally include per-item `accuracy`, a vector of length equal to the
@@ -63,13 +63,13 @@ xslData(train = list(words = list(c(1, 2), c(2, 3)),
 [`get_example_ambiguous_condition()`](https://www.kachergis.com/XSLmodels/reference/get_example_ambiguous_condition.md)
 and
 [`get_example_unambiguous_condition()`](https://www.kachergis.com/XSLmodels/reference/get_example_unambiguous_condition.md)
-return simple example experimental conditions, which consist of a list
-of training *trials*, an optional vector *perf* containing the per-word
-performance of people on the test trials, and an optional list of test
-trials, enumerating each to-be-tested word and the set of referents to
-be presented for choosing among. The list of training trials is further
-composed of a list of the words presented on each trial, and a list of
-the referents (*objs*) presented on each trial.
+return simple example experimental conditions, which consist of the
+training trials (`train`), an optional vector `accuracy` containing
+people’s per-word performance on the test trials, and an optional list
+of test trials (`test`), enumerating each to-be-tested word and the set
+of referents presented for choosing among. `train` is in turn a list of
+the words presented on each trial, and a list of the referents
+(`objects`) presented on each trial.
 
 ``` r
 
@@ -83,10 +83,10 @@ ag
 #>        accuracies: 4
 ```
 
-Shown above, the example ambiguous condition has three training trials
-(`ag$trials`). On the first trial words 1 and 2 appear
-(`ag$trials$words[[1]]`) alongside referents 1 and 2
-(`ag$trials$objs[[1]]`; order of words/referents within a trial is
+Shown above, the example ambiguous condition has two training trials
+(`ag$train`). On the first trial words 1 and 2 appear
+(`ag$train$words[[1]]`) alongside referents 2 and 1
+(`ag$train$objects[[1]]`; the order of words/referents within a trial is
 irrelevant).
 
 ### 2. Viewing an experiment’s structure
@@ -101,8 +101,12 @@ each word with each object across all of the training trials.
 
 ``` r
 
-create_cooc_matrix(ag$trials)
-#> <0 x 0 matrix>
+create_cooc_matrix(ag$train)
+#>   1 2 3 4
+#> 1 1 1 0 0
+#> 2 1 1 0 0
+#> 3 0 0 1 1
+#> 4 0 0 1 1
 ```
 
 ### 3. Included experimental conditions
@@ -142,31 +146,48 @@ xsl_datasets[[1]]$accuracy
 #> [16] 0.08 0.20 0.08
 ```
 
-A few datasets ship separately from `xsl_datasets` because they don’t
-fit its “one correct object per tested word, scored by SSE against human
-accuracy” convention: `kachergis2012_highlighting` and
-`kachergis_initial_accuracy` (experiments with ambiguous test items);
-`gangwani2011_category`, a hierarchical design in which every object has
-both a 1-to-1 name and a 1-to-many category label (the association
-matrix is 15 words x 12 objects, and learners violate mutual exclusivity
-– see
-[`?gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
-and `tests/bakeoff_comparison/gangwani2011_category_fit.R`); and two
-naturalistic caregiver-speech corpora imported from the
-[wurwur](https://github.com/mcfrank/wurwur) package – `rollins_corpus`
-(the CHILDES/Rollins corpus fit by Frank, Goodman & Tenenbaum, 2009) and
-`fm_corpus` (Frank, Tenenbaum & Fernald). These corpora have no human
-referent-selection data; each bundles the training `xslData` in `$data`
-with a gold-standard lexicon in `$gold`, scored with
-[`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md)
+Several more datasets ship separately from `xsl_datasets`, so that they
+are never seen by
+[`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)
 /
-[`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
-rather than SSE:
+[`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md).
+Most are standalone because they don’t fit the “one correct object per
+tested word, scored by SSE against human accuracy” convention:
+
+- `kachergis2012_highlighting`: some test items have two legitimate
+  targets, so its accuracy is partly `NA`.
+- `gangwani2011_category`: a hierarchical design in which every object
+  has both a 1-to-1 name and a 1-to-many category label (a 15 word x 12
+  object matrix; learners violate mutual exclusivity – see
+  [`?gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)).
+- `vlach_debrock2017`: only an overall mean accuracy is reported, not
+  per word.
+- `rollins_corpus` and `fm_corpus`: two naturalistic caregiver-speech
+  corpora imported from the [wurwur](https://github.com/mcfrank/wurwur)
+  package, with no human referent-selection data. Each bundles the
+  training `xslData` in `$data` with a gold-standard lexicon in `$gold`,
+  scored with
+  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md)
+  /
+  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  rather than SSE (see
+  [`vignette("corpora")`](https://www.kachergis.com/XSLmodels/articles/corpora.md)).
+
+Two others, `kachergis_initial_accuracy` and `benitez2020`, fit the
+convention fine but are held out on purpose, as data for testing how
+well a model fit to `xsl_datasets` generalizes (section 11).
+`xsl_holdout_datasets` lists every standalone dataset and how to score a
+model against it:
 
 ``` r
 
-m <- xsl_run(fgt2009(alpha = 7), rollins_corpus$data)$fits[[1]]$matrix
-get_roc_max(m, gold_lexicon = rollins_corpus$gold)
+str(xsl_holdout_datasets$benitez2020)
+#> List of 3
+#>  $ scorable: logi TRUE
+#>  $ scoring : chr "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)"
+#>  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."
+names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
+#> [1] "benitez2020"                "kachergis_initial_accuracy"
 ```
 
 ## Running, fitting, and defining XSL models.
@@ -379,6 +400,12 @@ with learning rate scaled to trial uncertainty -
 [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md) -
 [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 with an added item-level prediction-error term -
+[`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md) -
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+with a free exponent on familiarity’s contribution to attention -
+[`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md) -
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+with learning by elimination (mutual exclusivity) -
 [`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md) -
 Fazly et al. model -
 [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md) -
@@ -416,6 +443,17 @@ package). Tune the lexicon-size prior with
 [`fgt2009()`](https://www.kachergis.com/XSLmodels/reference/fgt2009.md)
 with a Rational Speech Act pragmatic speaker layer
 
+**Episodic / distributed memory models:** -
+[`minerva2()`](https://www.kachergis.com/XSLmodels/reference/minerva2.md) -
+Hintzman’s MINERVA2: stores each trial as a trace of random feature
+vectors, and retrieves by similarity -
+[`todam()`](https://www.kachergis.com/XSLmodels/reference/todam.md) -
+Murdock’s TODAM: a single composite memory vector of convolved
+word-object associations -
+[`rem()`](https://www.kachergis.com/XSLmodels/reference/rem.md) -
+Shiffrin & Steyvers’ REM, adapted to this package’s associative task
+(slow on large corpora)
+
 **Baseline models:** -
 [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md) -
 Simple co-occurrence baseline -
@@ -427,3 +465,97 @@ Tilles model
 Each model can be run with different parameters and compared to human
 data to understand which learning mechanisms best explain
 cross-situational word learning behavior.
+
+### 10. Prior learning: training trials or a start matrix
+
+Some experiments teach part of the vocabulary before the
+cross-situational phase – e.g. `kachergis_initial_accuracy`, which first
+shows each word with one object. There are two ways to give a model that
+prior learning.
+
+The general one is to include it as ordinary training trials, as
+`kachergis_initial_accuracy` does (its first 18 trials each show one
+word with one object). Every model learns from these with its own update
+rule.
+
+Alternatively, a model can start from a given association matrix via
+`xslControl(start_matrix = ...)`. Only models with a single
+word-by-object association matrix support this:
+[`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md),
+[`decay()`](https://www.kachergis.com/XSLmodels/reference/decay.md),
+[`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md),
+[`softmax_rl()`](https://www.kachergis.com/XSLmodels/reference/softmax_rl.md),
+the
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+family (including
+[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md)
+and
+[`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)),
+[`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md),
+and
+[`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md).
+Any other model
+(e.g. [`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md),
+[`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md),
+or the episodic-memory models) stops with an error rather than silently
+ignoring it. A start matrix with dimnames is matched to the data’s
+words/objects by label.
+
+``` r
+
+d <- get_example_ambiguous_condition()
+prior <- matrix(0, 4, 4, dimnames = list(1:4, 1:4))
+prior["1", "1"] <- .5   # word 1 already partly learned
+mod <- uncfam(X = .1, B = .98, C = 1)
+xsl_run(mod, d)$fits[[1]]$perf
+#>         1         2         3         4 
+#> 0.3888889 0.3888889 0.3888889 0.3888889
+xsl_run(mod, d, control = xslControl(start_matrix = prior))$fits[[1]]$perf
+#>         1         2         3         4 
+#> 0.9451155 0.3593462 0.3888889 0.3888889
+```
+
+Note that the two encodings aren’t interchangeable: what a start-matrix
+value “means” differs by model (a count, a probability, a Q-value), and
+prior-learning trials interact with mechanisms such as
+[`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md)’s
+running average of trial uncertainty.
+
+### 11. Testing generalization on held-out datasets
+
+Parameters fit to `xsl_datasets` can be checked against data the fit
+never saw. `xsl_holdout_datasets` says which held-out datasets can be
+scored the standard way; here, a model fit to a few `xsl_datasets`
+conditions is scored on each `benitez2020` and
+`kachergis_initial_accuracy` condition, next to the no-free-parameter
+[`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md):
+
+``` r
+
+fit <- xsl_fit(decay(C = .98), data = xsl_datasets[1:5], lower = .8, upper = 1,
+               deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 10, trace = FALSE))
+fitted_decay <- update_params(decay(C = .98), fit[[1]]$optim$bestmem)
+
+holdout <- c(benitez2020, kachergis_initial_accuracy)
+data.frame(
+  condition = names(holdout),
+  decay_sse = sapply(holdout, \(d) xsl_run(fitted_decay, d)$sse),
+  baseline_sse = sapply(holdout, \(d) xsl_run(baseline(), d)$sse),
+  row.names = NULL
+)
+#>                          condition decay_sse baseline_sse
+#> 1                Interleaved, kids 0.1560054    0.1758034
+#> 2              Interleaved, adults 0.1556145    0.1666667
+#> 3                     Massed, kids 0.1374258    0.1390123
+#> 4                   Massed, adults 0.1134279    0.1133333
+#> 5     Unstructured (order 1), kids 0.4451216    0.4506173
+#> 6   Unstructured (order 2/3), kids 0.4965327    0.4843750
+#> 7 Unstructured (order 2/3), adults 1.0515461    1.0733333
+#> 8            High Initial Accuracy 0.2919295    0.1846444
+#> 9             Low Initial Accuracy 0.1920520    0.1146664
+```
+
+A model that fits `xsl_datasets` well but does worse than
+[`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
+on held-out data is likely overfitting the particular conditions it was
+fit to.
