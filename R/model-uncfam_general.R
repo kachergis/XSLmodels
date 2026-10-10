@@ -7,6 +7,8 @@ uncfam_general_model <- function(params, data, control) {
   kappa <- params[["kappa"]] # exponent on trial-level attention scaling of X
   K <- params[["K"]] # samples per word per trial (Inf = deterministic allocation)
   uncertainty <- params[["uncertainty"]] # "entropy" or "novelty"
+  rho <- params[["rho"]] # weight of the short-term trace in familiarity (0 = none)
+  Cs <- params[["Cs"]] # decay of the short-term trace
 
   reps <- control[["reps"]]
   start_matrix <- control[["start_matrix"]]
@@ -29,6 +31,10 @@ uncfam_general_model <- function(params, data, control) {
   }
   colnames(m) <- ref
   rownames(m) <- voc
+  # short-term trace: receives every update like m, but decays at Cs; it
+  # only adds to the familiarity that drives attention (not to uncertainty,
+  # elimination, or test performance)
+  st <- m * 0
   perf <- matrix(0, reps, voc_sz) # a row for each block
   # training
   for (rep in 1:reps) { # for trajectory experiments, train multiple times
@@ -64,12 +70,15 @@ uncfam_general_model <- function(params, data, control) {
         }
       }
 
+      # familiarity: long-term association, plus the short-term trace
+      fam <- if (rho != 0) m + rho * st else m
+
       if (is.infinite(K)) {
         # deterministic allocation: familiarity^gamma x uncertainty,
         # normalized over the trial's pairs
         assocs <- m[tr_w, tr_o]
         terms <- exp(B * term_w) %*% t(exp(B * term_o))
-        terms <- (assocs ^ gamma) * terms
+        terms <- ((if (rho != 0) fam[tr_w, tr_o] else assocs) ^ gamma) * terms
         idx_w <- tr_w
         idx_o <- tr_o
       } else {
@@ -86,10 +95,10 @@ uncfam_general_model <- function(params, data, control) {
         chosen <- matrix(0, length(u_tr_w), length(u_tr_o), dimnames = list(u_tr_w, u_tr_o))
         for (w in tr_w) {
           row_probs <- numeric(ref_sz)
-          row_probs[tr_o_idx] <- m[w, u_tr_o] ^ gamma * ent_w_tr[[as.character(w)]] * ent_o_tr
+          row_probs[tr_o_idx] <- fam[w, u_tr_o] ^ gamma * ent_w_tr[[as.character(w)]] * ent_o_tr
           if (sum(row_probs) == 0) next
           x_lab <- ref[sample(1:ref_sz, K, replace = TRUE, prob = row_probs)]
-          chosen[as.character(w), as.character(x_lab)] <- m[w, x_lab] ^ gamma
+          chosen[as.character(w), as.character(x_lab)] <- fam[w, x_lab] ^ gamma
         }
         nent <- outer(ent_w_tr, ent_o_tr)
         terms <- chosen * nent
@@ -121,6 +130,10 @@ uncfam_general_model <- function(params, data, control) {
       # update associations on this trial (a trial on which nothing was
       # sampled is a no-op, as in uncfam_sampling(); decay still applies)
       if (all(is.finite(delta))) m[idx_w, idx_o] <- m[idx_w, idx_o] + delta
+      if (rho != 0) {
+        st <- st * Cs
+        if (all(is.finite(delta))) st[idx_w, idx_o] <- st[idx_w, idx_o] + delta
+      }
 
       index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
       if (keep_traj) traj[[index]] <- m
@@ -149,6 +162,13 @@ uncfam_general_model <- function(params, data, control) {
 #' \eqn{b}, and only sampled pairs share the weight (see [uncfam_sampling()]);
 #' as `K` grows every pair is sampled and this approaches `K = Inf`.
 #'
+#' A short-term trace (`rho > 0`) adds recency to the familiarity bias: every
+#' update also goes into a second matrix \eqn{S} that decays by `Cs` per trial
+#' (vs. `C` for \eqn{M}), and familiarity in \eqn{b} becomes
+#' \eqn{(M + \rho S)^\gamma}, so a pairing strengthened on a recent trial
+#' draws extra attention. The trace affects only allocation during learning:
+#' uncertainty, elimination, and test performance use \eqn{M}.
+#'
 #' Special cases (each reproduces the named function exactly):
 #' \tabular{ll}{
 #'   defaults \tab `uncfam()` \cr
@@ -174,6 +194,8 @@ uncfam_general_model <- function(params, data, control) {
 #'   allocation; finite = sampled attention, a stochastic model)
 #' @param uncertainty Uncertainty measure: `"entropy"` (default) or
 #'   `"novelty"` (`1 / (1 + times seen)`)
+#' @param rho Weight of the short-term trace in familiarity (0 = none)
+#' @param Cs Per-trial decay of the short-term trace (used only if `rho > 0`)
 #'
 #' @return An object of class xslMod
 #' @export
@@ -188,7 +210,7 @@ uncfam_general_model <- function(params, data, control) {
 #' # sampled attention (stochastic)
 #' xsl_run(uncfam_general(X = .1, B = .98, C = 1, K = 1), dat, control = xslControl(n_sim = 50))
 uncfam_general <- function(X, B, C, gamma = 1, eps = 0, kappa = 0, K = Inf,
-                           uncertainty = c("entropy", "novelty")) {
+                           uncertainty = c("entropy", "novelty"), rho = 0, Cs = .5) {
   uncertainty <- match.arg(uncertainty)
   if (!is.infinite(K) && (K < 1 || K != round(K))) stop("`K` must be a positive integer or Inf")
   xslMod(
@@ -196,7 +218,7 @@ uncfam_general <- function(X, B, C, gamma = 1, eps = 0, kappa = 0, K = Inf,
     description = "General biased associative model nesting the uncfam() family",
     model = uncfam_general_model,
     params = list(X = X, B = B, C = C, gamma = gamma, eps = eps, kappa = kappa,
-                  K = K, uncertainty = uncertainty),
+                  K = K, uncertainty = uncertainty, rho = rho, Cs = Cs),
     stochastic = !is.infinite(K)
   )
 }

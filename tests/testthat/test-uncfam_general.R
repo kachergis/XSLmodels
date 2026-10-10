@@ -83,3 +83,32 @@ test_that("sampled attention matches uncfam_sampling() even with tied sampling p
   b <- b$model(b$params, d$train, xslControl())
   expect_identical(a$matrix, b$matrix)
 })
+
+test_that("rho = 0 ignores the short-term trace entirely (any Cs)", {
+  same(run(uncfam_general(X = .1, B = .98, C = .97, rho = 0, Cs = .1)),
+       run(uncfam_general(X = .1, B = .98, C = .97)))
+  same(run(uncfam_general(X = .1, B = .98, C = .97, K = 2, rho = 0, Cs = .9), seed = 4),
+       run(uncfam_general(X = .1, B = .98, C = .97, K = 2), seed = 4))
+})
+
+test_that("a short-term trace favours a pairing repeated on the previous trial", {
+  # word 1 meets object 1 on trials 1-2 (massed) and object 2 on trials 3-4
+  # (massed again); on trial 5 it appears with both. With equal long-term
+  # strength, the trace favours the more recent pairing (1-2).
+  d <- xslData(train = list(words = list(1, 1, 1, 1, 1), objects = list(1, 1, 2, 2, c(1, 2))))
+  share_12 <- function(rho) {
+    mod <- uncfam_general(X = .5, B = 0, C = 1, rho = rho, Cs = .5)
+    # single word/object trials trigger R's "recycling array of length 1"
+    # deprecation warning in the shared uncfam() arithmetic (also in uncfam())
+    f <- suppressWarnings(mod$model(mod$params, d$train, xslControl(keep_traj = TRUE)))
+    gain <- f$traj[[5]] - f$traj[[4]]
+    gain[1, 2] / sum(gain[1, ])
+  }
+  expect_gt(share_12(5), share_12(0))
+})
+
+test_that("short-term trace combines with other extensions and stays valid", {
+  fit <- run(uncfam_general(X = .2, B = 3, C = .95, gamma = 2, eps = 1, rho = 3, Cs = .3, K = 1), seed = 2)
+  expect_true(all(is.finite(fit$matrix)))
+  expect_true(all(fit$perf >= 0 & fit$perf <= 1))
+})

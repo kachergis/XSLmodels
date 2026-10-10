@@ -12,7 +12,9 @@ uncfam_general(
   eps = 0,
   kappa = 0,
   K = Inf,
-  uncertainty = c("entropy", "novelty")
+  uncertainty = c("entropy", "novelty"),
+  rho = 0,
+  Cs = 0.5
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ allocation; finite = sampled attention, a stochastic model)}
 
 \item{uncertainty}{Uncertainty measure: \code{"entropy"} (default) or
 \code{"novelty"} (\verb{1 / (1 + times seen)})}
+
+\item{rho}{Weight of the short-term trace in familiarity (0 = none)}
+
+\item{Cs}{Per-trial decay of the short-term trace (used only if \code{rho > 0})}
 }
 \value{
 An object of class xslMod
@@ -56,6 +62,13 @@ allocated: each word attends to \code{K} objects drawn in proportion to
 as \code{K} grows every pair is sampled and this approaches \code{K = Inf}.
 }
 \details{
+A short-term trace (\code{rho > 0}) adds recency to the familiarity bias: every
+update also goes into a second matrix \eqn{S} that decays by \code{Cs} per trial
+(vs. \code{C} for \eqn{M}), and familiarity in \eqn{b} becomes
+\eqn{(M + \rho S)^\gamma}, so a pairing strengthened on a recent trial
+draws extra attention. The trace affects only allocation during learning:
+uncertainty, elimination, and test performance use \eqn{M}.
+
 Special cases (each reproduces the named function exactly):
 \tabular{ll}{
 defaults \tab \code{uncfam()} \cr
