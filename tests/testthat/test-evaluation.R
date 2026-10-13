@@ -111,3 +111,15 @@ test_that("get_perf() treats negative associations as 0 and answers empty rows a
   expect_equal(p, c(1, .5, 1 / 3))
   expect_true(all(p >= 0 & p <= 1))
 })
+
+test_that("mafc_test() scores an explicit correct referent when given", {
+  m <- matrix(c(.6, .3, .1,
+                .2, .5, .3,
+                .1, .1, .8), 3, byrow = TRUE, dimnames = list(1:3, 1:3))
+  test <- list(words = list(1, 1), objects = list(c(1, 3), c(2, 3)))
+  expect_equal(mafc_test(m, test), c(.6 / .7, NA))
+  test$correct <- list(1, 2)
+  expect_equal(mafc_test(m, test), c(.6 / .7, .3 / .4))
+  expect_error(validate_xslData(new_xslData(list(train = list(), test = list(words = list(1), objects = list(1), correct = list(1, 2)),
+                                                  accuracy = numeric()))))
+})

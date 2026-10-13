@@ -32,10 +32,11 @@ validate_xslData <- function(x) {
   stopifnot(!is.null(names(x$train)))
   stopifnot(all(names(x$train) %in% c("words", "objects")))
   stopifnot(length(x$test) == 0 |
-              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects"))))
+              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects", "correct"))))
 
   stopifnot(length(x$train$words) == length(x$train$objects))
   stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
+  stopifnot(is.null(x$test$correct) || length(x$test$correct) == length(x$test$words))
   # testing a single word per trial
   #for(i in x$test$words) stopifnot(length(i) == 1)
   stopifnot(length(x$accuracy) == 0 |

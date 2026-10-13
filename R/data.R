@@ -4,9 +4,12 @@
 #'   objects). Conditions whose test offered only some of the objects carry a
 #'   `test` specification -- for each tested word, the objects offered -- and
 #'   are scored with [mafc_test()]: the four 4AFC conditions (211-214), and the
-#'   12 filtering conditions (`filt*E_*L`; Kachergis, Yu, & Shiffrin, 2012),
-#'   whose word-to-object test offered every object except the tested word's
-#'   partner's (see `data-raw/fix_filtering_tests.R`).
+#'   12 filtering conditions (`filt*E_*L`; Kachergis, Yu, & Shiffrin, 2012).
+#'   In the filtering conditions each word co-occurs with its own object and
+#'   its partner's, and was tested twice: with the partner's object absent
+#'   (items 1-12, own object correct) and with its own object absent (items
+#'   13-24, partner's object correct; `test$correct`), so `accuracy` has 24
+#'   entries (see `data-raw/fix_filtering_tests.R`).
 "xsl_datasets"
 
 #' Kachergis (2012) highlighting experiment data

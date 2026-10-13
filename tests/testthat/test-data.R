@@ -110,23 +110,31 @@ test_that("a model runs on the corpora and scores against the gold lexicon", {
                   "data.frame")
 })
 
-test_that("filtering conditions are scored as 11-alternative tests excluding the partner object", {
-  # Kachergis, Yu & Shiffrin (2012): each word's partner object (the object of
-  # the word it always appears with) was not offered on the word-to-object
-  # test; see data-raw/fix_filtering_tests.R
+test_that("filtering conditions test both associations of each word (AtoA and AtoB)", {
+  # Kachergis, Yu & Shiffrin (2012): word w co-occurs with its own object and
+  # its partner's object; it was tested once with the partner object absent
+  # (AtoA, own object correct) and once with its own object absent (AtoB,
+  # partner object correct). See data-raw/fix_filtering_tests.R
   filt <- Filter(\(d) grepl("^filt", d$label), xsl_datasets)
   expect_length(filt, 12)
   partner <- c(7:12, 1:6)
   for (d in filt) {
-    expect_equal(unlist(d$test$words), 1:12)
-    for (w in 1:12) {
-      expect_length(d$test$objects[[w]], 11)
-      expect_true(w %in% d$test$objects[[w]])
-      expect_false(partner[w] %in% d$test$objects[[w]])
+    expect_length(d$accuracy, 24)
+    expect_equal(unlist(d$test$words), c(1:12, 1:12))
+    expect_equal(unlist(d$test$correct), c(1:12, partner))
+    for (k in 1:24) {
+      w <- d$test$words[[k]]
+      os <- d$test$objects[[k]]
+      expect_length(os, 11)
+      expect_true(d$test$correct[[k]] %in% os)
+      expect_false((if (k <= 12) partner[w] else w) %in% os)
     }
   }
-  # scoring excludes the partner: higher than 12-alternative Luce choice
+  # the 6L conditions exclude the 2 participants with shifted test coding
+  expect_true(all(sapply(Filter(\(d) grepl("_6L$", d$label), filt), `[[`, "n_subj") == 23))
+  # AtoA scoring excludes the partner: higher than 12-alternative Luce choice
   d <- filt[[which(sapply(filt, `[[`, "label") == "filt3E_6L")]]
-  m <- xsl_run(uncfam(X = .1, B = 3, C = .97), d)$fits[[1]]
-  expect_true(all(m$perf > get_perf(m$matrix)))
+  fit <- xsl_run(uncfam(X = .1, B = 3, C = .97), d)$fits[[1]]
+  expect_length(fit$perf, 24)
+  expect_true(all(fit$perf[1:12] > get_perf(fit$matrix)))
 })
