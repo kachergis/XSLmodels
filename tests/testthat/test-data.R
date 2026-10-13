@@ -109,3 +109,24 @@ test_that("a model runs on the corpora and scores against the gold lexicon", {
   expect_s3_class(get_fscore(m / rowSums(m), 0.1, rollins_corpus$gold),
                   "data.frame")
 })
+
+test_that("filtering conditions are scored as 11-alternative tests excluding the partner object", {
+  # Kachergis, Yu & Shiffrin (2012): each word's partner object (the object of
+  # the word it always appears with) was not offered on the word-to-object
+  # test; see data-raw/fix_filtering_tests.R
+  filt <- Filter(\(d) grepl("^filt", d$label), xsl_datasets)
+  expect_length(filt, 12)
+  partner <- c(7:12, 1:6)
+  for (d in filt) {
+    expect_equal(unlist(d$test$words), 1:12)
+    for (w in 1:12) {
+      expect_length(d$test$objects[[w]], 11)
+      expect_true(w %in% d$test$objects[[w]])
+      expect_false(partner[w] %in% d$test$objects[[w]])
+    }
+  }
+  # scoring excludes the partner: higher than 12-alternative Luce choice
+  d <- filt[[which(sapply(filt, `[[`, "label") == "filt3E_6L")]]
+  m <- xsl_run(uncfam(X = .1, B = 3, C = .97), d)$fits[[1]]
+  expect_true(all(m$perf > get_perf(m$matrix)))
+})

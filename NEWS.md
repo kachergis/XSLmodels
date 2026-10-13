@@ -1,3 +1,8 @@
+# XSLmodels (development version)
+
+## Bug Fixes
+- The 12 filtering conditions in `xsl_datasets` (`filt*E_*L`; Kachergis, Yu, & Shiffrin, 2012) were scored as a choice among all 12 objects, but participants' word-to-object test never offered the tested word's partner object: the object of the word it always appears with in training, which it co-occurs with exactly as often as its own. Across all 4152 such tests in the raw data, no participant chose the partner object, while every other object was chosen; the partner was tested separately, in the word-to-partner-object test. These conditions now carry an 11-alternative `test` specification and are scored with `mafc_test()`. Previously, any association with the partner object counted against a model, and `filt0E_*`, where the paired pairs are symmetric, was capped at .5 for every model. **This changes all fits involving these conditions.** See `data-raw/fix_filtering_tests.R` and `?xsl_datasets`
+
 # XSLmodels 0.4.0
 
 ## New Features

@@ -13,4 +13,13 @@ xsl_datasets
 \description{
 Cross-situational word learning experiment data
 }
+\details{
+Most conditions are scored with \code{\link[=get_perf]{get_perf()}} (choice among all
+objects). Conditions whose test offered only some of the objects carry a
+\code{test} specification -- for each tested word, the objects offered -- and
+are scored with \code{\link[=mafc_test]{mafc_test()}}: the four 4AFC conditions (211-214), and the
+12 filtering conditions (\code{filt*E_*L}; Kachergis, Yu, & Shiffrin, 2012),
+whose word-to-object test offered every object except the tested word's
+partner's (see \code{data-raw/fix_filtering_tests.R}).
+}
 \keyword{datasets}
