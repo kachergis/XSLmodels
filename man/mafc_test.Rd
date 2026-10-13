@@ -10,8 +10,10 @@ mafc_test(m, test, ...)
 \item{m}{A matrix representing model memory with words as rows and
 referents as columns.}
 
-\item{test}{A list representing the test trials, each containing a word and
-its associated referents.}
+\item{test}{A list representing the test trials: \code{words} (one word per
+trial), \code{objects} (the candidate referents on each trial), and optionally
+\code{correct} (the correct referent on each trial; defaults to the word's own
+id).}
 
 \item{...}{Further arguments passed to \code{\link[=predict_referent]{predict_referent()}} (e.g.
 \code{pragmatic}, \code{threshold}).}
@@ -24,8 +26,10 @@ each word.
 Scores a set of test trials against a model's word-object matrix, returning
 the probability of choosing the correct object on each trial. Each trial
 presents one word and a set of candidate referents; the correct object is
-the one whose id matches the word's id (the package's diagonal convention).
-A thin wrapper over \code{\link[=predict_referent]{predict_referent()}}.
+the one whose id matches the word's id (the package's diagonal convention),
+unless the test gives an explicit \code{correct} object for that trial (e.g. to
+test a word's association with a second, co-occurring referent, with its
+own referent absent). A thin wrapper over \code{\link[=predict_referent]{predict_referent()}}.
 }
 \examples{
 dat <- xsl_datasets[[10]]

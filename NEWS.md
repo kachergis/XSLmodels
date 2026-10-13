@@ -1,3 +1,9 @@
+# XSLmodels (development version)
+
+## Bug Fixes
+- The 12 filtering conditions in `xsl_datasets` (`filt*E_*L`; Kachergis, Yu, & Shiffrin, 2012) were scored wrongly, and held only half their tests. Each word co-occurs in training with both its own object and its partner's object (e.g. w1 with o1 and o7). It was tested twice, once with the partner object absent (AtoA, measuring w1-o1) and once with its own object absent (AtoB, measuring w1-o7). `xsl_datasets` held only the AtoA accuracies, scored as a choice among all 12 objects, so a model's association with the absent partner object counted against it, and `filt0E_*` (symmetric pairs) was capped at .5. Each condition now has 24 test items scored by `mafc_test()`: the 12 AtoA items, then the 12 AtoB items. In the raw data, no participant ever chose the absent object on either test. Two participants in each `*_6L` condition had test codes shifted by 6, and are now excluded (`n_subj` 27 -> 23; the stored 27 was a per-word count inflated by the miscoding), which changes those conditions' AtoA accuracies slightly. **This changes all fits involving these conditions.** See `data-raw/fix_filtering_tests.R` and `?xsl_datasets`
+- `mafc_test()` (and `xslData` test specifications) accept an optional `correct` element giving each test trial's correct object; it defaults to the tested word's own object, as before
+
 # XSLmodels 0.4.0
 
 ## New Features
