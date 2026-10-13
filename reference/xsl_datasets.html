@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Cross-situational word learning experiment data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/v0.4.0/R/data.R" class="external-link"><code>R/data.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/R/data.R" class="external-link"><code>R/data.R</code></a></small>
       <div class="d-none name"><code>xsl_datasets.Rd</code></div>
     </div>
 
@@ -50,6 +50,19 @@
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
     <p>An object of class <code>list</code> of length 56.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Most conditions are scored with <code><a href="get_perf.html">get_perf()</a></code> (choice among all
+objects). Conditions whose test offered only some of the objects carry a
+<code>test</code> specification – for each tested word, the objects offered – and
+are scored with <code><a href="mafc_test.html">mafc_test()</a></code>: the four 4AFC conditions (211-214), and the
+12 filtering conditions (<code>filt*E_*L</code>; Kachergis, Yu, &amp; Shiffrin, 2012).
+In the filtering conditions each word co-occurs with its own object and
+its partner's, and was tested twice: with the partner's object absent
+(items 1-12, own object correct) and with its own object absent (items
+13-24, partner's object correct; <code>test$correct</code>), so <code>accuracy</code> has 24
+entries (see <code>data-raw/fix_filtering_tests.R</code>).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

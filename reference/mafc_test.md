@@ -4,7 +4,10 @@ Scores a set of test trials against a model's word-object matrix,
 returning the probability of choosing the correct object on each trial.
 Each trial presents one word and a set of candidate referents; the
 correct object is the one whose id matches the word's id (the package's
-diagonal convention). A thin wrapper over
+diagonal convention), unless the test gives an explicit `correct` object
+for that trial (e.g. to test a word's association with a second,
+co-occurring referent, with its own referent absent). A thin wrapper
+over
 [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md).
 
 ## Usage
@@ -22,8 +25,10 @@ mafc_test(m, test, ...)
 
 - test:
 
-  A list representing the test trials, each containing a word and its
-  associated referents.
+  A list representing the test trials: `words` (one word per trial),
+  `objects` (the candidate referents on each trial), and optionally
+  `correct` (the correct referent on each trial; defaults to the word's
+  own id).
 
 - ...:
 

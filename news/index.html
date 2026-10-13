@@ -34,9 +34,19 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/kachergis/XSLmodels/blob/v0.4.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="xslmodels-development-version">XSLmodels (development version)<a class="anchor" aria-label="anchor" href="#xslmodels-development-version"></a></h2>
+<div class="section level3">
+<h3 id="bug-fixes-development-version">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li>The 12 filtering conditions in <code>xsl_datasets</code> (<code>filt*E_*L</code>; Kachergis, Yu, &amp; Shiffrin, 2012) were scored wrongly, and held only half their tests. Each word co-occurs in training with both its own object and its partner’s object (e.g. w1 with o1 and o7). It was tested twice, once with the partner object absent (AtoA, measuring w1-o1) and once with its own object absent (AtoB, measuring w1-o7). <code>xsl_datasets</code> held only the AtoA accuracies, scored as a choice among all 12 objects, so a model’s association with the absent partner object counted against it, and <code>filt0E_*</code> (symmetric pairs) was capped at .5. Each condition now has 24 test items scored by <code><a href="../reference/mafc_test.html">mafc_test()</a></code>: the 12 AtoA items, then the 12 AtoB items. In the raw data, no participant ever chose the absent object on either test. Two participants in each <code>*_6L</code> condition had test codes shifted by 6, and are now excluded (<code>n_subj</code> 27 -&gt; 23; the stored 27 was a per-word count inflated by the miscoding), which changes those conditions’ AtoA accuracies slightly. <strong>This changes all fits involving these conditions.</strong> See <code>data-raw/fix_filtering_tests.R</code> and <code><a href="../reference/xsl_datasets.html">?xsl_datasets</a></code>
+</li>
+<li>
+<code><a href="../reference/mafc_test.html">mafc_test()</a></code> (and <code>xslData</code> test specifications) accept an optional <code>correct</code> element giving each test trial’s correct object; it defaults to the tested word’s own object, as before</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="xslmodels-040">XSLmodels 0.4.0<a class="anchor" aria-label="anchor" href="#xslmodels-040"></a></h2>
 <div class="section level3">
