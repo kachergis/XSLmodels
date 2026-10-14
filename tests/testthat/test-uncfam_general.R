@@ -70,11 +70,11 @@ test_that("extensions combine without error and stay finite", {
 })
 
 test_that("sampled attention matches uncfam_sampling() even with tied sampling probabilities", {
-  # regression test: in xsl_datasets[[45]] a new word's sampling
+  # regression test: in condition 1_max_temp_spat_cont_orig a new word's sampling
   # probabilities are tied, and R's weighted sample() sorts them, so a 1-ulp
   # difference in the previous trial's update (from a different order of
   # floating-point operations) changed which object was drawn
-  d <- xsl_datasets[[45]]
+  d <- Filter(\(x) x$label == "1_max_temp_spat_cont_orig", xsl_datasets)[[1]]
   set.seed(5)
   a <- uncfam_general(X = .1, B = 3, C = .97, K = 1)
   a <- a$model(a$params, d$train, xslControl())
