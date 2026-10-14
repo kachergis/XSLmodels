@@ -63,7 +63,12 @@ xsl_run <- function(model, data, control = xslControl()) {
     # score test trials by label (character), not position: a word's correct
     # referent is the object with the same label, which is only the same
     # *position* when the word and object label sets line up
-    perf <- if (length(dat$test) > 0) mafc_test(mat, labelled_test(dat$test)) else get_perf(mat, d = model_params[["ch_dec"]])
+    # both scoring paths apply the model's choice exponent (ch_dec, if any)
+    perf <- if (length(dat$test) > 0) {
+      mafc_test(mat, labelled_test(dat$test), d = model_params[["ch_dec"]])
+    } else {
+      get_perf(mat, d = model_params[["ch_dec"]])
+    }
     sse <- sum((perf - dat$accuracy) ^ 2)
     list(sims = sims, responses = responses, perf = perf, matrix = mat,
          sse = sse, data = dat)

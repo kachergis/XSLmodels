@@ -9,7 +9,9 @@
 #'   its partner's, and was tested twice: with the partner's object absent
 #'   (items 1-12, own object correct) and with its own object absent (items
 #'   13-24, partner's object correct; `test$correct`), so `accuracy` has 24
-#'   entries (see `data-raw/fix_filtering_tests.R`).
+#'   entries (see `data-raw/fix_filtering_tests.R`). Condition 214's
+#'   participants were tested with condition 213's 4AFC displays, so the two
+#'   share a `test` (see `data-raw/fix_4afc_tests.R`).
 #'
 #'   Every condition also carries a `response_matrix`: for each test item,
 #'   how many participants chose each object, from which `accuracy` is exactly

@@ -23,7 +23,9 @@ In the filtering conditions each word co-occurs with its own object and
 its partner's, and was tested twice: with the partner's object absent
 (items 1-12, own object correct) and with its own object absent (items
 13-24, partner's object correct; \code{test$correct}), so \code{accuracy} has 24
-entries (see \code{data-raw/fix_filtering_tests.R}).
+entries (see \code{data-raw/fix_filtering_tests.R}). Condition 214's
+participants were tested with condition 213's 4AFC displays, so the two
+share a \code{test} (see \code{data-raw/fix_4afc_tests.R}).
 
 Every condition also carries a \code{response_matrix}: for each test item,
 how many participants chose each object, from which \code{accuracy} is exactly
