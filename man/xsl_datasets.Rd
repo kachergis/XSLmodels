@@ -5,7 +5,7 @@
 \alias{xsl_datasets}
 \title{Cross-situational word learning experiment data}
 \format{
-An object of class \code{list} of length 56.
+An object of class \code{list} of length 47.
 }
 \usage{
 xsl_datasets
@@ -24,5 +24,11 @@ its partner's, and was tested twice: with the partner's object absent
 (items 1-12, own object correct) and with its own object absent (items
 13-24, partner's object correct; \code{test$correct}), so \code{accuracy} has 24
 entries (see \code{data-raw/fix_filtering_tests.R}).
+
+Every condition also carries a \code{response_matrix}: for each test item,
+how many participants chose each object, from which \code{accuracy} is exactly
+recoverable (see \code{data-raw/fix_freqcd_add_responses.R} and
+\code{data-raw/raw_responses.R}, which document the source files and each
+source's participant exclusions).
 }
 \keyword{datasets}

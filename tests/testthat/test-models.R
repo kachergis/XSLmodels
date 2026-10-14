@@ -184,7 +184,7 @@ test_that("tilles() works on an asymmetric dataset (word count != object count)"
   # r declared later in the same function) -- a copy-paste bug that only
   # breaks assignments like r[w, tr_o] <- ... when an object index exceeds
   # voc_sz, i.e. whenever voc_sz != ref_sz.
-  koehne <- Filter(function(d) d$label == "Koehne2013-aaappp", xsl_datasets)[[1]]
+  koehne <- koehne2013[["Koehne2013-aaappp"]]
   expect_false(length(unique(unlist(koehne$train$words))) ==
                  length(unique(unlist(koehne$train$objects))))
   result <- tryCatch(xsl_run(tilles(x = .5, b = .8, alpha_0 = .85), koehne),

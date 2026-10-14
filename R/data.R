@@ -10,6 +10,12 @@
 #'   (items 1-12, own object correct) and with its own object absent (items
 #'   13-24, partner's object correct; `test$correct`), so `accuracy` has 24
 #'   entries (see `data-raw/fix_filtering_tests.R`).
+#'
+#'   Every condition also carries a `response_matrix`: for each test item,
+#'   how many participants chose each object, from which `accuracy` is exactly
+#'   recoverable (see `data-raw/fix_freqcd_add_responses.R` and
+#'   `data-raw/raw_responses.R`, which document the source files and each
+#'   source's participant exclusions).
 "xsl_datasets"
 
 #' Kachergis (2012) highlighting experiment data
@@ -257,13 +263,56 @@
 #' Most of these are standalone for a structural reason (partial-`NA`
 #' accuracy, a non-square association matrix, or no human accuracy data at
 #' all, e.g. the naturalistic corpora) -- see each dataset's own `?help`
-#' page for the full rationale. `benitez2020` and `kachergis_initial_accuracy`
-#' are the exceptions: both are directly scorable the same way
-#' `xsl_datasets` conditions are, and are kept out of the group/CV fitting
-#' pool specifically to have real held-out data to test generalization
-#' against.
+#' page for the full rationale. `benitez2020`, `kachergis_initial_accuracy`,
+#' `suanda2014`, and `koehne2013` are the exceptions: all are directly
+#' scorable the same way `xsl_datasets` conditions are, and are kept out of
+#' the group/CV fitting pool specifically to have real held-out data to test
+#' generalization against (`suanda2014` and `koehne2013` only at the level of
+#' condition means).
 #'
 #' @examples
 #' xsl_holdout_datasets$benitez2020$scoring
 #' names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
 "xsl_holdout_datasets"
+
+#' Suanda, Mugwanya, & Namy (2014) cross-situational learning in children
+#'
+#' Three conditions (low, medium, and high contextual diversity) from Suanda,
+#' Mugwanya, & Namy (2014), *Cross-situational statistical word learning in
+#' young children*, Journal of Experimental Child Psychology, 126, 395-411
+#' (\doi{10.1016/j.jecp.2014.06.003}): 8 word-object pairs, 2 words and 2
+#' objects per training trial, children aged 5-7.
+#'
+#' Only each condition's reported mean accuracy is available (no per-item or
+#' per-participant data), so `accuracy` is that mean replicated across items.
+#' Held out of [xsl_datasets] (see [xsl_holdout_datasets]), as in the original
+#' bake-off: use it to test whether a model fit elsewhere generalizes, by
+#' comparing its mean predicted accuracy with the reported mean.
+#'
+#' @format A named list of 3 [xslData] objects, one per condition.
+#' @examples
+#' sapply(suanda2014, \(d) d$accuracy[1])
+#' fit <- xsl_run(uncfam(X = .1, B = 2, C = .97), suanda2014[["Suanda2014-hiCD"]])
+#' mean(fit$fits[[1]]$perf)
+"suanda2014"
+
+#' Koehne, Trueswell, & Gleitman (2013) multiple-meaning word learning
+#'
+#' Four conditions from Koehne, Trueswell, & Gleitman (2013), *Multiple
+#' proposal memory in observational word learning*, Proceedings of the 35th
+#' Annual Conference of the Cognitive Science Society: 8 words, 1 word and 4
+#' objects per trial, each word with one referent present whenever it is heard
+#' and one present half the time; the order of trials with (P) and without (A)
+#' the 50% referent is blocked (AAAPPP, PPPAAA) or alternating (APAPAP,
+#' PAPAPA).
+#'
+#' Only each condition's reported mean accuracy is available (no per-item or
+#' per-participant data), so `accuracy` is that mean replicated across items.
+#' Held out of [xsl_datasets] (see [xsl_holdout_datasets]), as in the original
+#' bake-off: use it to test whether a model fit elsewhere generalizes, by
+#' comparing its mean predicted accuracy with the reported mean.
+#'
+#' @format A named list of 4 [xslData] objects, one per condition.
+#' @examples
+#' sapply(koehne2013, \(d) d$accuracy[1])
+"koehne2013"

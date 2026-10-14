@@ -24,7 +24,8 @@ new_xslData(x = list())
 
 \item{test}{Test data}
 
-\item{accuracy}{Accuracy data}
+\item{accuracy}{Proportion correct per test item: per test trial (in
+\code{test} order) if \code{test} is given, otherwise per word}
 
 \item{n_subj}{Number of subjects}
 
@@ -34,7 +35,9 @@ new_xslData(x = list())
 
 \item{description}{Description}
 
-\item{response_matrix}{Response matrix}
+\item{response_matrix}{Optional test-response (confusion) matrix: for each
+test item (rows, in \code{accuracy} order) the number of participants choosing
+each object (columns, one per object in \code{train}, in sorted label order)}
 
 \item{x}{List with elements train, test, accuracy, n_subj, label, condition, description, response_matrix}
 }
