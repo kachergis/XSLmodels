@@ -148,8 +148,10 @@ align_start_matrix <- function(control, voc, ref) {
 }
 
 labelled_test <- function(test) {
-  list(words = lapply(test$words, as.character),
-       objects = lapply(test$objects, as.character))
+  out <- list(words = lapply(test$words, as.character),
+              objects = lapply(test$objects, as.character))
+  if (!is.null(test$correct)) out$correct <- lapply(test$correct, as.character)
+  out
 }
 
 

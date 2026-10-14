@@ -1,3 +1,22 @@
+# XSLmodels (development version)
+
+## New Features
+- Every `xsl_datasets` condition now carries a `response_matrix`: for each test item, the number of participants choosing each object. This is the full confusion matrix behind `accuracy`, which it reproduces exactly, so models can be fit to which objects learners chose (e.g. by multinomial likelihood) rather than only to proportion correct. It is extracted from the raw response files (`data-raw/raw_responses.R`, `data-raw/fix_freqcd_add_responses.R`). `data-raw/extract_response_matrices.R` reports how each condition was matched to its raw data
+
+## Bug Fixes
+- The frequency / contextual-diversity conditions in `xsl_datasets` are rebuilt from the original analysis data (`data-raw/data/freqCD_item_data.Rdata`), giving exact accuracies and correct sample sizes. **This changes fits involving these conditions.**
+  - The stored accuracies were right, but `n_subj` had been attached to the wrong conditions. It is now 104 (was 26) for `freq369-3x3hiCD`, 66 (62) for `freq369_36mx`, 40 (66) for `freq369_39mx` and 62 (40) for `cont_div6-12`.
+  - `3_x8_369_4x4` and `freq369-3x3loCD` had been pooled with the first test block of the "priming" experiments. Those participants trained on the same sequences but were tested four times, and the pooled values could not be reproduced. Both conditions now hold only their original experiments: `n_subj` 30 (was 74) and 34 (was 102), with item accuracies changing by up to .27 and .51.
+  - Two duplicate conditions are dropped, leaving 54 conditions (was 56; 47 after the move below):
+    - `orig_3x3` was condition `224` (same training, identical accuracies from the same 36 participants) with `n_subj` 104.
+    - `orig_4x4`'s 26 original participants are a subset of condition `223`'s 77, and its training sequence differs from `223`'s only in words 4 and 16 trading places between trials 11 and 24.
+  - See `data-raw/fix_freqcd_add_responses.R`.
+- The Suanda, Mugwanya & Namy (2014) and Koehne, Trueswell & Gleitman (2013) conditions moved from `xsl_datasets` to new standalone held-out datasets, `suanda2014` and `koehne2013`, registered in `xsl_holdout_datasets`, as in the original CogSci bake-off. Only their condition-level mean accuracies are available, so they can't inform item-level group or cross-validated fits; they're for testing generalization of mean accuracy. `xsl_datasets` now has 47 conditions, all with item-level accuracy and a `response_matrix`. See `data-raw/move_condition_means_to_holdout.R`
+- `xslData`'s validator now expects one `accuracy` value (and one `response_matrix` row) per test item, i.e. per test trial when `test` is given, rather than per word. The filtering conditions' 24-item tests failed the old check.
+
+- The 12 filtering conditions in `xsl_datasets` (`filt*E_*L`; Kachergis, Yu, & Shiffrin, 2012) were scored wrongly, and held only half their tests. Each word co-occurs in training with both its own object and its partner's object (e.g. w1 with o1 and o7). It was tested twice, once with the partner object absent (AtoA, measuring w1-o1) and once with its own object absent (AtoB, measuring w1-o7). `xsl_datasets` held only the AtoA accuracies, scored as a choice among all 12 objects, so a model's association with the absent partner object counted against it, and `filt0E_*` (symmetric pairs) was capped at .5. Each condition now has 24 test items scored by `mafc_test()`: the 12 AtoA items, then the 12 AtoB items. In the raw data, no participant ever chose the absent object on either test. Two participants in each `*_6L` condition had test codes shifted by 6, and are now excluded (`n_subj` 27 -> 23; the stored 27 was a per-word count inflated by the miscoding), which changes those conditions' AtoA accuracies slightly. **This changes all fits involving these conditions.** See `data-raw/fix_filtering_tests.R` and `?xsl_datasets`
+- `mafc_test()` (and `xslData` test specifications) accept an optional `correct` element giving each test trial's correct object; it defaults to the tested word's own object, as before
+
 # XSLmodels 0.4.0
 
 ## New Features

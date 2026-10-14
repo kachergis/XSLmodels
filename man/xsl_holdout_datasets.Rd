@@ -5,7 +5,7 @@
 \alias{xsl_holdout_datasets}
 \title{Registry of datasets held out from xsl_datasets}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 9.
 }
 \usage{
 xsl_holdout_datasets
@@ -32,11 +32,12 @@ out of the box.}
 Most of these are standalone for a structural reason (partial-\code{NA}
 accuracy, a non-square association matrix, or no human accuracy data at
 all, e.g. the naturalistic corpora) -- see each dataset's own \code{?help}
-page for the full rationale. \code{benitez2020} and \code{kachergis_initial_accuracy}
-are the exceptions: both are directly scorable the same way
-\code{xsl_datasets} conditions are, and are kept out of the group/CV fitting
-pool specifically to have real held-out data to test generalization
-against.
+page for the full rationale. \code{benitez2020}, \code{kachergis_initial_accuracy},
+\code{suanda2014}, and \code{koehne2013} are the exceptions: all are directly
+scorable the same way \code{xsl_datasets} conditions are, and are kept out of
+the group/CV fitting pool specifically to have real held-out data to test
+generalization against (\code{suanda2014} and \code{koehne2013} only at the level of
+condition means).
 }
 \examples{
 xsl_holdout_datasets$benitez2020$scoring

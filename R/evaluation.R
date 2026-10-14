@@ -162,13 +162,17 @@ predict_referent <- function(m, word, objects, prior = NULL,
 #' Scores a set of test trials against a model's word-object matrix, returning
 #' the probability of choosing the correct object on each trial. Each trial
 #' presents one word and a set of candidate referents; the correct object is
-#' the one whose id matches the word's id (the package's diagonal convention).
-#' A thin wrapper over [predict_referent()].
+#' the one whose id matches the word's id (the package's diagonal convention),
+#' unless the test gives an explicit `correct` object for that trial (e.g. to
+#' test a word's association with a second, co-occurring referent, with its
+#' own referent absent). A thin wrapper over [predict_referent()].
 #'
 #' @param m A matrix representing model memory with words as rows and
 #'   referents as columns.
-#' @param test A list representing the test trials, each containing a word and
-#'   its associated referents.
+#' @param test A list representing the test trials: `words` (one word per
+#'   trial), `objects` (the candidate referents on each trial), and optionally
+#'   `correct` (the correct referent on each trial; defaults to the word's own
+#'   id).
 #' @param ... Further arguments passed to [predict_referent()] (e.g.
 #'   `pragmatic`, `threshold`).
 #'
@@ -186,7 +190,8 @@ mafc_test <- function(m, test, ...) {
     w <- test$words[[i]]
     os <- test$objects[[i]]
     probs <- predict_referent(m, w, os, ...)
-    correct <- match(w, os)
+    target <- if (is.null(test$correct)) w else test$correct[[i]]
+    correct <- match(target, os)
     if (is.na(correct)) NA_real_ else probs[correct]
   }, numeric(1))
 }

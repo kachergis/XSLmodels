@@ -5,12 +5,15 @@
 #'
 #' @param train Training data
 #' @param test Test data
-#' @param accuracy Accuracy data
+#' @param accuracy Proportion correct per test item: per test trial (in
+#'   `test` order) if `test` is given, otherwise per word
 #' @param n_subj Number of subjects
 #' @param label Label
 #' @param condition Condition
 #' @param description Description
-#' @param response_matrix Response matrix
+#' @param response_matrix Optional test-response (confusion) matrix: for each
+#'   test item (rows, in `accuracy` order) the number of participants choosing
+#'   each object (columns, one per object in `train`, in sorted label order)
 #'
 #' @return An object of class xslData
 #' @export
@@ -32,17 +35,21 @@ validate_xslData <- function(x) {
   stopifnot(!is.null(names(x$train)))
   stopifnot(all(names(x$train) %in% c("words", "objects")))
   stopifnot(length(x$test) == 0 |
-              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects"))))
+              (!is.null(names(x$test)) & all(names(x$test) %in% c("words", "objects", "correct"))))
 
   stopifnot(length(x$train$words) == length(x$train$objects))
   stopifnot(length(x$test) == 0 | length(x$test$words) == length(x$test$objects))
+  stopifnot(is.null(x$test$correct) || length(x$test$correct) == length(x$test$words))
   # testing a single word per trial
   #for(i in x$test$words) stopifnot(length(i) == 1)
-  stopifnot(length(x$accuracy) == 0 |
-              length(x$accuracy) == length(unique(unlist(x$train$words))))
+  # one accuracy (and one response_matrix row) per test item: per test trial
+  # when a test is specified, otherwise per word
+  n_items <- if (length(x$test) > 0) length(x$test$words) else length(unique(unlist(x$train$words)))
+  stopifnot(length(x$accuracy) == 0 | length(x$accuracy) == n_items)
   stopifnot(is.null(x$response_matrix) ||
-              (nrow(x$response_matrix) == length(unique(unlist(x$train$words))) &&
-                 ncol(x$response_matrix) == length(unique(unlist(x$train$objects)))))
+              (nrow(x$response_matrix) == n_items &&
+                 ncol(x$response_matrix) == length(unique(unlist(x$train$objects))) &&
+                 all(x$response_matrix >= 0)))
   x
 }
 

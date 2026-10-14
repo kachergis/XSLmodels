@@ -109,3 +109,75 @@ test_that("a model runs on the corpora and scores against the gold lexicon", {
   expect_s3_class(get_fscore(m / rowSums(m), 0.1, rollins_corpus$gold),
                   "data.frame")
 })
+
+test_that("filtering conditions test both associations of each word (AtoA and AtoB)", {
+  # Kachergis, Yu & Shiffrin (2012): word w co-occurs with its own object and
+  # its partner's object; it was tested once with the partner object absent
+  # (AtoA, own object correct) and once with its own object absent (AtoB,
+  # partner object correct). See data-raw/fix_filtering_tests.R
+  filt <- Filter(\(d) grepl("^filt", d$label), xsl_datasets)
+  expect_length(filt, 12)
+  partner <- c(7:12, 1:6)
+  for (d in filt) {
+    expect_length(d$accuracy, 24)
+    expect_equal(unlist(d$test$words), c(1:12, 1:12))
+    expect_equal(unlist(d$test$correct), c(1:12, partner))
+    for (k in 1:24) {
+      w <- d$test$words[[k]]
+      os <- d$test$objects[[k]]
+      expect_length(os, 11)
+      expect_true(d$test$correct[[k]] %in% os)
+      expect_false((if (k <= 12) partner[w] else w) %in% os)
+    }
+  }
+  # the 6L conditions exclude the 2 participants with shifted test coding
+  expect_true(all(sapply(Filter(\(d) grepl("_6L$", d$label), filt), `[[`, "n_subj") == 23))
+  # AtoA scoring excludes the partner: higher than 12-alternative Luce choice
+  d <- filt[[which(sapply(filt, `[[`, "label") == "filt3E_6L")]]
+  fit <- xsl_run(uncfam(X = .1, B = 3, C = .97), d)$fits[[1]]
+  expect_length(fit$perf, 24)
+  expect_true(all(fit$perf[1:12] > get_perf(fit$matrix)))
+})
+
+test_that("response matrices reproduce each condition's accuracy (one response per participant per item)", {
+  with_rm <- Filter(\(d) !is.null(d$response_matrix), xsl_datasets)
+  expect_equal(length(with_rm), length(xsl_datasets))
+  for (d in with_rm) {
+    m <- d$response_matrix
+    objs <- sort(unique(unlist(lapply(d$train$objects, \(x) unlist(x, use.names = FALSE)))))
+    expect_equal(nrow(m), length(d$accuracy), info = d$label)
+    expect_equal(as.numeric(colnames(m)), as.numeric(objs), info = d$label)
+    expect_true(all(rowSums(m) == d$n_subj), info = d$label)
+    correct <- if (length(d$test) > 0) {
+      if (is.null(d$test$correct)) unlist(d$test$words) else unlist(d$test$correct)
+    } else seq_along(d$accuracy)
+    acc <- m[cbind(seq_len(nrow(m)), match(correct, objs))] / rowSums(m)
+    expect_equal(unname(acc), unname(d$accuracy), info = d$label)
+  }
+})
+
+test_that("no two conditions duplicate each other (same training and same accuracy)", {
+  key <- vapply(xsl_datasets, function(d) {
+    trials <- mapply(\(w, o) paste(paste(unlist(w), collapse = ","), paste(unlist(o), collapse = ","), sep = "|"),
+                     d$train$words, d$train$objects)
+    paste(paste(trials, collapse = ";"), paste(signif(d$accuracy, 8), collapse = ","))
+  }, character(1))
+  expect_false(any(duplicated(key)))
+})
+
+test_that("frequency / contextual-diversity conditions have their source sample sizes", {
+  n <- setNames(vapply(xsl_datasets, \(d) as.numeric(d$n_subj), 1), vapply(xsl_datasets, `[[`, "", "label"))
+  expect_equal(unname(n[c("2_x8_39_4x4", "3_x8_369_4x4", "freq369-3x3loCD", "freq369-3x3hiCD",
+                          "freq369_36mx", "freq369_39mx", "cont_div6-12")]), c(30, 30, 34, 104, 66, 40, 62))
+  expect_false(any(c("orig_3x3", "orig_4x4") %in% names(n)))
+  expect_length(xsl_datasets, 47)
+})
+
+test_that("condition-mean-only datasets are held out of xsl_datasets", {
+  labs <- vapply(xsl_datasets, `[[`, "", "label")
+  expect_false(any(grepl("^Suanda2014|^Koehne2013", labs)))
+  expect_length(suanda2014, 3)
+  expect_length(koehne2013, 4)
+  expect_true(all(c("suanda2014", "koehne2013") %in% names(xsl_holdout_datasets)))
+  for (d in c(suanda2014, koehne2013)) expect_length(unique(d$accuracy), 1)
+})
