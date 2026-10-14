@@ -10,6 +10,13 @@
 #'   (items 1-12, own object correct) and with its own object absent (items
 #'   13-24, partner's object correct; `test$correct`), so `accuracy` has 24
 #'   entries (see `data-raw/fix_filtering_tests.R`).
+#'
+#'   47 conditions (all but the Suanda, 2014 and Koehne et al., 2013 ones)
+#'   also carry a `response_matrix`: for each test item, how many
+#'   participants chose each object, from which `accuracy` is exactly
+#'   recoverable (see `data-raw/fix_freqcd_add_responses.R` and
+#'   `data-raw/raw_responses.R`, which document the source files and each
+#'   source's participant exclusions).
 "xsl_datasets"
 
 #' Kachergis (2012) highlighting experiment data

@@ -1,4 +1,4 @@
-# Flatten xsl_datasets (53 experimental conditions) into tidy, relational
+# Flatten xsl_datasets (the experimental conditions) into tidy, relational
 # tables suitable for uploading to Redivis as the backing data for a
 # datapages/datapage (https://github.com/datapages/datapage) site.
 #
