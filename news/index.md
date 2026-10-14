@@ -49,6 +49,42 @@
 
 ### Bug Fixes
 
+- [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)’s
+  choice exponent `ch_dec` was ignored on conditions with a `test` (the
+  4AFC conditions 211-214 and the 12 filtering conditions):
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  applied it as a power choice rule only on the
+  [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md)
+  path, while
+  [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
+  scored test trials with plain Luce choice.
+  [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
+  and
+  [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
+  gain a `d` argument (the choice exponent; `NULL`, the default, leaves
+  associations unchanged), and
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  passes a model’s `ch_dec` to both paths. **This changes
+  [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)
+  fits involving any of these 16 conditions.** Models without `ch_dec`
+  are unchanged, bit for bit.
+
+- Two 4AFC conditions in `xsl_datasets` listed test alternatives that
+  participants were not shown. **This changes fits of every model
+  involving conditions 211 and 214.** See `data-raw/fix_4afc_tests.R`
+
+  - `214` (3x4 6/8 4AFC): 175 of its 648 human responses, on all 18
+    words, were to objects not among the listed alternatives. All of
+    them are among condition `213`’s alternatives for the same word (and
+    no other condition’s), so 214’s participants were evidently tested
+    with 213’s displays. 214’s `test` is now 213’s. Its `accuracy` and
+    `response_matrix` are unchanged.
+  - `211` (1x3 6/18 4AFC), word 17: the alternatives listed object 17
+    twice and omitted foil 2, which participants chose; now
+    `c(17, 16, 5, 2)`.
+  - Every human response in `xsl_datasets` is now to one of its item’s
+    listed alternatives (checked in `tests/testthat/test-data.R`).
+
 - The frequency / contextual-diversity conditions in `xsl_datasets` are
   rebuilt from the original analysis data
   (`data-raw/data/freqCD_item_data.Rdata`), giving exact accuracies and

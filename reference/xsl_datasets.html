@@ -62,7 +62,9 @@ In the filtering conditions each word co-occurs with its own object and
 its partner's, and was tested twice: with the partner's object absent
 (items 1-12, own object correct) and with its own object absent (items
 13-24, partner's object correct; <code>test$correct</code>), so <code>accuracy</code> has 24
-entries (see <code>data-raw/fix_filtering_tests.R</code>).</p>
+entries (see <code>data-raw/fix_filtering_tests.R</code>). Condition 214's
+participants were tested with condition 213's 4AFC displays, so the two
+share a <code>test</code> (see <code>data-raw/fix_4afc_tests.R</code>).</p>
 <p>Every condition also carries a <code>response_matrix</code>: for each test item,
 how many participants chose each object, from which <code>accuracy</code> is exactly
 recoverable (see <code>data-raw/fix_freqcd_add_responses.R</code> and

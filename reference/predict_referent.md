@@ -19,7 +19,8 @@ predict_referent(
   pragmatic = FALSE,
   threshold = NULL,
   rsa_alpha = 3,
-  depth = 1
+  depth = 1,
+  d = NULL
 )
 ```
 
@@ -63,6 +64,18 @@ predict_referent(
 
   Speaker rationality and recursion depth for the RSA listener (only
   used when `pragmatic = TRUE`).
+
+- d:
+
+  Optional exponent for an exponentiated (power) choice rule: the
+  (clamped, possibly thresholded) associations are raised to `d` before
+  choice, as in
+  [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md).
+  `NULL` (the default) leaves them unchanged.
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  passes a model's `ch_dec` parameter here, so that
+  [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)
+  scores test trials with the same decision rule it uses elsewhere.
 
 ## Value
 

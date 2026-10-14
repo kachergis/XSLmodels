@@ -46,7 +46,16 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<ul><li><p><code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code>’s choice exponent <code>ch_dec</code> was ignored on conditions with a <code>test</code> (the 4AFC conditions 211-214 and the 12 filtering conditions): <code><a href="../reference/xsl_run.html">xsl_run()</a></code> applied it as a power choice rule only on the <code><a href="../reference/get_perf.html">get_perf()</a></code> path, while <code><a href="../reference/mafc_test.html">mafc_test()</a></code> scored test trials with plain Luce choice. <code><a href="../reference/predict_referent.html">predict_referent()</a></code> and <code><a href="../reference/mafc_test.html">mafc_test()</a></code> gain a <code>d</code> argument (the choice exponent; <code>NULL</code>, the default, leaves associations unchanged), and <code><a href="../reference/xsl_run.html">xsl_run()</a></code> passes a model’s <code>ch_dec</code> to both paths. <strong>This changes <code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> fits involving any of these 16 conditions.</strong> Models without <code>ch_dec</code> are unchanged, bit for bit.</p></li>
+<li>
+<p>Two 4AFC conditions in <code>xsl_datasets</code> listed test alternatives that participants were not shown. <strong>This changes fits of every model involving conditions 211 and 214.</strong> See <code>data-raw/fix_4afc_tests.R</code></p>
 <ul><li>
+<code>214</code> (3x4 6/8 4AFC): 175 of its 648 human responses, on all 18 words, were to objects not among the listed alternatives. All of them are among condition <code>213</code>’s alternatives for the same word (and no other condition’s), so 214’s participants were evidently tested with 213’s displays. 214’s <code>test</code> is now 213’s. Its <code>accuracy</code> and <code>response_matrix</code> are unchanged.</li>
+<li>
+<code>211</code> (1x3 6/18 4AFC), word 17: the alternatives listed object 17 twice and omitted foil 2, which participants chose; now <code>c(17, 16, 5, 2)</code>.</li>
+<li>Every human response in <code>xsl_datasets</code> is now to one of its item’s listed alternatives (checked in <code>tests/testthat/test-data.R</code>).</li>
+</ul></li>
+<li>
 <p>The frequency / contextual-diversity conditions in <code>xsl_datasets</code> are rebuilt from the original analysis data (<code>data-raw/data/freqCD_item_data.Rdata</code>), giving exact accuracies and correct sample sizes. <strong>This changes fits involving these conditions.</strong></p>
 <ul><li>The stored accuracies were right, but <code>n_subj</code> had been attached to the wrong conditions. It is now 104 (was 26) for <code>freq369-3x3hiCD</code>, 66 (62) for <code>freq369_36mx</code>, 40 (66) for <code>freq369_39mx</code> and 62 (40) for <code>cont_div6-12</code>.</li>
 <li>

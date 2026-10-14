@@ -34,7 +34,8 @@ mafc_test(m, test, ...)
 
   Further arguments passed to
   [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
-  (e.g. `pragmatic`, `threshold`).
+  (e.g. `pragmatic`, `threshold`, or `d`, the exponent of a power choice
+  rule).
 
 ## Value
 

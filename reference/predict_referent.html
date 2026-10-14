@@ -67,7 +67,8 @@ as an association strength / meaning weight.</p>
 <span>  pragmatic <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rsa_alpha <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  depth <span class="op">=</span> <span class="fl">1</span></span>
+<span>  depth <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  d <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -113,6 +114,15 @@ before predicting. The RSA layer is sharpest on a binary lexicon.</p></dd>
 <dt id="arg-rsa-alpha-depth">rsa_alpha, depth<a class="anchor" aria-label="anchor" href="#arg-rsa-alpha-depth"></a></dt>
 <dd><p>Speaker rationality and recursion depth for the RSA
 listener (only used when <code>pragmatic = TRUE</code>).</p></dd>
+
+
+<dt id="arg-d">d<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
+<dd><p>Optional exponent for an exponentiated (power) choice rule: the
+(clamped, possibly thresholded) associations are raised to <code>d</code> before
+choice, as in <code><a href="get_perf.html">get_perf()</a></code>. <code>NULL</code> (the default) leaves them unchanged.
+<code><a href="xsl_run.html">xsl_run()</a></code> passes a model's <code>ch_dec</code> parameter here, so that
+<code><a href="bayesian_decay.html">bayesian_decay()</a></code> scores test trials with the same decision rule it uses
+elsewhere.</p></dd>
 
 </dl></div>
     <div class="section level2">
