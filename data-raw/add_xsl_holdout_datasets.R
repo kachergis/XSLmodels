@@ -26,6 +26,16 @@ xsl_holdout_datasets <- list(
     scoring = "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)",
     note = "Kept standalone for the initial-accuracy manipulation's own analysis, not a structural issue."
   ),
+  suanda2014 = list(
+    scorable = TRUE,
+    scoring = "Condition-level mean only: compare mean(xsl_run(...)$fits[[1]]$perf) with the reported mean (every item's accuracy is that mean)",
+    note = "Children (Suanda, Mugwanya & Namy, 2014); no per-item or per-participant data. In xsl_datasets until 2026-10; held out as in the original CogSci bake-off."
+  ),
+  koehne2013 = list(
+    scorable = TRUE,
+    scoring = "Condition-level mean only: compare mean(xsl_run(...)$fits[[1]]$perf) with the reported mean (every item's accuracy is that mean)",
+    note = "Koehne, Trueswell & Gleitman (2013); no per-item or per-participant data. In xsl_datasets until 2026-10; held out as in the original CogSci bake-off."
+  ),
   vlach_debrock2017 = list(
     scorable = FALSE,
     scoring = "No per-item accuracy; compare simulated performance only to the source's overall mean (.5583, sd .1975)",

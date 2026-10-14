@@ -141,7 +141,7 @@ test_that("filtering conditions test both associations of each word (AtoA and At
 
 test_that("response matrices reproduce each condition's accuracy (one response per participant per item)", {
   with_rm <- Filter(\(d) !is.null(d$response_matrix), xsl_datasets)
-  expect_gte(length(with_rm), 47)
+  expect_equal(length(with_rm), length(xsl_datasets))
   for (d in with_rm) {
     m <- d$response_matrix
     objs <- sort(unique(unlist(lapply(d$train$objects, \(x) unlist(x, use.names = FALSE)))))
@@ -170,5 +170,14 @@ test_that("frequency / contextual-diversity conditions have their source sample 
   expect_equal(unname(n[c("2_x8_39_4x4", "3_x8_369_4x4", "freq369-3x3loCD", "freq369-3x3hiCD",
                           "freq369_36mx", "freq369_39mx", "cont_div6-12")]), c(30, 30, 34, 104, 66, 40, 62))
   expect_false(any(c("orig_3x3", "orig_4x4") %in% names(n)))
-  expect_length(xsl_datasets, 54)
+  expect_length(xsl_datasets, 47)
+})
+
+test_that("condition-mean-only datasets are held out of xsl_datasets", {
+  labs <- vapply(xsl_datasets, `[[`, "", "label")
+  expect_false(any(grepl("^Suanda2014|^Koehne2013", labs)))
+  expect_length(suanda2014, 3)
+  expect_length(koehne2013, 4)
+  expect_true(all(c("suanda2014", "koehne2013") %in% names(xsl_holdout_datasets)))
+  for (d in c(suanda2014, koehne2013)) expect_length(unique(d$accuracy), 1)
 })
