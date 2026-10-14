@@ -52,6 +52,8 @@ Cross-situational word learning models
   Decay model
 - [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
   : Kachergis 2012
+- [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md)
+  : General biased associative model (nests the uncfam family)
 - [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md)
   : Kachergis 2012 with a free familiarity exponent
 - [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md)

@@ -4,6 +4,39 @@
 
 ### New Features
 
+- Added
+  [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
+  a single biased associative model that nests the
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  family, so variants can be compared as nested models (fix or free
+  parameters) rather than as separate functions. A pair’s share of the
+  trial’s weight is `M^gamma * exp(B * (U(w) + U(o)))` (normalized over
+  the trial), plus `eps` times elimination support, and the trial’s
+  weight is scaled by `(relative object entropy)^kappa`; finite `K`
+  replaces deterministic allocation with sampled attention. Its defaults
+  reproduce
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md).
+  Setting `gamma = 0`, `uncertainty = "novelty"`, a free `gamma`, a free
+  `eps`, `kappa = 1` or a finite `K` reproduces, respectively,
+  `uncfam(variant = "uncertainty-only")`, `uncfam(variant = "novelty")`,
+  [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
+  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
+  [`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md)
+  and
+  [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md).
+  Each reproduces the original exactly (to the last bit, and draw for
+  draw for sampling) on all 47 `xsl_datasets` conditions; this is
+  checked in `tests/testthat/test-uncfam_general.R`.
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
+  is not nested, since its prediction-error update is unnormalized.
+  Registered in
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)/`xsl_model_registry()`,
+  fitting `X, B, C, gamma, eps, kappa` with `K = Inf`. It also has an
+  optional short-term trace: with `rho > 0`, every update also goes into
+  a second matrix that decays by `Cs` per trial, and familiarity becomes
+  `(M + rho * S)^gamma`, so recently strengthened pairings draw extra
+  attention. Uncertainty, elimination and test performance still use
+  `M`, and `rho = 0` (the default) is unchanged
 - Every `xsl_datasets` condition now carries a `response_matrix`: for
   each test item, the number of participants choosing each object. This
   is the full confusion matrix behind `accuracy`, which it reproduces
