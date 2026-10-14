@@ -59,21 +59,12 @@ show_datasets()
 #> 39    39           freq369-3x3hiCD               freq369-3x3hiCD       36
 #> 40    40              freq369_36mx                  freq369_36mx       36
 #> 41    41              freq369_39mx                  freq369_39mx       36
-#> 42    42                  orig_4x4                      orig_4x4       27
-#> 43    43                  orig_3x3                      orig_3x3       36
-#> 44    44              cont_div6-12                  cont_div6-12       36
-#> 45    45 1_max_temp_spat_cont_orig   temporal+spatial contiguity       27
-#> 46    46     4_no_spat_orig_max_tc      temporal contiguity only       27
-#> 47    47          Suanda2014-lowCD                    2x2 low CD       16
-#> 48    48          Suanda2014-medCD                    2x2 med CD       16
-#> 49    49           Suanda2014-hiCD                   2x2 high CD       16
-#> 50    50         Koehne2013-aaappp     AAAPPP (blocked, A-first)       48
-#> 51    51         Koehne2013-apapap   APAPAP (unblocked, A-first)       48
-#> 52    52         Koehne2013-papapa   PAPAPA (unblocked, P-first)       48
-#> 53    53         Koehne2013-pppaaa     PPPAAA (blocked, P-first)       48
-#> 54    54            1olap3tr_contr 1 overlap per 3 trials, contr       27
-#> 55    55  temp_cont_1olap2tr_contr 1 overlap per 2 trials, contr       27
-#> 56    56  temp_cont_2olap2tr_contr 2 overlap per 2 trials, contr       27
+#> 42    42              cont_div6-12                  cont_div6-12       36
+#> 43    43 1_max_temp_spat_cont_orig   temporal+spatial contiguity       27
+#> 44    44     4_no_spat_orig_max_tc      temporal contiguity only       27
+#> 45    45            1olap3tr_contr 1 overlap per 3 trials, contr       27
+#> 46    46  temp_cont_1olap2tr_contr 1 overlap per 2 trials, contr       27
+#> 47    47  temp_cont_2olap2tr_contr 2 overlap per 2 trials, contr       27
 #>    n_words n_objects n_subjects has_test
 #> 1       18        18         25    FALSE
 #> 2       18        18         25    FALSE
@@ -111,24 +102,15 @@ show_datasets()
 #> 34      12        12         31     TRUE
 #> 35      12        12         31     TRUE
 #> 36      18        18         30    FALSE
-#> 37      18        18         74    FALSE
-#> 38      18        18        102    FALSE
-#> 39      18        18         26    FALSE
-#> 40      18        18         62    FALSE
-#> 41      18        18         66    FALSE
-#> 42      18        18         88    FALSE
-#> 43      18        18        104    FALSE
-#> 44      18        18         40    FALSE
-#> 45      18        18         30     TRUE
-#> 46      18        18         32     TRUE
-#> 47       8         8         84     TRUE
-#> 48       8         8         84     TRUE
-#> 49       8         8         84     TRUE
-#> 50       8        17         64     TRUE
-#> 51       8        17         64     TRUE
-#> 52       8        17         64     TRUE
-#> 53       8        17         64     TRUE
-#> 54      18        18         31     TRUE
-#> 55      18        18         31     TRUE
-#> 56      18        18         31     TRUE
+#> 37      18        18         30    FALSE
+#> 38      18        18         34    FALSE
+#> 39      18        18        104    FALSE
+#> 40      18        18         66    FALSE
+#> 41      18        18         40    FALSE
+#> 42      18        18         62    FALSE
+#> 43      18        18         30     TRUE
+#> 44      18        18         32     TRUE
+#> 45      18        18         31     TRUE
+#> 46      18        18         31     TRUE
+#> 47      18        18         31     TRUE
 ```

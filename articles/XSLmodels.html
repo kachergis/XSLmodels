@@ -61,7 +61,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis &amp; Mika Braginsky</h4>
             
-            <h4 data-toc-skip class="date">2026-10-13</h4>
+            <h4 data-toc-skip class="date">2026-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/XSLmodels.Rmd" class="external-link"><code>vignettes/XSLmodels.Rmd</code></a></small>
       <div class="d-none name"><code>XSLmodels.Rmd</code></div>
@@ -177,7 +177,7 @@ all of the training trials.</p>
 <div class="section level3">
 <h3 id="included-experimental-conditions">3. Included experimental conditions<a class="anchor" aria-label="anchor" href="#included-experimental-conditions"></a>
 </h3>
-<p>A dataset combining 56 experimental conditions is included in the
+<p>A dataset combining 47 experimental conditions is included in the
 package in <code>xsl_datasets</code>. For example, here is a summary of
 one experimental condition in the dataset: an asymmetric (3x4; i.e. 3
 words and 4 objects per trial) condition with 36 training trials, 18
@@ -200,7 +200,8 @@ each tested word.)</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># properties of an experimental condition:</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xsl_datasets</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "train"     "test"      "accuracy"  "n_subj"    "label"     "condition"</span></span>
+<span><span class="co">#&gt; [1] "train"           "test"            "accuracy"        "n_subj"         </span></span>
+<span><span class="co">#&gt; [5] "label"           "condition"       "response_matrix"</span></span>
 <span><span class="co"># e.g., mean accuracy for each tested word (i.e., P(choosing correct referent | word)):</span></span>
 <span><span class="va">xsl_datasets</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">accuracy</span></span>
 <span><span class="co">#&gt;  [1] 0.28 0.12 0.16 0.32 0.08 0.08 0.36 0.16 0.04 0.12 0.20 0.40 0.44 0.20 0.12</span></span>
@@ -244,7 +245,8 @@ to score a model against it:</p>
 <span><span class="co">#&gt;  $ scoring : chr "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)"</span></span>
 <span><span class="co">#&gt;  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span>, <span class="va">`[[`</span>, <span class="st">"scorable"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="co">#&gt; [1] "benitez2020"                "kachergis_initial_accuracy"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "benitez2020"                "kachergis_initial_accuracy"</span></span>
+<span><span class="co">#&gt; [3] "suanda2014"                 "koehne2013"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

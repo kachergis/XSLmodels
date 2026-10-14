@@ -10,7 +10,7 @@ xsl_datasets
 
 ## Format
 
-An object of class `list` of length 56.
+An object of class `list` of length 47.
 
 ## Details
 
@@ -27,3 +27,9 @@ and was tested twice: with the partner's object absent (items 1-12, own
 object correct) and with its own object absent (items 13-24, partner's
 object correct; `test$correct`), so `accuracy` has 24 entries (see
 `data-raw/fix_filtering_tests.R`).
+
+Every condition also carries a `response_matrix`: for each test item,
+how many participants chose each object, from which `accuracy` is
+exactly recoverable (see `data-raw/fix_freqcd_add_responses.R` and
+`data-raw/raw_responses.R`, which document the source files and each
+source's participant exclusions).

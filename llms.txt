@@ -129,6 +129,11 @@ Cross-situational word learning models
   : Vlach & DeBrock (2017) spaced/massed repetition experiment data
 - [`benitez2020`](https://www.kachergis.com/XSLmodels/reference/benitez2020.md)
   : Benitez et al. (2020) temporal-structure-of-naming experiment data
+- [`suanda2014`](https://www.kachergis.com/XSLmodels/reference/suanda2014.md)
+  : Suanda, Mugwanya, & Namy (2014) cross-situational learning in
+  children
+- [`koehne2013`](https://www.kachergis.com/XSLmodels/reference/koehne2013.md)
+  : Koehne, Trueswell, & Gleitman (2013) multiple-meaning word learning
 - [`xsl_holdout_datasets`](https://www.kachergis.com/XSLmodels/reference/xsl_holdout_datasets.md)
   : Registry of datasets held out from xsl_datasets
 - [`rollins_corpus`](https://www.kachergis.com/XSLmodels/reference/rollins_corpus.md)

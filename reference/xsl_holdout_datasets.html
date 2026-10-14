@@ -67,7 +67,7 @@ name (e.g. <code>benitez2020</code>, <code>vlach_debrock2017</code>) to use it.<
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>An object of class <code>list</code> of length 7.</p>
+    <p>An object of class <code>list</code> of length 9.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -86,11 +86,12 @@ out of the box.</p></dd>
 </dl><p>Most of these are standalone for a structural reason (partial-<code>NA</code>
 accuracy, a non-square association matrix, or no human accuracy data at
 all, e.g. the naturalistic corpora) – see each dataset's own <code><a href="https://rdrr.io/r/utils/help.html" class="external-link">?help</a></code>
-page for the full rationale. <code>benitez2020</code> and <code>kachergis_initial_accuracy</code>
-are the exceptions: both are directly scorable the same way
-<code>xsl_datasets</code> conditions are, and are kept out of the group/CV fitting
-pool specifically to have real held-out data to test generalization
-against.</p>
+page for the full rationale. <code>benitez2020</code>, <code>kachergis_initial_accuracy</code>,
+<code>suanda2014</code>, and <code>koehne2013</code> are the exceptions: all are directly
+scorable the same way <code>xsl_datasets</code> conditions are, and are kept out of
+the group/CV fitting pool specifically to have real held-out data to test
+generalization against (<code>suanda2014</code> and <code>koehne2013</code> only at the level of
+condition means).</p>
     </div>
 
     <div class="section level2">
@@ -99,6 +100,7 @@ against.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span>, <span class="va">`[[`</span>, <span class="st">"scorable"</span><span class="op">)</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "benitez2020"                "kachergis_initial_accuracy"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "suanda2014"                 "koehne2013"                </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

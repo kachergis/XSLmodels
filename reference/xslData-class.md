@@ -33,7 +33,8 @@ new_xslData(x = list())
 
 - accuracy:
 
-  Accuracy data
+  Proportion correct per test item: per test trial (in `test` order) if
+  `test` is given, otherwise per word
 
 - n_subj:
 
@@ -53,7 +54,9 @@ new_xslData(x = list())
 
 - response_matrix:
 
-  Response matrix
+  Optional test-response (confusion) matrix: for each test item (rows,
+  in `accuracy` order) the number of participants choosing each object
+  (columns, one per object in `train`, in sorted label order)
 
 - x:
 

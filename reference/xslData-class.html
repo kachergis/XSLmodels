@@ -74,7 +74,8 @@ Constructor for xslData S3 class"></head><body>
 
 
 <dt id="arg-accuracy">accuracy<a class="anchor" aria-label="anchor" href="#arg-accuracy"></a></dt>
-<dd><p>Accuracy data</p></dd>
+<dd><p>Proportion correct per test item: per test trial (in
+<code>test</code> order) if <code>test</code> is given, otherwise per word</p></dd>
 
 
 <dt id="arg-n-subj">n_subj<a class="anchor" aria-label="anchor" href="#arg-n-subj"></a></dt>
@@ -94,7 +95,9 @@ Constructor for xslData S3 class"></head><body>
 
 
 <dt id="arg-response-matrix">response_matrix<a class="anchor" aria-label="anchor" href="#arg-response-matrix"></a></dt>
-<dd><p>Response matrix</p></dd>
+<dd><p>Optional test-response (confusion) matrix: for each
+test item (rows, in <code>accuracy</code> order) the number of participants choosing
+each object (columns, one per object in <code>train</code>, in sorted label order)</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

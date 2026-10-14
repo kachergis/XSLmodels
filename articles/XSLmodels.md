@@ -111,7 +111,7 @@ create_cooc_matrix(ag$train)
 
 ### 3. Included experimental conditions
 
-A dataset combining 56 experimental conditions is included in the
+A dataset combining 47 experimental conditions is included in the
 package in `xsl_datasets`. For example, here is a summary of one
 experimental condition in the dataset: an asymmetric (3x4; i.e. 3 words
 and 4 objects per trial) condition with 36 training trials, 18 words and
@@ -139,7 +139,8 @@ The properties condition can be accessed and examined in detail:
 
 # properties of an experimental condition:
 names(xsl_datasets[[1]])
-#> [1] "train"     "test"      "accuracy"  "n_subj"    "label"     "condition"
+#> [1] "train"           "test"            "accuracy"        "n_subj"         
+#> [5] "label"           "condition"       "response_matrix"
 # e.g., mean accuracy for each tested word (i.e., P(choosing correct referent | word)):
 xsl_datasets[[1]]$accuracy
 #>  [1] 0.28 0.12 0.16 0.32 0.08 0.08 0.36 0.16 0.04 0.12 0.20 0.40 0.44 0.20 0.12
@@ -188,6 +189,7 @@ str(xsl_holdout_datasets$benitez2020)
 #>  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."
 names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
 #> [1] "benitez2020"                "kachergis_initial_accuracy"
+#> [3] "suanda2014"                 "koehne2013"
 ```
 
 ## Running, fitting, and defining XSL models.
