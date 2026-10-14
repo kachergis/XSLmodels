@@ -102,7 +102,7 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
 #' @examples
 #' show_models()
 show_models <- function() {
-  c("baseline", "decay", "uncfam", "uncfam_gamma", "uncfam_elimination", "uncfam_attention", "uncfam_predictive",
+  c("baseline", "decay", "uncfam", "uncfam_general", "uncfam_gamma", "uncfam_elimination", "uncfam_attention", "uncfam_predictive",
     "uncfam_sampling", "multi_sampling", "propose_but_verify", "pursuit",
     "fazly", "guess_and_test", "rescorla_wagner", "tilles", "bayesian_decay",
     "kalman_filter", "softmax_rl", "fgt2009", "fgt2009_rsa",
@@ -173,6 +173,13 @@ xsl_model_registry <- function() {
       # inside these bounds in either direction, so they're left wide rather
       # than anchored near 1
       lower = c(0.01, 0.8, 0.8, 0.1), upper = c(0.5, 1.0, 1.0, 6)
+    ),
+    uncfam_general = list(
+      # fits X, B, C, gamma, eps, kappa with K = Inf (deterministic) and
+      # entropy uncertainty; fix any of them (e.g. via a custom spec) to fit a
+      # nested special case
+      constructor = function() uncfam_general(X = 0.1, B = 0.98, C = 1),
+      lower = c(0.01, 0.8, 0.8, 0.1, 0, 0), upper = c(0.5, 1.0, 1.0, 6, 20, 2)
     ),
     uncfam_elimination = list(
       constructor = function() uncfam_elimination(X = 0.1, B = 0.98, C = 1, eps = 0),
