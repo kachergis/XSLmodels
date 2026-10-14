@@ -99,6 +99,12 @@ get_perf <- function(m, d = NULL) {
 #'   literal one.
 #' @param threshold Optional; binarize `m` at this value (`m >= threshold`)
 #'   before predicting. The RSA layer is sharpest on a binary lexicon.
+#' @param d Optional exponent for an exponentiated (power) choice rule: the
+#'   (clamped, possibly thresholded) associations are raised to `d` before
+#'   choice, as in [get_perf()]. `NULL` (the default) leaves them unchanged.
+#'   [xsl_run()] passes a model's `ch_dec` parameter here, so that
+#'   [bayesian_decay()] scores test trials with the same decision rule it uses
+#'   elsewhere.
 #' @param rsa_alpha,depth Speaker rationality and recursion depth for the RSA
 #'   listener (only used when `pragmatic = TRUE`).
 #'
@@ -112,9 +118,10 @@ get_perf <- function(m, d = NULL) {
 #' predict_referent(m, 1, c(1, 2, 3), prior = c(1, 0, 1)) # object 2 unavailable
 predict_referent <- function(m, word, objects, prior = NULL,
                              pragmatic = FALSE, threshold = NULL,
-                             rsa_alpha = 3, depth = 1) {
+                             rsa_alpha = 3, depth = 1, d = NULL) {
   M <- pmax(m, 0)
   if (!is.null(threshold)) M <- (M >= threshold) * 1
+  if (!is.null(d)) M <- M ^ d
   wn <- rownames(M)
   on <- colnames(M)
   W <- nrow(M)
@@ -174,7 +181,7 @@ predict_referent <- function(m, word, objects, prior = NULL,
 #'   `correct` (the correct referent on each trial; defaults to the word's own
 #'   id).
 #' @param ... Further arguments passed to [predict_referent()] (e.g.
-#'   `pragmatic`, `threshold`).
+#'   `pragmatic`, `threshold`, or `d`, the exponent of a power choice rule).
 #'
 #' @return A vector with the probability of choosing the correct object, given
 #'   each word.

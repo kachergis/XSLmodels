@@ -119,3 +119,31 @@ test_that("xsl_fit with by_data = TRUE fits each dataset separately", {
   expect_length(fits, 3)
   expect_true(all(vapply(fits, \(f) is.finite(f$optim$bestval), logical(1))))
 })
+
+test_that("bayesian_decay's ch_dec applies to test-bearing conditions too", {
+  # regression test: xsl_run() applied ch_dec (a power choice rule) only to
+  # conditions scored with get_perf(); conditions with a `test` went through
+  # mafc_test(), which ignored it, so they were scored with plain Luce choice
+  d <- xsl_datasets[[which(vapply(xsl_datasets, `[[`, "", "label") == "212")]]
+  p1 <- xsl_run(bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 1), d)$fits[[1]]
+  p3 <- xsl_run(bayesian_decay(alpha = 0.5, delta = 1, ch_dec = 3), d)$fits[[1]]
+  expect_identical(p1$matrix, p3$matrix)  # ch_dec only enters at choice
+  expect_false(isTRUE(all.equal(p1$perf, p3$perf)))
+  expect_equal(p3$perf, mafc_test(p3$matrix ^ 3, XSLmodels:::labelled_test(d$test)))
+  # same rule as the get_perf() path: with every object offered, both agree
+  d_all <- d
+  d_all$test <- list(words = as.list(1:18), objects = rep(list(1:18), 18))
+  expect_equal(unname(xsl_run(bayesian_decay(0.5, 1, 3), d_all)$fits[[1]]$perf),
+               unname(get_perf(p3$matrix, d = 3)))
+})
+
+test_that("models without ch_dec score test-bearing conditions exactly as before", {
+  tests <- Filter(\(d) length(d$test) > 0, xsl_datasets)
+  for (mod in list(decay(C = 0.9), baseline(), fazly(lambda = 1e-4, beta = 1000))) {
+    for (d in tests[c(1, 4, 5)]) {
+      f <- xsl_run(mod, d)$fits[[1]]
+      expect_identical(f$perf, mafc_test(f$matrix, XSLmodels:::labelled_test(d$test)),
+                       info = paste(mod$name, d$label))
+    }
+  }
+})

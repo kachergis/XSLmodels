@@ -181,3 +181,17 @@ test_that("condition-mean-only datasets are held out of xsl_datasets", {
   expect_true(all(c("suanda2014", "koehne2013") %in% names(xsl_holdout_datasets)))
   for (d in c(suanda2014, koehne2013)) expect_length(unique(d$accuracy), 1)
 })
+
+test_that("every human test response is to one of the item's listed alternatives", {
+  # regression test: condition 214's listed 4AFC alternatives were not the
+  # ones shown (175 of 648 responses fell outside them), and 211's word 17
+  # listed object 17 twice in place of foil 2 (see data-raw/fix_4afc_tests.R)
+  for (d in Filter(\(d) length(d$test) > 0, xsl_datasets)) {
+    m <- d$response_matrix
+    for (k in seq_along(d$test$objects)) {
+      o <- as.character(d$test$objects[[k]])
+      expect_false(anyDuplicated(o) > 0, info = paste(d$label, "item", k))
+      expect_equal(sum(m[k, !colnames(m) %in% o]), 0, info = paste(d$label, "item", k))
+    }
+  }
+})

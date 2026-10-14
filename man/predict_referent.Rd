@@ -12,7 +12,8 @@ predict_referent(
   pragmatic = FALSE,
   threshold = NULL,
   rsa_alpha = 3,
-  depth = 1
+  depth = 1,
+  d = NULL
 )
 }
 \arguments{
@@ -41,6 +42,13 @@ before predicting. The RSA layer is sharpest on a binary lexicon.}
 
 \item{rsa_alpha, depth}{Speaker rationality and recursion depth for the RSA
 listener (only used when \code{pragmatic = TRUE}).}
+
+\item{d}{Optional exponent for an exponentiated (power) choice rule: the
+(clamped, possibly thresholded) associations are raised to \code{d} before
+choice, as in \code{\link[=get_perf]{get_perf()}}. \code{NULL} (the default) leaves them unchanged.
+\code{\link[=xsl_run]{xsl_run()}} passes a model's \code{ch_dec} parameter here, so that
+\code{\link[=bayesian_decay]{bayesian_decay()}} scores test trials with the same decision rule it uses
+elsewhere.}
 }
 \value{
 A numeric vector of probabilities over \code{objects}, in the given
