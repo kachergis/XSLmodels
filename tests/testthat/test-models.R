@@ -163,19 +163,21 @@ test_that("uncfam_predictive() never pushes an association above beta (1)", {
   expect_equal(unname(fit$traj[[18]][18, 18]), 1)
 })
 
-test_that("tilles() carries a word's alpha forward across trials it doesn't appear on", {
-  # regression test: alpha was declared fresh (rep(NA, voc_sz)) inside the
-  # trial loop and only ever filled in for words on the *current* trial
-  # (tr_w). But the "other old" words update (a word seen before, not on
-  # this trial) needs alpha[other_old_w] -- words never in tr_w on this
-  # trial -- which was therefore always NA, crashing downstream in
-  # shannon_entropy's `if`. alpha now persists across trials as per-word
-  # state, updated only for the current trial's words, so absent words keep
-  # their own last-computed value.
-  mod <- tilles(x = .5, b = .8, alpha_0 = .85)
-  result <- tryCatch(xsl_run(mod, xsl_datasets[[1]]), error = function(e) e)
-  expect_false(inherits(result, "error"))
-  expect_true(all(is.finite(result$fits[[1]]$matrix)))
+test_that("tilles() recomputes every seen word's alpha before each trial", {
+  # Tilles & Fontanari (2013, p. 4) compute alpha_{t-1} by eq 7 for every
+  # word seen so far, including words absent from trial t, whose eqs 12-13
+  # use it. tilles() used to update alpha only for trial t's words, so an
+  # absent word kept its alpha from the last trial it appeared on (and a
+  # word seen only on trial 1 kept alpha_0). Hand-derived: after trial 1,
+  # word 1's row is (.5, .5, 0), 1 bit over the n_o = 3 objects seen by
+  # trial 2, on which word 1 is absent, so eq 13 gives new object 3
+  # (1 - alpha) / 3 with alpha = alpha_0 + (1 - alpha_0) * (1 - 1 / log2(3)).
+  dat <- xslData(train = list(words = list(c(1, 2), 3), objects = list(c(1, 2), 3)),
+                 accuracy = numeric(), label = "absent word alpha")
+  m <- xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), dat)$fits[[1]]$matrix
+  alpha <- .5 + .5 * (1 - 1 / log2(3))
+  expect_equal(unname(m[1, 3]), (1 - alpha) / 3)
+  expect_equal(unname(rowSums(m)), rep(1, 3))
 })
 
 test_that("tilles() works on an asymmetric dataset (word count != object count)", {
@@ -192,21 +194,25 @@ test_that("tilles() works on an asymmetric dataset (word count != object count)"
   expect_false(inherits(result, "error"))
 })
 
-test_that("tilles() doesn't divide by zero when an old word has no prior mass on this trial's objects", {
-  # regression test: eq 5.1's flux <- sum(m[w,other_old_o]) / sum(m[w,tr_o])
-  # assumes a currently-present, previously-seen word already has some
-  # association with at least one of this trial's objects. That's not
-  # guaranteed -- a word can be "old" yet paired with an entirely new-to-it
-  # set of objects -- giving sum(m[w,tr_o]) == 0 and thus Inf, which then
-  # multiplies by m[w,tr_o] == 0 to produce NaN. Reproduces dataset "206"'s
-  # trial 3 exactly (word 18/3 reappear paired with objects they've never
-  # been associated with), which failed on every one of 40 random parameter
-  # draws before the fix.
+test_that("tilles() spreads eq 5's flux evenly when an old word has no prior mass on this trial's objects", {
+  # eq 5 shares the flux out of the absent objects in proportion to the
+  # word's prior association with each of the trial's objects. A word can be
+  # "old" yet have none (dataset "206", trial 3: words 18 and 3 reappear with
+  # objects they've never been associated with). The ratio was first Inf,
+  # giving NaN, then guarded to 0, which dropped the flux and left the row
+  # summing to less than 1. The flux is now distributed evenly, as the paper
+  # first describes eq 5, so rows still sum to 1 (eq 10).
   cond206 <- Filter(function(d) d$label == "206", xsl_datasets)[[1]]
-  result <- tryCatch(xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), cond206),
-                     error = function(e) e)
-  expect_false(inherits(result, "error"))
-  expect_true(all(is.finite(result$fits[[1]]$matrix)))
+  m <- xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), cond206)$fits[[1]]$matrix
+  expect_true(all(is.finite(m)))
+  expect_equal(unname(rowSums(m)), rep(1, nrow(m)))
+  # hand-derived: word 1 sees only object 1 (so alpha = 1 at alpha_0 = 0),
+  # then reappears with objects 2 and 3 only, so eq 5's flux, x * 1, is split
+  # evenly between them
+  dat <- xslData(train = list(words = list(1, c(1, 2)), objects = list(1, c(2, 3))),
+                 accuracy = numeric(), label = "even flux")
+  m <- xsl_run(tilles(x = .5, b = .5, alpha_0 = 0), dat)$fits[[1]]$matrix
+  expect_equal(unname(m[1, ]), c(1 - .5, .5 / 2, .5 / 2))
 })
 
 test_that("tilles()'s eq 7 normalizes entropy to [0, 1] by log2(n_o)", {
@@ -250,12 +256,37 @@ test_that("tilles() gives valid probabilities at small alpha_0", {
                "tilles\\(\\): associations became negative by trial")
 })
 
-test_that("tilles() stops clearly, not with NaN, when b = 1 leaves a word with no associations", {
-  # with b = 1, eqs 2-4 give a novel word association only with novel
-  # objects on its trial; word 13 first appears (trial 17 of condition 1)
-  # with none, so its row is all zero and eq 7's entropy was NA
-  expect_error(xsl_run(tilles(x = .5, b = 1, alpha_0 = .5), xsl_datasets[[1]]),
-               "tilles\\(\\): word 13 has no associations left by trial 17")
+test_that("tilles()'s associations sum to 1 when contexts have more objects than words", {
+  # the paper's contexts have C words and C objects. Eq 1 divided by the
+  # number of words and eq 2 by the number of new words, so in conditions
+  # like 3x4 (3 words, 4 objects per trial) rows summed to as much as 3.95.
+  # Both now count objects, and a new word that appears with no new objects
+  # (its referent was shown earlier as a foil) gives eq 2's b share to the
+  # trial's objects. Hand-derived: 1 word with 2 objects gives (.5, .5).
+  dat <- xslData(train = list(words = list(1, 1), objects = list(c(1, 2), c(1, 2))),
+                 accuracy = numeric(), label = "1x2")
+  expect_equal(unname(rowSums(xsl_run(tilles(x = .5, b = .5, alpha_0 = 1), dat)$fits[[1]]$matrix)), 1)
+  for (p in list(c(.5, .5, .5), c(.5, 1, .5), c(1, .5, 1), c(1, 1, 1))) {
+    res <- xsl_run(tilles(x = p[1], b = p[2], alpha_0 = p[3]), xsl_datasets)
+    for (f in res$fits) {
+      expect_equal(unname(rowSums(f$matrix)), rep(1, nrow(f$matrix)))
+      expect_true(all(f$matrix >= 0))
+    }
+  }
+})
+
+test_that("tilles() matches a literal transcription of Tilles & Fontanari (2013)", {
+  # literal_tilles() (helper-tilles-literal.R) implements eqs 1-13 and the
+  # p. 4 procedure directly from the paper, independently of tilles()
+  for (p in list(c(.129, .124, .985), c(.6, .8, .85), c(.2, .9, .3), c(1, 1, 1))) {
+    for (d in xsl_datasets) {
+      tr <- positional_train(d$train)$train
+      m <- tilles_model(list(x = p[1], b = p[2], alpha_0 = p[3]), tr, NULL)$matrix
+      lit <- literal_tilles(p[1], p[2], p[3], tr)
+      expect_equal(unname(m), lit[as.integer(rownames(m)), as.integer(colnames(m))],
+                   tolerance = 1e-12, info = paste(d$label, toString(p)))
+    }
+  }
 })
 
 test_that("kalman_filter()'s Kalman gain matches its closed-form definition and shrinks with confidence", {
