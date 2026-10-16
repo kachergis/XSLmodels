@@ -50,6 +50,68 @@
 ### Bug Fixes
 
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  now follows Tilles & Fontanari (2013) in three places where it
+  departed from the paper. It matches an independent, literal
+  transcription of the paper’s eqs 1-13 and procedure
+  (`tests/testthat/helper-tilles-literal.R`) to 1e-12 on all 47
+  `xsl_datasets` conditions, including at the parameter bounds. **This
+  changes all
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  results and fits.**
+
+  - Eq 7’s `alpha` is recomputed before every trial for every word seen
+    so far, as the paper’s procedure (p. 4) specifies. Words absent from
+    a trial use it in eqs 12-13. They used to keep the `alpha` from the
+    last trial they appeared on, and a word seen only on trial 1 kept
+    `alpha_0`.
+  - Eqs 1 and 2 count objects. The paper’s contexts have C words and C
+    objects. In the conditions with more objects than words (19 of 47,
+    `201`-`222`), eq 1 divided by the number of words and eq 2 by the
+    number of new words, so a word’s associations summed to as much as
+    3.95 rather than 1 (eq 10). When a new word appears with no new
+    objects (73 trials in 15 conditions, where its referent was shown
+    earlier as a foil), eq 2’s `b` share now goes to all of the trial’s
+    objects; it used to be dropped.
+  - When a word has no association with any of the objects that eq 5 (or
+    eq 11) is proportional to, the flux is distributed evenly over them,
+    as the paper first describes eq 5. It used to be dropped, so the
+    word’s associations summed to less than 1 (in condition `206` at any
+    parameters, and in most of the 3x4-type conditions at `b = 1`).
+  - Every word’s associations now sum to 1 at all parameters in \[0,
+    1\], bounds included, so `b = 1` and `x = alpha_0 = 1` no longer
+    stop with “no associations left”.
+  - At the v05 group-fit parameters (x = .129, b = .124, `alpha_0` =
+    .9855), SSE over the 47 conditions is .6466 (.6399 with only the eq
+    7 normalization fix below, .6125 before either), and model accuracy
+    changes by up to .135 for a word. Refitting with v05’s settings
+    gives SSE .6061 at x = .124, b = .129, `alpha_0` = .979, the same as
+    with only the eq 7 fix (.6060).
+
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)’s
+  eq 7 now normalizes the entropy of a word’s associations to \[0, 1\],
+  as Tilles & Fontanari (2013) specify, by dividing
+  [`shannon_entropy()`](https://www.kachergis.com/XSLmodels/reference/shannon_entropy.md)
+  (in bits) by `log2(n_o)` rather than by `log(n_o)` in nats. The
+  mismatch came from the original 2013 implementation, so the published
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  results ran on it too. **This changes all
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  results and fits**, except at `alpha_0 = 1`, where eq 7’s alpha is 1
+  whatever the entropy. Because alpha now stays in \[`alpha_0`, 1\],
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  gives valid probabilities at every interior parameter vector. On all
+  47 `xsl_datasets` conditions at 1682 parameter vectors, all 72944 runs
+  with x, b and `alpha_0` in (0, 1) were valid, including the 23808 that
+  had stopped with “associations became negative” (see below), and no
+  association went negative even transiently. The only remaining stops
+  were the boundary cases `b = 1` and `x = alpha_0 = 1`, which no longer
+  occur (see above). At the v05 group-fit parameters (x = .129, b =
+  .124, `alpha_0` = .985), SSE over the 47 conditions rises from .6125
+  to .6399. Refitting gives .6060 at almost the same parameters (x =
+  .129, b = .126, `alpha_0` = .979). When only one object has been seen,
+  eq 7’s normalized entropy is now 0 instead of 0/0.
+
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   no longer returns NaN, or fails with “missing value where TRUE/FALSE
   needed” inside
   [`shannon_entropy()`](https://www.kachergis.com/XSLmodels/reference/shannon_entropy.md),
@@ -66,8 +128,9 @@
   (where NaN used to start), or when final associations are negative
   (previously returned silently as negative probabilities). Separately,
   at the boundary values `b = 1` (a novel word appearing with no novel
-  objects gets no association) and `x = alpha_0 = 1`, a word can be left
-  with no associations, giving the same NA; this now stops with
+  objects gets no association) and `x = alpha_0 = 1`, a word could be
+  left with no associations, giving the same NA (no longer, see above);
+  this stopped with
   `tilles(): word ... has no associations left by trial ...`. Every run
   that returned finite, nonnegative associations is unchanged, bit for
   bit. This was checked on all 47 `xsl_datasets` conditions at 553
@@ -76,10 +139,9 @@
   so fits change only where
   [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   previously returned negative probabilities, which are now also scored
-  as infinitely bad. Eq 7 itself is unchanged: correcting the
-  normalization would change every
-  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
-  result.
+  as infinitely bad. The normalization itself is corrected in the entry
+  above, so small `alpha_0` no longer causes this; the checks remain for
+  parameters outside \[0, 1\] and for the boundary cases.
 
 - [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)’s
   choice exponent `ch_dec` was ignored on conditions with a `test` (the
