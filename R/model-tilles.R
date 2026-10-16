@@ -3,16 +3,15 @@
 
 # tilles_model() stops with tilles_stop() rather than returning NaN or
 # negative "probabilities" in two cases:
-# - "negative": eq 7 normalizes entropy in bits (shannon_entropy uses log2) by
-#   log(n_o) in nats, as in the original 2013 implementation, so its
-#   uncertainty term can reach 1/log(2) ~ 1.44 rather than 1, and alpha falls
-#   below 0 when alpha_0 is small (below ~.31). Eqs 8-13 are then no longer
-#   convex mixtures and associations can go negative. A negative row's eq 7
-#   entropy is NA, which used to spread as NaN (or fail inside
-#   shannon_entropy), and negative final associations are invalid
-#   probabilities. A row that goes negative and recovers before its word
-#   reappears is not caught, so that every run that returned valid
-#   probabilities is unchanged.
+# - "negative": eqs 2-13 are convex mixtures, and so keep associations
+#   nonnegative, only while x, b and alpha (eq 7) are in [0, 1]. Eq 7's
+#   entropy is normalized by its maximum, log2(n_o), so alpha is in
+#   [alpha_0, 1], and associations can only go negative when a parameter is
+#   outside [0, 1]. (Through XSLmodels 0.4.0, eq 7 divided entropy in bits by
+#   log(n_o) in nats, as the original 2013 implementation did; alpha then fell
+#   below 0 when alpha_0 < ~.31, which was the usual cause.) A negative row's
+#   eq 7 entropy is NA, which would spread as NaN, and negative final
+#   associations are invalid probabilities.
 # - "zero": at boundary values a word can lose all its associations: with
 #   b = 1, eqs 2-4 give a novel word nothing unless an object on its trial is
 #   also novel, and with x = alpha_0 = 1, eq 9 zeroes a word's absent objects
@@ -24,9 +23,8 @@ tilles_stop <- function(params, t, word, problem = c("negative", "zero")) {
                  ", alpha_0 = ", params[["alpha_0"]], ")")
   stop(switch(problem,
     negative = paste0("tilles(): associations became negative by trial ", t,
-                      " ", pars, " because eq 7's alpha fell below 0, so ",
-                      "these parameters give invalid probabilities (small ",
-                      "alpha_0 is the usual cause)"),
+                      " ", pars, ", so these parameters give invalid probabilities ",
+                      "(x, b and alpha_0 must be in [0, 1])"),
     zero = paste0("tilles(): word ", word, " has no associations left by ",
                   "trial ", t, " ", pars, ", so its probabilities are 0/0 ",
                   "(boundary values such as b = 1, or x = alpha_0 = 1, ",
@@ -110,7 +108,12 @@ tilles_model <- function(params, data, control) {
       # letting NaN spread (see tilles_stop())
       if (any(m[w, ] < 0)) tilles_stop(params, t, voc[w], "negative")
       if (sum(m[w, ]) == 0) tilles_stop(params, t, voc[w], "zero")
-      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - shannon_entropy(m[w, ]) / log(n_o)) # eq 7 - Nprev?
+      # eq 7: entropy normalized to [0, 1] by its maximum, log2(n_o)
+      # (shannon_entropy() is in bits, and w's associations are all on the
+      # n_o objects seen so far); with only one object seen there is no
+      # uncertainty, rather than 0/0
+      h <- if (n_o > 1) shannon_entropy(m[w, ]) / log2(n_o) else 0
+      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - h) # eq 7 - Nprev?
     }
 
     # now for all stimuli on the current trial...
@@ -138,7 +141,6 @@ tilles_model <- function(params, data, control) {
     # efficiently that information should be used for reinforcement
     mt <- m
     # now update the other_old words
-    # if params[3] < .268 on "block2_369-3x3hiCD" m[18,18] becomes negative at trial 9
     flux <- rep(0, voc_sz)
     r <- matrix(0, voc_sz, ref_sz)
     # same zero-denominator guard as eq 5.1, for the same reason: an
