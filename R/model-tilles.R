@@ -1,6 +1,38 @@
 # Tilles and Fontanari's (2013) cross-situational word learning model
 # George Kachergis  george.kachergis@gmail.com  September 16, 2013
 
+# tilles_model() stops with tilles_stop() rather than returning NaN or
+# negative "probabilities" in two cases:
+# - "negative": eq 7 normalizes entropy in bits (shannon_entropy uses log2) by
+#   log(n_o) in nats, as in the original 2013 implementation, so its
+#   uncertainty term can reach 1/log(2) ~ 1.44 rather than 1, and alpha falls
+#   below 0 when alpha_0 is small (below ~.31). Eqs 8-13 are then no longer
+#   convex mixtures and associations can go negative. A negative row's eq 7
+#   entropy is NA, which used to spread as NaN (or fail inside
+#   shannon_entropy), and negative final associations are invalid
+#   probabilities. A row that goes negative and recovers before its word
+#   reappears is not caught, so that every run that returned valid
+#   probabilities is unchanged.
+# - "zero": at boundary values a word can lose all its associations: with
+#   b = 1, eqs 2-4 give a novel word nothing unless an object on its trial is
+#   also novel, and with x = alpha_0 = 1, eq 9 zeroes a word's absent objects
+#   while eq 8 adds nothing to present objects it has no association with.
+#   Eq 7's entropy and the word's performance are then 0/0.
+tilles_stop <- function(params, t, word, problem = c("negative", "zero")) {
+  problem <- match.arg(problem)
+  pars <- paste0("(x = ", params[["x"]], ", b = ", params[["b"]],
+                 ", alpha_0 = ", params[["alpha_0"]], ")")
+  stop(switch(problem,
+    negative = paste0("tilles(): associations became negative by trial ", t,
+                      " ", pars, " because eq 7's alpha fell below 0, so ",
+                      "these parameters give invalid probabilities (small ",
+                      "alpha_0 is the usual cause)"),
+    zero = paste0("tilles(): word ", word, " has no associations left by ",
+                  "trial ", t, " ", pars, ", so its probabilities are 0/0 ",
+                  "(boundary values such as b = 1, or x = alpha_0 = 1, ",
+                  "cause this)")), call. = FALSE)
+}
+
 tilles_model <- function(params, data, control) {
   x <- params[["x"]]
   b <- params[["b"]]
@@ -74,6 +106,10 @@ tilles_model <- function(params, data, control) {
     # update this trial's words' alpha in place; other_old_w below keep
     # whatever alpha they were last assigned (their own "alpha_{t-1}")
     for (w in tr_w) {
+      # eq 7's entropy is NA for a negative or all-zero row; stop instead of
+      # letting NaN spread (see tilles_stop())
+      if (any(m[w, ] < 0)) tilles_stop(params, t, voc[w], "negative")
+      if (sum(m[w, ]) == 0) tilles_stop(params, t, voc[w], "zero")
       alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - shannon_entropy(m[w, ]) / log(n_o)) # eq 7 - Nprev?
     }
 
@@ -116,7 +152,10 @@ tilles_model <- function(params, data, control) {
 
     # compScore[t] <- sum(diag(m))
   }
+  t <- length(data$words)
+  if (any(m < 0)) tilles_stop(params, t, NULL, "negative")
   perf <- diag(m) / rowSums(m)
+  if (any(rowSums(m) == 0)) tilles_stop(params, t, voc[rowSums(m) == 0][1], "zero")
 
   # TODO: not using reps/traj?
   xslFit(perf = perf, matrix = m, traj = list())

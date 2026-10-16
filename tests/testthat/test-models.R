@@ -209,6 +209,30 @@ test_that("tilles() doesn't divide by zero when an old word has no prior mass on
   expect_true(all(is.finite(result$fits[[1]]$matrix)))
 })
 
+test_that("tilles() stops clearly, not with NaN, when small alpha_0 makes associations negative", {
+  # regression test: eq 7 normalizes entropy in bits by log(n_o) in nats, so
+  # with small alpha_0 alpha falls below 0 (here to about -.43), eqs 8-13
+  # push associations negative, the next eq 7 entropy of that row is NA, and
+  # NaN spread until shannon_entropy failed with "missing value where
+  # TRUE/FALSE needed". One of the v05 refit's failing parameter vectors:
+  # association m[3, ] goes negative on trial 8, and word 3 is next seen on 9.
+  cond <- Filter(function(d) d$label == "temp_cont_1olap2tr_contr", xsl_datasets)[[1]]
+  expect_error(xsl_run(tilles(x = 0.06639, b = 0.812, alpha_0 = 0.006759), cond),
+               "tilles\\(\\): associations became negative by trial 9")
+  # the same condition with a larger alpha_0 still gives valid probabilities
+  fit <- xsl_run(tilles(x = 0.06639, b = 0.812, alpha_0 = 0.5), cond)$fits[[1]]
+  expect_true(all(is.finite(fit$matrix) & fit$matrix >= 0))
+  expect_true(all(fit$perf >= 0 & fit$perf <= 1))
+})
+
+test_that("tilles() stops clearly, not with NaN, when b = 1 leaves a word with no associations", {
+  # with b = 1, eqs 2-4 give a novel word association only with novel
+  # objects on its trial; word 13 first appears (trial 17 of condition 1)
+  # with none, so its row is all zero and eq 7's entropy was NA
+  expect_error(xsl_run(tilles(x = .5, b = 1, alpha_0 = .5), xsl_datasets[[1]]),
+               "tilles\\(\\): word 13 has no associations left by trial 17")
+})
+
 test_that("kalman_filter()'s Kalman gain matches its closed-form definition and shrinks with confidence", {
   # exercises the model's core claim: an adaptive learning rate that starts
   # large under uncertainty and shrinks as confidence accumulates. Hand-
