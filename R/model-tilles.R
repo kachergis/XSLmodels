@@ -12,11 +12,12 @@
 #   below 0 when alpha_0 < ~.31, which was the usual cause.) A negative row's
 #   eq 7 entropy is NA, which would spread as NaN, and negative final
 #   associations are invalid probabilities.
-# - "zero": at boundary values a word can lose all its associations: with
-#   b = 1, eqs 2-4 give a novel word nothing unless an object on its trial is
-#   also novel, and with x = alpha_0 = 1, eq 9 zeroes a word's absent objects
-#   while eq 8 adds nothing to present objects it has no association with.
-#   Eq 7's entropy and the word's performance are then 0/0.
+# - "zero": a word with no associations left, whose eq 7 entropy and
+#   performance would be 0/0. Every word's associations sum to 1 (eqs 10 and
+#   14) for x, b and alpha_0 in [0, 1], so this is a safety net; through
+#   XSLmodels 0.4.0 it happened at b = 1 and at x = alpha_0 = 1, where mass
+#   was lost when eq 2 had no new object to point to or when eqs 5 and 11 had
+#   no prior association to be proportional to.
 tilles_stop <- function(params, t, word, problem = c("negative", "zero")) {
   problem <- match.arg(problem)
   pars <- paste0("(x = ", params[["x"]], ", b = ", params[["b"]],
@@ -27,8 +28,7 @@ tilles_stop <- function(params, t, word, problem = c("negative", "zero")) {
                       "(x, b and alpha_0 must be in [0, 1])"),
     zero = paste0("tilles(): word ", word, " has no associations left by ",
                   "trial ", t, " ", pars, ", so its probabilities are 0/0 ",
-                  "(boundary values such as b = 1, or x = alpha_0 = 1, ",
-                  "cause this)")), call. = FALSE)
+                  "(x, b and alpha_0 must be in [0, 1])")), call. = FALSE)
 }
 
 tilles_model <- function(params, data, control) {
@@ -54,16 +54,16 @@ tilles_model <- function(params, data, control) {
   w_pos <- function(x) match(unlist(x), voc)
   o_pos <- function(x) match(unlist(x), ref)
   # compScore <- rep(0, nrow(data$words))
-  # alpha_{t-1}: each word's own most-recently-computed alpha, persisting
-  # across trials on which that word doesn't appear (needed below for
-  # other_old_w, whose update uses their alpha from whenever they were last
-  # seen, not the current trial). Initialized to alpha_0 (eq 7's value at
-  # maximal uncertainty) as a reasonable value for words not yet encountered.
+  # alpha_{t-1}: recomputed by eq 7 on every trial for every word seen so far
+  # (see below)
   alpha <- rep(alpha_0, voc_sz)
   # training
   tr_w <- w_pos(data$words[[1]]); tr_w <- tr_w[!is.na(tr_w)]
   tr_o <- o_pos(data$objects[[1]]); tr_o <- tr_o[!is.na(tr_o)]
-  m[tr_w, tr_o] <- 1 / length(tr_w) # eq 1: 1/C, where C=|context| (current words and objects)
+  # eq 1: 1/C. The paper's contexts have C words and C objects; with more
+  # objects than words (e.g. 3x4 conditions), C is the number of objects, so
+  # that each word's associations sum to 1 (eq 10)
+  m[tr_w, tr_o] <- 1 / length(tr_o)
   novel_w[tr_w] <- FALSE
   novel_o[tr_o] <- FALSE
 
@@ -93,17 +93,23 @@ tilles_model <- function(params, data, control) {
 
     n_o <- length(which(!novel_o)) # number of distinct objects appearing up to and including N_t
 
-    # preprocessing of novel stimuli
-    if (length(cur_novel_w) != 0) { # what if cur_novel_o / cur_old_o / other_old_o == NULL?
-      # m[cur_novel_w, cur_novel_o] <- b / length(cur_novel) + (1 - b) / n_o # Eqn 2
-      m[cur_novel_w, cur_novel_o] <- b / length(cur_novel_w) + (1 - b) / n_o # Eqn 2 TODO: check denom var
+    # preprocessing of novel words (eqs 2-4). Eq 2's C~_t is the number of new
+    # pairs; the paper's new words and new objects are equally many, and here
+    # it is the number of new objects, so that each new word's associations
+    # sum to 1 (eq 10). If a new word appears with no new objects (its
+    # referent was shown earlier as a foil), mutual exclusivity has no new
+    # object to point to, and b goes to all of the trial's objects instead.
+    if (length(cur_novel_w) != 0) {
+      me_o <- if (length(cur_novel_o) != 0) cur_novel_o else tr_o
       m[cur_novel_w, cur_old_o] <- (1 - b) / n_o # Eqn 3
       m[cur_novel_w, other_old_o] <- (1 - b) / n_o # Eqn 4 (obj not appearing on current t, but earlier)
+      m[cur_novel_w, me_o] <- b / length(me_o) + (1 - b) / n_o # Eqn 2
     }
 
-    # update this trial's words' alpha in place; other_old_w below keep
-    # whatever alpha they were last assigned (their own "alpha_{t-1}")
-    for (w in tr_w) {
+    # eq 7: alpha_{t-1} for every word seen so far, this trial's and absent
+    # ones alike, from the (preprocessed) associations before this trial's
+    # update, as the paper's procedure specifies (p. 4)
+    for (w in which(!novel_w)) {
       # eq 7's entropy is NA for a negative or all-zero row; stop instead of
       # letting NaN spread (see tilles_stop())
       if (any(m[w, ] < 0)) tilles_stop(params, t, voc[w], "negative")
@@ -113,7 +119,7 @@ tilles_model <- function(params, data, control) {
       # n_o objects seen so far); with only one object seen there is no
       # uncertainty, rather than 0/0
       h <- if (n_o > 1) shannon_entropy(m[w, ]) / log2(n_o) else 0
-      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - h) # eq 7 - Nprev?
+      alpha[w] <- alpha_0 + (1 - alpha_0) * (1 - h)
     }
 
     # now for all stimuli on the current trial...
@@ -124,14 +130,20 @@ tilles_model <- function(params, data, control) {
 
     # slow iterative method; rowSums(m) = 1
     for (w in tr_w) {
-      # eq 5.1 assumes w already has some association with this trial's
-      # objects; a word can be "old" overall yet have zero prior mass on
-      # this specific set of objects (e.g. always paired with different
-      # objects until now) -- with nothing to take a ratio of, there's no
-      # confidence to transfer in, so flux is 0 rather than 0/0 or x/0
+      # eq 5 shares the flux out of the absent objects, x * sum(m[w,
+      # other_old_o]), among this trial's objects in proportion to w's prior
+      # association with each. A word can be "old" yet have no association
+      # with any of this trial's objects (e.g. always paired with different
+      # objects until now); there is then nothing to be proportional to, and
+      # the flux is distributed evenly instead, as the paper first describes
+      # it (p. 3), so that w's associations still sum to 1 (eq 10)
       denom <- sum(m[w, tr_o])
-      flux[w] <- if (denom == 0) 0 else sum(m[w, other_old_o]) / denom # eq 5.1
-      r[w, tr_o] <- x * m[w, tr_o] * flux[w] # eq 5.2
+      if (denom == 0) {
+        r[w, tr_o] <- x * sum(m[w, other_old_o]) / length(tr_o)
+      } else {
+        flux[w] <- sum(m[w, other_old_o]) / denom # eq 5.1
+        r[w, tr_o] <- x * m[w, tr_o] * flux[w] # eq 5.2
+      }
       m[w, tr_o] <- m[w, tr_o] + alpha[w] * r[w, tr_o] + (1 - alpha[w]) * (1 / n_o - m[w, tr_o]) # eq 8
       m[w, other_old_o] <- m[w, other_old_o] - alpha[w] * x * m[w, other_old_o] + (1 - alpha[w]) * (1 / n_o - m[w, other_old_o]) # eq 9
     }
@@ -143,14 +155,21 @@ tilles_model <- function(params, data, control) {
     # now update the other_old words
     flux <- rep(0, voc_sz)
     r <- matrix(0, voc_sz, ref_sz)
-    # same zero-denominator guard as eq 5.1, for the same reason: an
-    # other_old word may have zero prior mass on the "other old" objects
+    # as in eq 5, an other_old word with no association with any absent
+    # object gets eq 11's flux distributed evenly over them; and if no
+    # object is absent, there is nowhere for eq 13's outflow to go, so b's
+    # transfer is skipped (keeping eq 14's normalization in both cases)
     other_old_w_denom <- rowSums(m[other_old_w, other_old_o, drop = FALSE])
     other_old_w_num <- rowSums(m[other_old_w, tr_o, drop = FALSE])
     flux[other_old_w] <- ifelse(other_old_w_denom == 0, 0, other_old_w_num / other_old_w_denom) # eq 11.1
     r[other_old_w, other_old_o] <- b * mt[other_old_w, other_old_o] * flux[other_old_w] # eq 11.2
+    even_w <- other_old_w_denom == 0
+    if (any(even_w) && length(other_old_o) != 0) {
+      r[other_old_w[even_w], other_old_o] <- b * other_old_w_num[even_w] / length(other_old_o)
+    }
+    b_out <- if (length(other_old_o) != 0) b else 0
     m[other_old_w, other_old_o] <- mt[other_old_w, other_old_o] + alpha[other_old_w] * r[other_old_w, other_old_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, other_old_o]) # eq 12
-    m[other_old_w, tr_o] <- mt[other_old_w, tr_o] - alpha[other_old_w] * b * mt[other_old_w, tr_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, tr_o]) # eq 13
+    m[other_old_w, tr_o] <- mt[other_old_w, tr_o] - alpha[other_old_w] * b_out * mt[other_old_w, tr_o] + (1 - alpha[other_old_w]) * (1 / n_o - mt[other_old_w, tr_o]) # eq 13
 
     # compScore[t] <- sum(diag(m))
   }
