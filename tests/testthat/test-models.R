@@ -209,20 +209,45 @@ test_that("tilles() doesn't divide by zero when an old word has no prior mass on
   expect_true(all(is.finite(result$fits[[1]]$matrix)))
 })
 
-test_that("tilles() stops clearly, not with NaN, when small alpha_0 makes associations negative", {
-  # regression test: eq 7 normalizes entropy in bits by log(n_o) in nats, so
-  # with small alpha_0 alpha falls below 0 (here to about -.43), eqs 8-13
-  # push associations negative, the next eq 7 entropy of that row is NA, and
-  # NaN spread until shannon_entropy failed with "missing value where
-  # TRUE/FALSE needed". One of the v05 refit's failing parameter vectors:
-  # association m[3, ] goes negative on trial 8, and word 3 is next seen on 9.
-  cond <- Filter(function(d) d$label == "temp_cont_1olap2tr_contr", xsl_datasets)[[1]]
-  expect_error(xsl_run(tilles(x = 0.06639, b = 0.812, alpha_0 = 0.006759), cond),
-               "tilles\\(\\): associations became negative by trial 9")
-  # the same condition with a larger alpha_0 still gives valid probabilities
-  fit <- xsl_run(tilles(x = 0.06639, b = 0.812, alpha_0 = 0.5), cond)$fits[[1]]
-  expect_true(all(is.finite(fit$matrix) & fit$matrix >= 0))
-  expect_true(all(fit$perf >= 0 & fit$perf <= 1))
+test_that("tilles()'s eq 7 normalizes entropy to [0, 1] by log2(n_o)", {
+  # regression test: eq 7 divided entropy in bits (shannon_entropy() uses
+  # log2) by log(n_o) in nats, so its uncertainty term could reach 1/log(2)
+  # ~ 1.44 and alpha fell below 0 for small alpha_0. Hand-derived: after
+  # trial 1 word 1's row is (.5, .5, 0), 1 bit of entropy over n_o = 3 seen
+  # objects, so on trial 2 alpha = alpha_0 + (1 - alpha_0) * (1 - 1 / log2(3)).
+  # Novel object 3 then gets only eq 8's decay term, (1 - alpha) / n_o
+  # (ln instead of log2 gives .1517 rather than .1052).
+  dat <- xslData(train = list(words = list(c(1, 2), c(1, 3)),
+                              objects = list(c(1, 2), c(1, 3))),
+                 accuracy = numeric(), label = "eq 7 normalization test")
+  m <- xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), dat)$fits[[1]]$matrix
+  alpha <- .5 + .5 * (1 - 1 / log2(3))
+  expect_equal(unname(m[1, 3]), (1 - alpha) / 3)
+  expect_equal(unname(rowSums(m)), rep(1, 3))
+  # with one object seen, eq 7's normalized entropy is 0 (no uncertainty),
+  # not 0/0
+  one <- xslData(train = list(words = list(1, 1), objects = list(1, 1)),
+                 accuracy = numeric(), label = "one object")
+  expect_equal(unname(xsl_run(tilles(x = .5, b = .5, alpha_0 = .5), one)$fits[[1]]$matrix), matrix(1))
+})
+
+test_that("tilles() gives valid probabilities at small alpha_0", {
+  # one of the v05 refit's failing parameter vectors: with eq 7's old ln
+  # normalization alpha fell to about -.43, m[3, ] went negative on trial 8,
+  # and the next eq 7 entropy was NA (later a clear "associations became
+  # negative" error). With alpha in [alpha_0, 1], it's valid on every
+  # condition, as it is at alpha_0 = 0
+  for (a0 in c(0.006759, 0)) {
+    res <- xsl_run(tilles(x = 0.06639, b = 0.812, alpha_0 = a0), xsl_datasets)
+    expect_true(is.finite(res$sse))
+    for (f in res$fits) {
+      expect_true(all(is.finite(f$matrix) & f$matrix >= 0))
+      expect_true(all(f$perf >= 0 & f$perf <= 1))
+    }
+  }
+  # the stop still fires for parameters outside [0, 1]
+  expect_error(xsl_run(tilles(x = 1.5, b = .5, alpha_0 = .5), xsl_datasets[[1]]),
+               "tilles\\(\\): associations became negative by trial")
 })
 
 test_that("tilles() stops clearly, not with NaN, when b = 1 leaves a word with no associations", {
