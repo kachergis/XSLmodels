@@ -49,6 +49,38 @@
 
 ### Bug Fixes
 
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  no longer returns NaN, or fails with “missing value where TRUE/FALSE
+  needed” inside
+  [`shannon_entropy()`](https://www.kachergis.com/XSLmodels/reference/shannon_entropy.md),
+  at small `alpha_0`. Instead it stops with a clear error,
+  `tilles(): associations became negative by trial ...`. The cause is eq
+  7, carried over from the original 2013 implementation: it normalizes
+  entropy in bits (`log2`) by `log(n_o)` in nats. Its uncertainty term
+  can then reach `1/log(2)` (about 1.44) rather than 1, so `alpha` falls
+  below 0 when `alpha_0` is below about .31. Eqs 8-13 can then push
+  associations negative, and the next eq 7 entropy of a negative row is
+  NA.
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  now stops when a word’s associations are negative at its next eq 7
+  (where NaN used to start), or when final associations are negative
+  (previously returned silently as negative probabilities). Separately,
+  at the boundary values `b = 1` (a novel word appearing with no novel
+  objects gets no association) and `x = alpha_0 = 1`, a word can be left
+  with no associations, giving the same NA; this now stops with
+  `tilles(): word ... has no associations left by trial ...`. Every run
+  that returned finite, nonnegative associations is unchanged, bit for
+  bit. This was checked on all 47 `xsl_datasets` conditions at 553
+  parameter vectors, including every one in the v05 refit’s error log.
+  Fitting already scored errors and NA results as an infinitely bad fit,
+  so fits change only where
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  previously returned negative probabilities, which are now also scored
+  as infinitely bad. Eq 7 itself is unchanged: correcting the
+  normalization would change every
+  [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  result.
+
 - [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)’s
   choice exponent `ch_dec` was ignored on conditions with a `test` (the
   4AFC conditions 211-214 and the 12 filtering conditions):
