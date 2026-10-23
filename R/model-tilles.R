@@ -67,7 +67,9 @@ tilles_model <- function(params, data, control) {
   novel_w[tr_w] <- FALSE
   novel_o[tr_o] <- FALSE
 
-  for (t in 2:length(data$words)) {
+  # trials 2..n; seq_along()[-1] is empty for a single trial, where 2:1 would
+  # count down and index a trial that doesn't exist
+  for (t in seq_along(data$words)[-1]) {
     tr_w <- w_pos(data$words[[t]])
     tr_w <- tr_w[!is.na(tr_w)]
     tr_o <- o_pos(data$objects[[t]])
