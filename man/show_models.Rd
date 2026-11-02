@@ -10,8 +10,12 @@ show_models()
 A character vector of model names
 }
 \description{
-Returns a list of all available cross-situational word learning models
-that can be used with the package.
+Returns the names of all available cross-situational word learning
+models, as accepted by \code{get_group_model_fit()} and
+\code{get_crossvalidated_model_fit()}. Most are the package's model functions;
+a few are variants of them used in the model comparison paper
+(\code{uncfam_novelty}, \code{uncfam_uncertainty_only}, \code{uncfam_strength},
+\code{fazly_threshold}).
 }
 \examples{
 show_models()

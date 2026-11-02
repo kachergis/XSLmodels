@@ -4,27 +4,37 @@
 \alias{update_params}
 \title{Update parameters of xslMod}
 \usage{
-update_params(xsl_mod, params)
+update_params(xsl_mod, params, free = NULL)
 }
 \arguments{
 \item{xsl_mod}{Object of class xslMod}
 
 \item{params}{Vector or list of parameter values, in the same order as
-the leading elements of \code{xsl_mod$params}}
+the leading elements of \code{xsl_mod$params}, or as \code{free}}
+
+\item{free}{Optional character vector of parameter names that \code{params}
+replaces, in order}
 }
 \value{
 An object of class xslMod
 }
 \description{
-Replaces \code{xsl_mod}'s leading parameter values with \code{params}, matched by
-position (not by name) -- e.g. a raw numeric vector such as \code{DEoptim}'s
-\code{bestmem}. The result keeps \code{xsl_mod}'s original parameter names.
+Replaces some of \code{xsl_mod}'s parameter values with \code{params} -- e.g. a raw
+numeric vector such as \code{DEoptim}'s \code{bestmem}. The result keeps \code{xsl_mod}'s
+original parameter names.
 }
 \details{
-\code{params} may be shorter than \code{xsl_mod$params}, in which case only the
-first \code{length(params)} parameters are replaced and the rest keep their
-existing values. This is what lets \code{xsl_fit()} optimize a leading subset
-of a model's parameters (e.g. \code{uncfam()}'s numeric \code{X}/\code{B}/\code{C} but not its
-categorical \code{variant}) by giving DEoptim \code{lower}/\code{upper} bounds shorter
-than the model's full parameter list.
+By default \code{params} replaces the \emph{leading} parameters, matched by position
+(not by name): \code{params} may be shorter than \code{xsl_mod$params}, in which case
+only the first \code{length(params)} parameters are replaced. This is what lets
+\code{xsl_fit()} optimize a leading subset of a model's parameters (e.g.
+\code{uncfam()}'s numeric \code{X}/\code{B}/\code{C} but not its categorical \code{variant}).
+
+With \code{free}, \code{params} instead replaces the named parameters, in the order
+given -- so any subset can be fit while the rest stay fixed (e.g.
+\code{rescorla_wagner()}'s \code{beta}, \code{C} and \code{lambda} with \code{alpha} fixed at 1).
+}
+\examples{
+rw <- rescorla_wagner(C = .98, alpha = 1, beta = .5, lambda = 1)
+update_params(rw, c(.2, .95, .8), free = c("beta", "C", "lambda"))$params
 }

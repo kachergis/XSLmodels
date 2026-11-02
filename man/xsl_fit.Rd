@@ -11,7 +11,10 @@ xsl_fit(
   upper,
   by_data = FALSE,
   control = xslControl(),
-  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
+  free = NULL,
+  n_restarts = 1,
+  seed = NULL
 )
 }
 \arguments{
@@ -29,13 +32,36 @@ separately.}
 \item{control}{Control parameters passed to \code{xsl_run()}.}
 
 \item{deoptim_control}{Control parameters passed to \code{DEoptim()}.}
+
+\item{free}{Optional names of the parameters that \code{lower}/\code{upper} bound,
+in order (see \code{update_params()}); by default, the model's leading
+parameters.}
+
+\item{n_restarts}{Number of independent DEoptim runs per fit; the best
+(lowest SSE) is kept. Some models' objectives have poor local basins that
+a single run lands in a good fraction of the time (e.g.
+\code{uncfam_predictive()}), so a few restarts make fits far more reliable.}
+
+\item{seed}{Optional random seed, set once before fitting, so DEoptim's
+random initial populations (and a stochastic model's simulations) are
+reproducible.}
 }
 \value{
-An object of class \code{DEoptim} representing the fitting result, which
-includes the best set of parameters found and the corresponding SSE value.
+A list with one element per fit (one in total, or one per dataset
+with \code{by_data = TRUE}), each the \code{DEoptim} result of the best run, which
+includes the best parameters found (\code{optim$bestmem}, named) and their SSE
+(\code{optim$bestval}). With \code{n_restarts > 1}, \code{restarts} holds every run's
+best SSE.
 }
 \description{
 Fits a model to provided data using the Differential Evolution optimization
 algorithm. It optimizes the model parameters to minimize the sum of squared
 errors (SSE) between the model's predictions and human accuracy data.
+}
+\examples{
+fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = .8, upper = 1,
+               n_restarts = 2, seed = 1,
+               deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
+fit[[1]]$optim$bestmem
+fit[[1]]$restarts
 }
