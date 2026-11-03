@@ -25,7 +25,9 @@ new_xslData(x = list())
 \item{test}{Test data}
 
 \item{accuracy}{Proportion correct per test item: per test trial (in
-\code{test} order) if \code{test} is given, otherwise per word}
+\code{test} order) if \code{test} is given, otherwise per word. For a design with
+several training blocks, each followed by the same test, a matrix with
+one row per block (see Details)}
 
 \item{n_subj}{Number of subjects}
 
@@ -37,7 +39,8 @@ new_xslData(x = list())
 
 \item{response_matrix}{Optional test-response (confusion) matrix: for each
 test item (rows, in \code{accuracy} order) the number of participants choosing
-each object (columns, one per object in \code{train}, in sorted label order)}
+each object (columns, one per object in \code{train}, in sorted label order).
+For a multi-block design, a list with one such matrix per block}
 
 \item{x}{List with elements train, test, accuracy, n_subj, label, condition, description, response_matrix}
 }
@@ -48,4 +51,11 @@ An object of class xslData
 xslData S3 class
 
 Constructor for xslData S3 class
+}
+\details{
+\strong{Multi-block designs.} Some experiments repeat the same training sequence
+several times, testing after each repetition (a learning trajectory). Give
+\code{train} as one block and \code{accuracy} as a matrix with one row per block; the
+number of rows is the number of blocks. \code{\link[=xsl_run]{xsl_run()}} then scores block \code{b}
+on a model trained on \code{b} repetitions of \code{train}.
 }

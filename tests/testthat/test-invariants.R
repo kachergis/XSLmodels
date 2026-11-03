@@ -78,3 +78,17 @@ test_that("models are reproducible: deterministic always, stochastic under a see
     expect_identical(a$sse, b$sse, info = nm)
   }
 })
+
+test_that("every registered model gives valid predictions on multi-block data", {
+  skip_on_cran()
+  d <- kachergis_priming[["4x4 6x"]]
+  for (nm in setdiff(names(registry), SLOW)) {
+    set.seed(1)
+    res <- xsl_run(registry[[nm]]$constructor(), d,
+                   control = xslControl(n_sim = 2, objective = "multinomial"))
+    f <- res$fits[[1]]
+    expect_equal(dim(f$perf), c(4, 18), info = nm)
+    expect_true(all(is.finite(f$perf) & f$perf >= 0 & f$perf <= 1), info = nm)
+    expect_true(is.finite(f$loglik), info = nm)
+  }
+})

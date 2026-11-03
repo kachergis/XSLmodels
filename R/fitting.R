@@ -11,6 +11,15 @@
 #'   per-word accuracy), and `sims` (the full per-simulation `xslFit` list,
 #'   `NULL` unless `control` had `keep_sims = TRUE`).
 #'
+#'   For a multi-block condition (an `xslData` whose `accuracy` has one row
+#'   per block; see [xslData()]), block `b` is scored on a run trained on `b`
+#'   repetitions of the training sequence. Its fit's `perf` then has one row
+#'   per block, `sse` (and `loglik`) sum over blocks, `matrix`, `responses`
+#'   and `sims` are the last block's, and `blocks` holds each block's own
+#'   fit. Each block is a separate run, so for a stochastic model the blocks'
+#'   predictions come from independent simulated learners: right on average,
+#'   but not one learner's trajectory.
+#'
 #'   With a likelihood objective (`xslControl(objective = "binomial")` or
 #'   `"multinomial"`), each fit also has `loglik`, the log-likelihood of that
 #'   condition's human test responses, and the result has `loglik` (summed
@@ -38,7 +47,12 @@ xsl_run <- function(model, data, control = xslControl()) {
   keep_sims <- isTRUE(control$keep_sims)
   objective <- control$objective %||% "sse"
 
-  fits <- map(data, function(dat) {
+  if (control$reps > 1 && any(vapply(data, n_blocks, numeric(1)) > 1)) {
+    stop("multi-block data sets its own number of training repetitions; ",
+         "leave control$reps at 1", call. = FALSE)
+  }
+
+  run_condition <- function(dat) {
     # Models index their matrices by the raw word/object values (m[tr_w,
     # tr_o]), which is only correct when those values are exactly
     # 1..voc_sz / 1..ref_sz. Hand every model positions instead, and put the
@@ -85,6 +99,21 @@ xsl_run <- function(model, data, control = xslControl()) {
       out$loglik <- condition_loglik(mat, perf, dat, objective, control$lapse %||% 0,
                                      d = model_params[["ch_dec"]])
     }
+    out
+  }
+
+  fits <- map(data, function(dat) {
+    if (n_blocks(dat) == 1) return(run_condition(dat))
+    # multi-block: block b is scored on a fresh run trained on b repetitions
+    # of the sequence, so every model (batch ones included) and every scoring
+    # path works unchanged
+    blocks <- lapply(seq_len(n_blocks(dat)), \(b) run_condition(data_block(dat, b)))
+    last <- blocks[[length(blocks)]]
+    out <- list(sims = last$sims, responses = last$responses,
+                perf = do.call(rbind, map(blocks, "perf")), matrix = last$matrix,
+                sse = sum(vapply(blocks, `[[`, numeric(1), "sse")), data = dat,
+                blocks = blocks)
+    if (objective != "sse") out$loglik <- sum(vapply(blocks, `[[`, numeric(1), "loglik"))
     out
   })
 

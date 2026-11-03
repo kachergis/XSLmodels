@@ -453,7 +453,7 @@ condition_loglik <- function(m, perf, data, objective, lapse, d = NULL) {
 n_responses <- function(data) {
   if ("xslData" %in% class(data)) data <- list(data)
   sum(vapply(data, \(d) {
-    if (!is.null(d$response_matrix)) sum(d$response_matrix) else d$n_subj * length(d$accuracy)
+    if (!is.null(d$response_matrix)) sum(unlist(d$response_matrix)) else d$n_subj * length(d$accuracy)
   }, numeric(1)))
 }
 
@@ -479,6 +479,9 @@ n_responses <- function(data) {
 #' @param lapse Lapse rate: the probability of guessing uniformly among the
 #'   alternatives, mixed into `p` (0, the default, leaves `p` as the model's
 #'   choice rule gives it).
+#' @param block For a multi-block condition, which block's responses to
+#'   return (`m` should then be that block's matrix, e.g.
+#'   `xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix`).
 #'
 #' @return A tibble with one row per test item: `item`, `correct` (the
 #'   correct object's label), and list columns `alternatives` (object
@@ -493,8 +496,12 @@ n_responses <- function(data) {
 #' ch <- choice_probabilities(fit$matrix, dat)
 #' ch$p[[1]]       # the model's choice distribution for item 1
 #' ch$counts[[1]]  # what participants chose
-choice_probabilities <- function(m, data, d = NULL, lapse = 0) {
+choice_probabilities <- function(m, data, d = NULL, lapse = 0, block = NULL) {
   stopifnot("xslData" %in% class(data), lapse >= 0, lapse <= 1)
+  if (n_blocks(data) > 1) {
+    if (is.null(block)) stop("`data` has ", n_blocks(data), " blocks; say which with `block`", call. = FALSE)
+    data <- data_block(data, block)
+  }
   ch <- item_choices(m, data, d)
   counts <- item_counts(data, ch$alternatives)
   tibble::tibble(item = seq_along(ch$correct), correct = ch$correct,

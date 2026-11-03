@@ -45,6 +45,7 @@ reference:
       - xsl_datasets
       - kachergis2012_highlighting
       - kachergis_initial_accuracy
+      - kachergis_priming
       - gangwani2011_category
       - vlach_debrock2017
       - benitez2020

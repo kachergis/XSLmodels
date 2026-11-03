@@ -26,6 +26,11 @@ xsl_holdout_datasets <- list(
     scoring = "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)",
     note = "Kept standalone for the initial-accuracy manipulation's own analysis, not a structural issue."
   ),
+  kachergis_priming = list(
+    scorable = TRUE,
+    scoring = "xsl_run() (multi-block: block b scored on b repetitions of the training sequence; perf has one row per block)",
+    note = "4-block learning trajectories; different participants from xsl_datasets, whose 3_x8_369_4x4 and freq369-3x3loCD share two of its sequences."
+  ),
   suanda2014 = list(
     scorable = TRUE,
     scoring = "Condition-level mean only: compare mean(xsl_run(...)$fits[[1]]$perf) with the reported mean (every item's accuracy is that mean)",

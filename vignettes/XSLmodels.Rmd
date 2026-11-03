@@ -291,6 +291,26 @@ data.frame(
 A model that fits `xsl_datasets` well but does worse than `baseline()` on held-out
 data is likely overfitting the particular conditions it was fit to.
 
+## 12. Learning trajectories: multi-block designs
+
+Some experiments repeat the same training sequence several times, testing
+after each repetition. In such a condition `accuracy` is a matrix with one
+row per block, and `response_matrix` (if given) a list with one matrix per
+block. `kachergis_priming` has three: each trains on a sequence four times,
+with an 18AFC test after each block. `xsl_run()` scores block `b` on a run
+trained on `b` repetitions of the sequence, so `perf` has one row per block,
+and `sse` (or a likelihood) sums over blocks:
+
+```{r trajectories}
+d <- kachergis_priming[["4x4 3/6/9x"]]
+d
+run <- xsl_run(uncfam(X = .2, B = 3, C = .97), d)
+rbind(people = rowMeans(d$accuracy), model = rowMeans(run$fits[[1]]$perf))
+```
+
+Multi-block conditions can be mixed with ordinary ones in `xsl_run()`,
+`xsl_fit()` and cross-validation.
+
 # Further vignettes
 
 - `vignette("custom-models")`: writing your own model or dataset.
