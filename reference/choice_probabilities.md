@@ -13,7 +13,7 @@ shows which wrong objects a model expects learners to choose.
 ## Usage
 
 ``` r
-choice_probabilities(m, data, d = NULL, lapse = 0)
+choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL)
 ```
 
 ## Arguments
@@ -36,6 +36,12 @@ choice_probabilities(m, data, d = NULL, lapse = 0)
   Lapse rate: the probability of guessing uniformly among the
   alternatives, mixed into `p` (0, the default, leaves `p` as the
   model's choice rule gives it).
+
+- block:
+
+  For a multi-block condition, which block's responses to return (`m`
+  should then be that block's matrix, e.g.
+  `xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix`).
 
 ## Value
 

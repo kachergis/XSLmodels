@@ -31,6 +31,17 @@ simulations for a stochastic model), `perf`, `sse`, `data`, `responses`
 per-word accuracy), and `sims` (the full per-simulation `xslFit` list,
 `NULL` unless `control` had `keep_sims = TRUE`).
 
+For a multi-block condition (an `xslData` whose `accuracy` has one row
+per block; see
+[`xslData()`](https://www.kachergis.com/XSLmodels/reference/xslData-class.md)),
+block `b` is scored on a run trained on `b` repetitions of the training
+sequence. Its fit's `perf` then has one row per block, `sse` (and
+`loglik`) sum over blocks, `matrix`, `responses` and `sims` are the last
+block's, and `blocks` holds each block's own fit. Each block is a
+separate run, so for a stochastic model the blocks' predictions come
+from independent simulated learners: right on average, but not one
+learner's trajectory.
+
 With a likelihood objective (`xslControl(objective = "binomial")` or
 `"multinomial"`), each fit also has `loglik`, the log-likelihood of that
 condition's human test responses, and the result has `loglik` (summed

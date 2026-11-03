@@ -78,7 +78,9 @@ Constructor for xslData S3 class"></head><body>
 
 <dt id="arg-accuracy">accuracy<a class="anchor" aria-label="anchor" href="#arg-accuracy"></a></dt>
 <dd><p>Proportion correct per test item: per test trial (in
-<code>test</code> order) if <code>test</code> is given, otherwise per word</p></dd>
+<code>test</code> order) if <code>test</code> is given, otherwise per word. For a design with
+several training blocks, each followed by the same test, a matrix with
+one row per block (see Details)</p></dd>
 
 
 <dt id="arg-n-subj">n_subj<a class="anchor" aria-label="anchor" href="#arg-n-subj"></a></dt>
@@ -100,7 +102,8 @@ Constructor for xslData S3 class"></head><body>
 <dt id="arg-response-matrix">response_matrix<a class="anchor" aria-label="anchor" href="#arg-response-matrix"></a></dt>
 <dd><p>Optional test-response (confusion) matrix: for each
 test item (rows, in <code>accuracy</code> order) the number of participants choosing
-each object (columns, one per object in <code>train</code>, in sorted label order)</p></dd>
+each object (columns, one per object in <code>train</code>, in sorted label order).
+For a multi-block design, a list with one such matrix per block</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -110,6 +113,14 @@ each object (columns, one per object in <code>train</code>, in sorted label orde
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class xslData</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><strong>Multi-block designs.</strong> Some experiments repeat the same training sequence
+several times, testing after each repetition (a learning trajectory). Give
+<code>train</code> as one block and <code>accuracy</code> as a matrix with one row per block; the
+number of rows is the number of blocks. <code><a href="xsl_run.html">xsl_run()</a></code> then scores block <code>b</code>
+on a model trained on <code>b</code> repetitions of <code>train</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

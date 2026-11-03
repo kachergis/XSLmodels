@@ -249,7 +249,8 @@ to score a model against it:</p>
 <span><span class="co">#&gt;  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">xsl_holdout_datasets</span>, <span class="va">`[[`</span>, <span class="st">"scorable"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; [1] "benitez2020"                "kachergis_initial_accuracy"</span></span>
-<span><span class="co">#&gt; [3] "suanda2014"                 "koehne2013"</span></span></code></pre></div>
+<span><span class="co">#&gt; [3] "kachergis_priming"          "suanda2014"                </span></span>
+<span><span class="co">#&gt; [5] "koehne2013"</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -578,6 +579,37 @@ condition, next to the no-free-parameter <code><a href="../reference/baseline.ht
 <p>A model that fits <code>xsl_datasets</code> well but does worse than
 <code><a href="../reference/baseline.html">baseline()</a></code> on held-out data is likely overfitting the
 particular conditions it was fit to.</p>
+</div>
+<div class="section level3">
+<h3 id="learning-trajectories-multi-block-designs">12. Learning trajectories: multi-block designs<a class="anchor" aria-label="anchor" href="#learning-trajectories-multi-block-designs"></a>
+</h3>
+<p>Some experiments repeat the same training sequence several times,
+testing after each repetition. In such a condition <code>accuracy</code>
+is a matrix with one row per block, and <code>response_matrix</code> (if
+given) a list with one matrix per block. <code>kachergis_priming</code>
+has three: each trains on a sequence four times, with an 18AFC test
+after each block. <code><a href="../reference/xsl_run.html">xsl_run()</a></code> scores block <code>b</code> on
+a run trained on <code>b</code> repetitions of the sequence, so
+<code>perf</code> has one row per block, and <code>sse</code> (or a
+likelihood) sums over blocks:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="va">kachergis_priming</span><span class="op">[[</span><span class="st">"4x4 3/6/9x"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">d</span></span>
+<span><span class="co">#&gt; xslData object with label "priming 4x4 3/6/9x" and condition "4x4 3/6/9x"</span></span>
+<span><span class="co">#&gt;   training trials: 27</span></span>
+<span><span class="co">#&gt;       test trials: 0</span></span>
+<span><span class="co">#&gt;             words: 18</span></span>
+<span><span class="co">#&gt;           objects: 18</span></span>
+<span><span class="co">#&gt;            blocks: 4 (training repeated, tested after each)</span></span>
+<span><span class="co">#&gt;        accuracies: 72</span></span>
+<span><span class="co">#&gt;          subjects: 44</span></span>
+<span><span class="va">run</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/xsl_run.html">xsl_run</a></span><span class="op">(</span><span class="fu"><a href="../reference/uncfam.html">uncfam</a></span><span class="op">(</span>X <span class="op">=</span> <span class="fl">.2</span>, B <span class="op">=</span> <span class="fl">3</span>, C <span class="op">=</span> <span class="fl">.97</span><span class="op">)</span>, <span class="va">d</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>people <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">accuracy</span><span class="op">)</span>, model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowMeans</a></span><span class="op">(</span><span class="va">run</span><span class="op">$</span><span class="va">fits</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">perf</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           block1    block2    block3    block4</span></span>
+<span><span class="co">#&gt; people 0.2904040 0.5037879 0.7285354 0.8068182</span></span>
+<span><span class="co">#&gt; model  0.4167095 0.6753655 0.8146380 0.8890701</span></span></code></pre></div>
+<p>Multi-block conditions can be mixed with ordinary ones in
+<code><a href="../reference/xsl_run.html">xsl_run()</a></code>, <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code> and cross-validation.</p>
 </div>
 </div>
 <div class="section level2">

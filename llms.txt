@@ -124,6 +124,9 @@ Cross-situational word learning models
   : Kachergis (2012) highlighting experiment data
 - [`kachergis_initial_accuracy`](https://www.kachergis.com/XSLmodels/reference/kachergis_initial_accuracy.md)
   : Kachergis, Grimmick, & Gureckis initial accuracy experiment data
+- [`kachergis_priming`](https://www.kachergis.com/XSLmodels/reference/kachergis_priming.md)
+  : Kachergis, Yu & Shiffrin priming experiments: 4-block learning
+  trajectories
 - [`gangwani2011_category`](https://www.kachergis.com/XSLmodels/reference/gangwani2011_category.md)
   : Gangwani, Kachergis & Yu simultaneous category + object name
   learning

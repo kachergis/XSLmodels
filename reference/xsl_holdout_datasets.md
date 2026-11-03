@@ -19,7 +19,7 @@ xsl_holdout_datasets
 
 ## Format
 
-An object of class `list` of length 9.
+An object of class `list` of length 10.
 
 ## Details
 
@@ -45,12 +45,12 @@ Most of these are standalone for a structural reason (partial-`NA`
 accuracy, a non-square association matrix, or no human accuracy data at
 all, e.g. the naturalistic corpora) – see each dataset's own
 [`?help`](https://rdrr.io/r/utils/help.html) page for the full
-rationale. `benitez2020`, `kachergis_initial_accuracy`, `suanda2014`,
-and `koehne2013` are the exceptions: all are directly scorable the same
-way `xsl_datasets` conditions are, and are kept out of the group/CV
-fitting pool specifically to have real held-out data to test
-generalization against (`suanda2014` and `koehne2013` only at the level
-of condition means).
+rationale. `benitez2020`, `kachergis_initial_accuracy`,
+`kachergis_priming`, `suanda2014`, and `koehne2013` are the exceptions:
+all are directly scorable the same way `xsl_datasets` conditions are,
+and are kept out of the group/CV fitting pool specifically to have real
+held-out data to test generalization against (`suanda2014` and
+`koehne2013` only at the level of condition means).
 
 ## Examples
 
@@ -59,5 +59,6 @@ xsl_holdout_datasets$benitez2020$scoring
 #> [1] "xsl_run() + mafc_test() / get_perf() (standard diagonal scoring)"
 names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
 #> [1] "benitez2020"                "kachergis_initial_accuracy"
-#> [3] "suanda2014"                 "koehne2013"                
+#> [3] "kachergis_priming"          "suanda2014"                
+#> [5] "koehne2013"                
 ```

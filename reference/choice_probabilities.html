@@ -68,7 +68,7 @@ choose.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">choice_probabilities</span><span class="op">(</span><span class="va">m</span>, <span class="va">data</span>, d <span class="op">=</span> <span class="cn">NULL</span>, lapse <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">choice_probabilities</span><span class="op">(</span><span class="va">m</span>, <span class="va">data</span>, d <span class="op">=</span> <span class="cn">NULL</span>, lapse <span class="op">=</span> <span class="fl">0</span>, block <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,6 +91,12 @@ choose.</p>
 <dd><p>Lapse rate: the probability of guessing uniformly among the
 alternatives, mixed into <code>p</code> (0, the default, leaves <code>p</code> as the model's
 choice rule gives it).</p></dd>
+
+
+<dt id="arg-block">block<a class="anchor" aria-label="anchor" href="#arg-block"></a></dt>
+<dd><p>For a multi-block condition, which block's responses to
+return (<code>m</code> should then be that block's matrix, e.g.
+<code>xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix</code>).</p></dd>
 
 </dl></div>
     <div class="section level2">

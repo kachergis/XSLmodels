@@ -74,6 +74,14 @@ simulations for a stochastic model), <code>perf</code>, <code>sse</code>, <code>
 (an <code>n_sim</code> x n-words matrix of each simulated participant's final
 per-word accuracy), and <code>sims</code> (the full per-simulation <code>xslFit</code> list,
 <code>NULL</code> unless <code>control</code> had <code>keep_sims = TRUE</code>).</p>
+<p>For a multi-block condition (an <code>xslData</code> whose <code>accuracy</code> has one row
+per block; see <code><a href="xslData-class.html">xslData()</a></code>), block <code>b</code> is scored on a run trained on <code>b</code>
+repetitions of the training sequence. Its fit's <code>perf</code> then has one row
+per block, <code>sse</code> (and <code>loglik</code>) sum over blocks, <code>matrix</code>, <code>responses</code>
+and <code>sims</code> are the last block's, and <code>blocks</code> holds each block's own
+fit. Each block is a separate run, so for a stochastic model the blocks'
+predictions come from independent simulated learners: right on average,
+but not one learner's trajectory.</p>
 <p>With a likelihood objective (<code>xslControl(objective = "binomial")</code> or
 <code>"multinomial"</code>), each fit also has <code>loglik</code>, the log-likelihood of that
 condition's human test responses, and the result has <code>loglik</code> (summed

@@ -4,6 +4,27 @@
 
 ### New Features
 
+- Multi-block designs, in which the same training sequence is repeated
+  with a test after each repetition (learning trajectories). An
+  `xslData`‘s `accuracy` can now be a matrix with one row per block, and
+  its `response_matrix` a list with one matrix per block.
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  scores block `b` on a run trained on `b` repetitions of the sequence.
+  This works for every model, including batch models and those without a
+  `reps` loop, and with test specifications and both likelihood
+  objectives. For every deterministic model with a `reps` loop, the
+  result is exactly what continuous training records after each block.
+  The fit’s `perf` has one row per block, `sse` and `loglik` sum over
+  blocks, and `blocks` holds each block’s fit.
+  [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
+  gains `block`. Each block is a separate run, so for stochastic models
+  the blocks’ predictions come from independent simulated learners
+- New dataset `kachergis_priming`: three 4-block learning trajectories
+  (164 participants), each studying one sequence four times with an
+  18AFC test after each block. Two of the sequences are `xsl_datasets`
+  conditions (`3_x8_369_4x4`, `freq369-3x3loCD`), with different
+  participants; the third is the original 4x4 sequence. Registered in
+  `xsl_holdout_datasets`. See `data-raw/add_kachergis_priming.R`
 - Models can be fit and scored by choice-level likelihood rather than by
   SSE on accuracy.
   [`xslControl()`](https://www.kachergis.com/XSLmodels/reference/xslControl-class.md)

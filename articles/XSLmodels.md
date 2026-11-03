@@ -189,7 +189,8 @@ str(xsl_holdout_datasets$benitez2020)
 #>  $ note    : chr "Real per-word accuracy; structurally could join xsl_datasets but kept out deliberately as generalization-test data."
 names(xsl_holdout_datasets)[sapply(xsl_holdout_datasets, `[[`, "scorable")]
 #> [1] "benitez2020"                "kachergis_initial_accuracy"
-#> [3] "suanda2014"                 "koehne2013"
+#> [3] "kachergis_priming"          "suanda2014"                
+#> [5] "koehne2013"
 ```
 
 ## Running, fitting, and defining XSL models.
@@ -580,6 +581,42 @@ A model that fits `xsl_datasets` well but does worse than
 [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
 on held-out data is likely overfitting the particular conditions it was
 fit to.
+
+### 12. Learning trajectories: multi-block designs
+
+Some experiments repeat the same training sequence several times,
+testing after each repetition. In such a condition `accuracy` is a
+matrix with one row per block, and `response_matrix` (if given) a list
+with one matrix per block. `kachergis_priming` has three: each trains on
+a sequence four times, with an 18AFC test after each block.
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+scores block `b` on a run trained on `b` repetitions of the sequence, so
+`perf` has one row per block, and `sse` (or a likelihood) sums over
+blocks:
+
+``` r
+
+d <- kachergis_priming[["4x4 3/6/9x"]]
+d
+#> xslData object with label "priming 4x4 3/6/9x" and condition "4x4 3/6/9x"
+#>   training trials: 27
+#>       test trials: 0
+#>             words: 18
+#>           objects: 18
+#>            blocks: 4 (training repeated, tested after each)
+#>        accuracies: 72
+#>          subjects: 44
+run <- xsl_run(uncfam(X = .2, B = 3, C = .97), d)
+rbind(people = rowMeans(d$accuracy), model = rowMeans(run$fits[[1]]$perf))
+#>           block1    block2    block3    block4
+#> people 0.2904040 0.5037879 0.7285354 0.8068182
+#> model  0.4167095 0.6753655 0.8146380 0.8890701
+```
+
+Multi-block conditions can be mixed with ordinary ones in
+[`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md),
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
+and cross-validation.
 
 ## Further vignettes
 
