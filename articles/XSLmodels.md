@@ -395,6 +395,14 @@ fit_result[[1]]$optim$bestval
 #> [1] 0.3106
 ```
 
+By default
+[`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)
+minimizes SSE on accuracy. With
+`control = xslControl(objective = "binomial")` (or `"multinomial"`) it
+instead maximizes the likelihood of the human responses, and reports AIC
+and BIC; see
+[`vignette("model-comparison")`](https://www.kachergis.com/XSLmodels/articles/model-comparison.md).
+
 ### 9. Available models
 
 The package includes several types of models:
@@ -414,6 +422,11 @@ with a free exponent on familiarity’s contribution to attention -
 [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md) -
 [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
 with learning by elimination (mutual exclusivity) -
+[`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md) -
+one model nesting all of the above (and
+[`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md))
+as special cases, for nested comparisons (see
+[`vignette("nested-comparisons")`](https://www.kachergis.com/XSLmodels/articles/nested-comparisons.md)) -
 [`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md) -
 Fazly et al. model -
 [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md) -
@@ -567,3 +580,19 @@ A model that fits `xsl_datasets` well but does worse than
 [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
 on held-out data is likely overfitting the particular conditions it was
 fit to.
+
+## Further vignettes
+
+- [`vignette("custom-models")`](https://www.kachergis.com/XSLmodels/articles/custom-models.md):
+  writing your own model or dataset.
+- [`vignette("model-comparison")`](https://www.kachergis.com/XSLmodels/articles/model-comparison.md):
+  comparing models by SSE, by choice-level likelihood (binomial or
+  multinomial) and by cross-validation.
+- [`vignette("nested-comparisons")`](https://www.kachergis.com/XSLmodels/articles/nested-comparisons.md):
+  the
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  family as special cases of
+  [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
+  and testing whether an extension earns its parameter.
+- [`vignette("corpora")`](https://www.kachergis.com/XSLmodels/articles/corpora.md):
+  running models on naturalistic caregiver-speech corpora.

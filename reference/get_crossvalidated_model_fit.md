@@ -18,7 +18,8 @@ get_crossvalidated_model_fit(
   control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
   n_restarts = NULL,
-  seed = NULL
+  seed = NULL,
+  fit_lapse = FALSE
 )
 ```
 
@@ -59,6 +60,12 @@ get_crossvalidated_model_fit(
 - seed:
 
   Optional random seed for reproducible folds and fits.
+
+- fit_lapse:
+
+  With a likelihood objective
+  (`control = xslControl(objective = "binomial")` or `"multinomial"`),
+  also fit the lapse rate, in \[0, 1\].
 
 ## Value
 

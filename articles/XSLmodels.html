@@ -35,6 +35,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-models.html">Writing your own model or dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/model-comparison.html">Comparing models: SSE, likelihood and cross-validation</a></li>
+    <li><a class="dropdown-item" href="../articles/nested-comparisons.html">Nested comparisons with uncfam_general()</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -445,6 +448,11 @@ existing models in the package.</p>
 <span><span class="co">#&gt; 0.9792563</span></span>
 <span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestval</span></span>
 <span><span class="co">#&gt; [1] 0.3106</span></span></code></pre></div>
+<p>By default <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code> minimizes SSE on accuracy. With
+<code>control = xslControl(objective = "binomial")</code> (or
+<code>"multinomial"</code>) it instead maximizes the likelihood of the
+human responses, and reports AIC and BIC; see
+<code><a href="../articles/model-comparison.html">vignette("model-comparison")</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="available-models">9. Available models<a class="anchor" aria-label="anchor" href="#available-models"></a>
@@ -458,9 +466,12 @@ rate scaled to trial uncertainty - <code><a href="../reference/uncfam_predictive
 <code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with a free exponent
 on familiarity’s contribution to attention -
 <code><a href="../reference/uncfam_elimination.html">uncfam_elimination()</a></code> - <code><a href="../reference/uncfam.html">uncfam()</a></code> with learning
-by elimination (mutual exclusivity) - <code><a href="../reference/fazly.html">fazly()</a></code> - Fazly et
-al. model - <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner model -
-<code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> - Bayesian decay model -
+by elimination (mutual exclusivity) - <code><a href="../reference/uncfam_general.html">uncfam_general()</a></code> -
+one model nesting all of the above (and <code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code>)
+as special cases, for nested comparisons (see
+<code><a href="../articles/nested-comparisons.html">vignette("nested-comparisons")</a></code>) - <code><a href="../reference/fazly.html">fazly()</a></code> -
+Fazly et al. model - <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> - Rescorla-Wagner
+model - <code><a href="../reference/bayesian_decay.html">bayesian_decay()</a></code> - Bayesian decay model -
 <code><a href="../reference/kalman_filter.html">kalman_filter()</a></code> - Kalman filter associative model
 (adaptive, uncertainty-scaled learning rate)</p>
 <p><strong>Sampling-based models:</strong> -
@@ -568,6 +579,27 @@ condition, next to the no-free-parameter <code><a href="../reference/baseline.ht
 <code><a href="../reference/baseline.html">baseline()</a></code> on held-out data is likely overfitting the
 particular conditions it was fit to.</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="further-vignettes">Further vignettes<a class="anchor" aria-label="anchor" href="#further-vignettes"></a>
+</h2>
+<ul>
+<li>
+<code><a href="../articles/custom-models.html">vignette("custom-models")</a></code>: writing your own model or
+dataset.</li>
+<li>
+<code><a href="../articles/model-comparison.html">vignette("model-comparison")</a></code>: comparing models by SSE,
+by choice-level likelihood (binomial or multinomial) and by
+cross-validation.</li>
+<li>
+<code><a href="../articles/nested-comparisons.html">vignette("nested-comparisons")</a></code>: the
+<code><a href="../reference/uncfam.html">uncfam()</a></code> family as special cases of
+<code><a href="../reference/uncfam_general.html">uncfam_general()</a></code>, and testing whether an extension earns
+its parameter.</li>
+<li>
+<code><a href="../articles/corpora.html">vignette("corpora")</a></code>: running models on naturalistic
+caregiver-speech corpora.</li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

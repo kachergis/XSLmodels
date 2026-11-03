@@ -20,6 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-models.html">Writing your own model or dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/model-comparison.html">Comparing models: SSE, likelihood and cross-validation</a></li>
+    <li><a class="dropdown-item" href="../articles/nested-comparisons.html">Nested comparisons with uncfam_general()</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -41,7 +44,26 @@
 <h2 class="pkg-version" data-toc-text="development version" id="xslmodels-development-version">XSLmodels (development version)<a class="anchor" aria-label="anchor" href="#xslmodels-development-version"></a></h2>
 <div class="section level3">
 <h3 id="new-features-development-version">New Features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>Models can be fit and scored by choice-level likelihood rather than by SSE on accuracy. <code><a href="../reference/xslControl-class.html">xslControl()</a></code> gains <code>objective</code> and <code>lapse</code>.
 <ul><li>
+<code>objective = "binomial"</code> scores how many participants got each test item right.</li>
+<li>
+<code>objective = "multinomial"</code> scores which object each participant chose, using the full confusion matrices in <code>response_matrix</code>.</li>
+<li>
+<code>lapse</code> (default .01, used only by the likelihoods) mixes in uniform guessing among an item’s alternatives, so a model that is certain doesn’t get an infinitely bad fit when someone chooses otherwise. Naming <code>"lapse"</code> in <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code>’s <code>free</code> fits it, as does <code>fit_lapse = TRUE</code> in <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code> and <code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code>.</li>
+<li>With a likelihood objective, <code><a href="../reference/xsl_run.html">xsl_run()</a></code> returns each condition’s <code>loglik</code> and the total <code>loglik</code> and <code>nll</code>. <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code> minimizes <code>nll</code> and reports <code>loglik</code>, <code>n_obs</code>, <code>k</code>, <code>aic</code> and <code>bic</code>. <code><a href="../reference/cross_validated_group_fits.html">cross_validated_group_fits()</a></code> adds in-sample and held-out <code>train_nll</code> and <code>test_nll</code>.</li>
+<li>The default, <code>objective = "sse"</code>, is unchanged.</li>
+</ul></li>
+<li>
+<code><a href="../reference/choice_probabilities.html">choice_probabilities()</a></code> gives, for each test item, the alternatives offered, the model’s probability of choosing each, and how many participants chose each. The correct alternative’s probability is exactly the accuracy <code><a href="../reference/xsl_run.html">xsl_run()</a></code> scores.</li>
+<li>
+<code><a href="../reference/uncfam.html">uncfam()</a></code>, <code><a href="../reference/uncfam_gamma.html">uncfam_gamma()</a></code>, <code><a href="../reference/uncfam_elimination.html">uncfam_elimination()</a></code>, <code><a href="../reference/uncfam_attention.html">uncfam_attention()</a></code> and <code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code> are now thin wrappers around <code><a href="../reference/uncfam_general.html">uncfam_general()</a></code>’s model, replacing about 450 lines of duplicated code. Their results are identical to the last bit, and draw for draw for <code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code>. This was checked on all 47 <code>xsl_datasets</code> conditions over two training blocks and with a start matrix, and a stored reference (<code>tests/testthat/fixtures/uncfam_family_reference.rds</code>) keeps it checked. Their parameters, names and the registry are unchanged.
+<ul><li>
+<code><a href="../reference/uncfam_sampling.html">uncfam_sampling()</a></code> now records performance after every training block (<code>control$reps</code>), like the rest of the family, rather than only after the last. It also now applies <code>control$test_noise</code>.</li>
+<li>
+<code><a href="../reference/uncfam_general.html">uncfam_general()</a></code> now declares support for <code>control$start_matrix</code>, which it already used.</li>
+</ul></li>
+<li>
 <code><a href="../reference/xsl_fit.html">xsl_fit()</a></code>, <code><a href="../reference/cross_validated_group_fits.html">cross_validated_group_fits()</a></code>, <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code> and <code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code> gain <code>n_restarts</code> and <code>seed</code>. <code>n_restarts</code> keeps the best of several DEoptim runs, and <code>$restarts</code> reports every run’s best SSE. Some models’ objectives have poor basins that single runs often land in: about a third of single runs for <code><a href="../reference/uncfam_predictive.html">uncfam_predictive()</a></code>. The group and cross-validated helpers default to the model’s registry setting: 5 restarts for <code>uncfam_predictive</code>, 3 for <code>tilles</code>, otherwise 1. <code>seed</code> makes fits reproducible</li>
 <li>
 <code><a href="../reference/update_params.html">update_params()</a></code> and the fitting functions accept <code>free</code>, the names of the parameters being fit, so any subset of a model’s parameters can be fit with the rest fixed. Previously only the leading parameters could be fit. Fitted <code>bestmem</code> is now named by parameter. Every registry entry names its free parameters</li>

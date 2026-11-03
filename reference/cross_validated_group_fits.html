@@ -28,6 +28,9 @@ out-of-sample SSE."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-models.html">Writing your own model or dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/model-comparison.html">Comparing models: SSE, likelihood and cross-validation</a></li>
+    <li><a class="dropdown-item" href="../articles/nested-comparisons.html">Nested comparisons with uncfam_general()</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -121,6 +124,10 @@ are for, and how many DEoptim runs to keep the best of, per fold.</p></dd>
 (in-sample), and <code>test_sse</code> (out-of-sample).</p></li>
 <li><p><code>params</code>: a matrix of fitted parameters, one row per fold.</p></li>
 <li><p><code>train_sse</code> / <code>test_sse</code>: numeric vectors of per-fold SSE.</p></li>
+<li><p>With a likelihood objective (<code>control = xslControl(objective = "binomial")</code> or <code>"multinomial"</code>), also <code>train_nll</code> / <code>test_nll</code>: per-fold
+negative log-likelihoods, in-sample (what was minimized) and
+out-of-sample. Summed over folds, <code>test_nll</code> scores every condition once,
+at parameters fit without it.</p></li>
 </ul></div>
 
     <div class="section level2">

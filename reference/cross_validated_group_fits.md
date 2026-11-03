@@ -82,6 +82,12 @@ A list containing cross-validation results:
 
 - `train_sse` / `test_sse`: numeric vectors of per-fold SSE.
 
+- With a likelihood objective
+  (`control = xslControl(objective = "binomial")` or `"multinomial"`),
+  also `train_nll` / `test_nll`: per-fold negative log-likelihoods,
+  in-sample (what was minimized) and out-of-sample. Summed over folds,
+  `test_nll` scores every condition once, at parameters fit without it.
+
 ## Examples
 
 ``` r

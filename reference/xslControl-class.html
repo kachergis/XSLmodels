@@ -20,6 +20,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/corpora.html">Running and fitting models on naturalistic corpora</a></li>
+    <li><a class="dropdown-item" href="../articles/custom-models.html">Writing your own model or dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/model-comparison.html">Comparing models: SSE, likelihood and cross-validation</a></li>
+    <li><a class="dropdown-item" href="../articles/nested-comparisons.html">Nested comparisons with uncfam_general()</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -51,7 +54,9 @@
 <span>  n_sim <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_traj <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  keep_sims <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  keep_sims <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  objective <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sse"</span>, <span class="st">"binomial"</span>, <span class="st">"multinomial"</span><span class="op">)</span>,</span>
+<span>  lapse <span class="op">=</span> <span class="fl">0.01</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">new_xslControl</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -95,6 +100,31 @@ per-simulation <code>xslFit</code> objects (<code>fits[[i]]$sims</code>). Off by
 <code>fits[[i]]$responses</code> (an <code>n_sim</code> x n-words matrix of each simulated
 participant's final per-word accuracy) is always returned instead, at a
 fraction of the memory.</p></dd>
+
+
+<dt id="arg-objective">objective<a class="anchor" aria-label="anchor" href="#arg-objective"></a></dt>
+<dd><p>What <code><a href="xsl_fit.html">xsl_fit()</a></code> minimizes, and what <code><a href="xsl_run.html">xsl_run()</a></code> scores:</p><ul><li><p><code>"sse"</code> (the default): the <code>n_subj</code>-weighted sum of squared errors
+between model and human accuracy per test item.</p></li>
+<li><p><code>"binomial"</code>: the negative log-likelihood of how many participants got
+each test item right, given the model's probability of a correct
+choice. Counts come from the condition's <code>response_matrix</code>, or
+otherwise from <code>accuracy</code> and <code>n_subj</code>.</p></li>
+<li><p><code>"multinomial"</code>: the negative log-likelihood of which object each
+participant chose on each test item, given the model's full choice
+distribution over the item's alternatives (see
+<code><a href="choice_probabilities.html">choice_probabilities()</a></code>). Needs a <code>response_matrix</code>.</p></li>
+</ul><p>The likelihoods treat every response as an independent draw from the
+model's prediction, ignoring individual differences, so they overstate
+the evidence for one model over another; rankings are more trustworthy
+than the absolute size of AIC or likelihood-ratio differences.</p></dd>
+
+
+<dt id="arg-lapse">lapse<a class="anchor" aria-label="anchor" href="#arg-lapse"></a></dt>
+<dd><p>For the likelihood objectives: the probability that a
+response is a uniform guess among the item's alternatives rather than the
+model's choice. Keeps the likelihood finite when a model is certain and a
+participant chooses otherwise. Fit it by naming <code>"lapse"</code> in
+<code><a href="xsl_fit.html">xsl_fit()</a></code>'s <code>free</code>. Ignored by <code>"sse"</code>.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

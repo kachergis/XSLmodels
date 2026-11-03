@@ -134,6 +134,8 @@ Cross-situational word learning models
 - [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
   : Predict referent selection for a single trial from an association
   matrix
+- [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
+  : Choice probabilities for each test item, with human response counts
 - [`rsa_listener()`](https://www.kachergis.com/XSLmodels/reference/rsa_listener.md)
   [`rsa_speaker()`](https://www.kachergis.com/XSLmodels/reference/rsa_listener.md)
   : Rational Speech Act pragmatic listener and speaker

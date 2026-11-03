@@ -176,6 +176,8 @@ Cross-situational word learning models
 - [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)
   : Predict referent selection for a single trial from an association
   matrix
+- [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
+  : Choice probabilities for each test item, with human response counts
 - [`rsa_listener()`](https://www.kachergis.com/XSLmodels/reference/rsa_listener.md)
   [`rsa_speaker()`](https://www.kachergis.com/XSLmodels/reference/rsa_listener.md)
   : Rational Speech Act pragmatic listener and speaker
@@ -199,6 +201,12 @@ Cross-situational word learning models
 
 - [Running and fitting models on naturalistic
   corpora](https://www.kachergis.com/XSLmodels/articles/corpora.md):
+- [Writing your own model or
+  dataset](https://www.kachergis.com/XSLmodels/articles/custom-models.md):
+- [Comparing models: SSE, likelihood and
+  cross-validation](https://www.kachergis.com/XSLmodels/articles/model-comparison.md):
+- [Nested comparisons with
+  uncfam_general()](https://www.kachergis.com/XSLmodels/articles/nested-comparisons.md):
 - [Overview of \`XSLmodels\`: Importing cross-situational datasets and
   fitting
   models](https://www.kachergis.com/XSLmodels/articles/XSLmodels.md):
