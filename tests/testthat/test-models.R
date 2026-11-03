@@ -636,3 +636,15 @@ test_that("pursuit() re-proposes from the objects on a single-object trial", {
   expect_equal(unname(lex["8", "8"]), n_sim, tolerance = 1e-6)  # added to the lexicon every time
   expect_lt(sum(lex["8", as.character(2:7)]), 1e-6)              # never anything off-trial
 })
+
+test_that("tilles() runs on a single training trial (eq 1 only)", {
+  # regression test: the trial loop was `for (t in 2:length(data$words))`,
+  # which for one trial is 2:1 = c(2, 1) and indexed a nonexistent trial 2
+  d <- xslData(train = list(words = list(c(1, 2)), objects = list(c(1, 2, 3))))
+  mod <- tilles(x = .5, b = .1, alpha_0 = .5)
+  fit <- mod$model(mod$params, d$train, xslControl())
+  # eq 1: every word on the trial is associated 1/C with every object on it
+  expect_equal(unname(fit$matrix), matrix(1 / 3, 2, 3))
+  expect_equal(unname(fit$perf), c(1 / 3, 1 / 3))
+  expect_no_error(xsl_run(mod, d))
+})
