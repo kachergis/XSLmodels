@@ -173,15 +173,36 @@ labelled_test <- function(test) {
 #'   separately.
 #' @param control Control parameters passed to `xsl_run()`.
 #' @param deoptim_control Control parameters passed to `DEoptim()`.
+#' @param free Optional names of the parameters that `lower`/`upper` bound,
+#'   in order (see `update_params()`); by default, the model's leading
+#'   parameters.
+#' @param n_restarts Number of independent DEoptim runs per fit; the best
+#'   (lowest SSE) is kept. Some models' objectives have poor local basins that
+#'   a single run lands in a good fraction of the time (e.g.
+#'   `uncfam_predictive()`), so a few restarts make fits far more reliable.
+#' @param seed Optional random seed, set once before fitting, so DEoptim's
+#'   random initial populations (and a stochastic model's simulations) are
+#'   reproducible.
 #'
-#' @return An object of class `DEoptim` representing the fitting result, which
-#'   includes the best set of parameters found and the corresponding SSE value.
+#' @return A list with one element per fit (one in total, or one per dataset
+#'   with `by_data = TRUE`), each the `DEoptim` result of the best run, which
+#'   includes the best parameters found (`optim$bestmem`, named) and their SSE
+#'   (`optim$bestval`). With `n_restarts > 1`, `restarts` holds every run's
+#'   best SSE.
 #' @export
+#'
+#' @examples
+#' fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = .8, upper = 1,
+#'                n_restarts = 2, seed = 1,
+#'                deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
+#' fit[[1]]$optim$bestmem
+#' fit[[1]]$restarts
 xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
                     control = xslControl(),
                     deoptim_control = DEoptim::DEoptim.control(reltol = .001,
                                                                NP = 100,
-                                                               itermax = 100)) {
+                                                               itermax = 100),
+                    free = NULL, n_restarts = 1, seed = NULL) {
   stopifnot("xslMod" %in% class(model))
   if ("xslData" %in% class(data)) data <- list(data)
   stopifnot(all(map_lgl(data, \(d) "xslData" %in% class(d))))
@@ -189,6 +210,12 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
   # worker processes; an unforced argument would be evaluated there, where
   # the caller's variables don't exist, so every evaluation would fail
   force(control)
+  stopifnot(length(lower) == length(upper), n_restarts >= 1)
+  free <- if (is.null(free)) names(model$params)[seq_along(lower)] else free
+  if (length(free) != length(lower)) {
+    stop("`free` names ", length(free), " parameters but the bounds have ", length(lower), call. = FALSE)
+  }
+  if (!is.null(seed)) set.seed(seed)
 
   if (by_data) data_wrap <- data else data_wrap <- list(data)
   fits <- map(data_wrap, function(dat) {
@@ -197,7 +224,7 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
       # (e.g. producing NA associations); treat those as an infinitely bad
       # fit rather than letting one bad draw abort the whole optimization
       sse <- tryCatch(
-        xsl_run(model = update_params(model, params), data = dat, control = control)$sse,
+        xsl_run(model = update_params(model, params, free), data = dat, control = control)$sse,
         error = function(e) NA_real_
       )
       if (is.na(sse)) Inf else sse
@@ -208,7 +235,12 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
       # evaluate it once instead
       list(optim = list(bestmem = numeric(0), bestval = run_wrapper(numeric(0))))
     } else {
-      DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control)
+      runs <- lapply(seq_len(n_restarts), \(i) DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control))
+      vals <- vapply(runs, \(r) r$optim$bestval, numeric(1))
+      best <- runs[[which.min(vals)]]
+      names(best$optim$bestmem) <- free
+      if (n_restarts > 1) best$restarts <- vals
+      best
     }
   })
   if (any(!map_lgl(fits, \(f) is.finite(f$optim$bestval)))) {

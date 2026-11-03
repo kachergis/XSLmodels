@@ -12,7 +12,9 @@ cross_validated_group_fits(
   n_folds = 5,
   control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
-  seed = NULL
+  seed = NULL,
+  free = NULL,
+  n_restarts = 1
 )
 }
 \arguments{
@@ -34,7 +36,10 @@ cross-validation.}
 \item{deoptim_control}{Control parameters passed to \code{DEoptim()} (via
 \code{xsl_fit()}).}
 
-\item{seed}{Optional random seed, for reproducible fold assignment.}
+\item{seed}{Optional random seed, for reproducible fold assignment and fits.}
+
+\item{free, n_restarts}{Passed to \code{xsl_fit()}: which parameters the bounds
+are for, and how many DEoptim runs to keep the best of, per fold.}
 }
 \value{
 A list containing cross-validation results:

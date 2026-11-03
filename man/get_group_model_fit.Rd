@@ -8,7 +8,9 @@ get_group_model_fit(
   model_name,
   datasets = NULL,
   control = xslControl(),
-  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
+  n_restarts = NULL,
+  seed = NULL
 )
 }
 \arguments{
@@ -23,6 +25,12 @@ stochastic models substantially).}
 
 \item{deoptim_control}{Control parameters passed to \code{DEoptim()} (via
 \code{xsl_fit()}).}
+
+\item{n_restarts}{Number of DEoptim runs to keep the best of; defaults to
+the model's registry default (5 for \code{uncfam_predictive}, 3 for \code{tilles},
+otherwise 1).}
+
+\item{seed}{Optional random seed for reproducible fits.}
 }
 \value{
 A list containing the fitted model results

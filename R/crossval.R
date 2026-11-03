@@ -42,7 +42,9 @@ get_train_test_split <- function(test_inds, conds) {
 #' @param control Control arguments passed to `xsl_fit()`/`xsl_run()`.
 #' @param deoptim_control Control parameters passed to `DEoptim()` (via
 #'   `xsl_fit()`).
-#' @param seed Optional random seed, for reproducible fold assignment.
+#' @param seed Optional random seed, for reproducible fold assignment and fits.
+#' @param free,n_restarts Passed to `xsl_fit()`: which parameters the bounds
+#'   are for, and how many DEoptim runs to keep the best of, per fold.
 #'
 #' @return A list containing cross-validation results:
 #' - `folds`: a list (one per fold) with the fitted `params`, `train_sse`
@@ -61,7 +63,7 @@ cross_validated_group_fits <- function(model, combined_data, lower, upper,
                                        n_folds = 5, control = xslControl(),
                                        deoptim_control = DEoptim::DEoptim.control(
                                          reltol = .001, NP = 100, itermax = 100),
-                                       seed = NULL) {
+                                       seed = NULL, free = NULL, n_restarts = 1) {
   stopifnot("xslMod" %in% class(model))
   n <- length(combined_data)
   stopifnot(n_folds > 1, n_folds <= n)
@@ -73,8 +75,9 @@ cross_validated_group_fits <- function(model, combined_data, lower, upper,
   fold_results <- map(folds, function(test_inds) {
     split_data <- get_train_test_split(test_inds, combined_data)
     fit <- xsl_fit(model, split_data$train, lower = lower, upper = upper,
-                   control = control, deoptim_control = deoptim_control)[[1]]
-    fitted_model <- update_params(model, fit$optim$bestmem)
+                   control = control, deoptim_control = deoptim_control,
+                   free = free, n_restarts = n_restarts)[[1]]
+    fitted_model <- update_params(model, fit$optim$bestmem, free)
     test_run <- xsl_run(fitted_model, split_data$test, control = control)
     list(params = fit$optim$bestmem, train_sse = fit$optim$bestval,
          test_sse = test_run$sse)
