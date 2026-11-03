@@ -7,7 +7,9 @@
 
 test_that("the uncfam family reproduces its original standalone implementations", {
   # fixtures/uncfam_family_reference.rds: matrices from the pre-wrapper
-  # implementations (XSLmodels 5af3a89), two training blocks, set.seed(9)
+  # implementations (XSLmodels 5af3a89), two training blocks, set.seed(9).
+  # Built on macOS; other platforms' floating point differs by up to ~1e-10
+  # (relative), so the tolerance is looser than the in-session tests below.
   ref <- readRDS(test_path("fixtures", "uncfam_family_reference.rds"))
   conds <- Filter(\(d) d$label %in% attr(ref, "labels"), xsl_datasets)
   mods <- list(
@@ -23,7 +25,7 @@ test_that("the uncfam family reproduces its original standalone implementations"
     m <- mods[[nm]][[j]]
     set.seed(9)
     f <- suppressWarnings(m$model(m$params, positional_train(conds[[k]]$train)$train, xslControl(reps = 2)))
-    expect_equal(unname(f$matrix), ref[[nm]][[j]][[k]], tolerance = 1e-12,
+    expect_equal(unname(f$matrix), ref[[nm]][[j]][[k]], tolerance = 1e-8,
                  info = paste(nm, j, conds[[k]]$label))
   }
 })
