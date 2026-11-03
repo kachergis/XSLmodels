@@ -21,6 +21,15 @@ simulations for a stochastic model), \code{perf}, \code{sse}, \code{data}, \code
 per-word accuracy), and \code{sims} (the full per-simulation \code{xslFit} list,
 \code{NULL} unless \code{control} had \code{keep_sims = TRUE}).
 
+For a multi-block condition (an \code{xslData} whose \code{accuracy} has one row
+per block; see \code{\link[=xslData]{xslData()}}), block \code{b} is scored on a run trained on \code{b}
+repetitions of the training sequence. Its fit's \code{perf} then has one row
+per block, \code{sse} (and \code{loglik}) sum over blocks, \code{matrix}, \code{responses}
+and \code{sims} are the last block's, and \code{blocks} holds each block's own
+fit. Each block is a separate run, so for a stochastic model the blocks'
+predictions come from independent simulated learners: right on average,
+but not one learner's trajectory.
+
 With a likelihood objective (\code{xslControl(objective = "binomial")} or
 \code{"multinomial"}), each fit also has \code{loglik}, the log-likelihood of that
 condition's human test responses, and the result has \code{loglik} (summed

@@ -4,7 +4,7 @@
 \alias{choice_probabilities}
 \title{Choice probabilities for each test item, with human response counts}
 \usage{
-choice_probabilities(m, data, d = NULL, lapse = 0)
+choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL)
 }
 \arguments{
 \item{m}{A word-by-object matrix, e.g. \code{xsl_run(mod, data)$fits[[1]]$matrix}.}
@@ -16,6 +16,10 @@ choice_probabilities(m, data, d = NULL, lapse = 0)
 \item{lapse}{Lapse rate: the probability of guessing uniformly among the
 alternatives, mixed into \code{p} (0, the default, leaves \code{p} as the model's
 choice rule gives it).}
+
+\item{block}{For a multi-block condition, which block's responses to
+return (\code{m} should then be that block's matrix, e.g.
+\code{xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix}).}
 }
 \value{
 A tibble with one row per test item: \code{item}, \code{correct} (the
