@@ -50,6 +50,12 @@
 ### Bug Fixes
 
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  no longer errors on training data with a single trial. Its trial loop
+  was `for (t in 2:length(data$words))`, which for one trial is `2:1` =
+  `c(2, 1)` and indexed a nonexistent second trial. Results with two or
+  more trials are unchanged
+
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   now follows Tilles & Fontanari (2013) in three places where it
   departed from the paper. It matches an independent, literal
   transcription of the paper’s eqs 1-13 and procedure
@@ -245,6 +251,8 @@
   tested word’s own object, as before
 
 ## XSLmodels 0.4.0
+
+CRAN release: 2026-10-18
 
 ### New Features
 
