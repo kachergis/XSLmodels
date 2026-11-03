@@ -1,6 +1,16 @@
 # XSLmodels (development version)
 
 ## New Features
+- Models can be fit and scored by choice-level likelihood rather than by SSE on accuracy. `xslControl()` gains `objective` and `lapse`.
+  - `objective = "binomial"` scores how many participants got each test item right.
+  - `objective = "multinomial"` scores which object each participant chose, using the full confusion matrices in `response_matrix`.
+  - `lapse` (default .01, used only by the likelihoods) mixes in uniform guessing among an item's alternatives, so a model that is certain doesn't get an infinitely bad fit when someone chooses otherwise. Naming `"lapse"` in `xsl_fit()`'s `free` fits it, as does `fit_lapse = TRUE` in `get_group_model_fit()` and `get_crossvalidated_model_fit()`.
+  - With a likelihood objective, `xsl_run()` returns each condition's `loglik` and the total `loglik` and `nll`. `xsl_fit()` minimizes `nll` and reports `loglik`, `n_obs`, `k`, `aic` and `bic`. `cross_validated_group_fits()` adds in-sample and held-out `train_nll` and `test_nll`.
+  - The default, `objective = "sse"`, is unchanged.
+- `choice_probabilities()` gives, for each test item, the alternatives offered, the model's probability of choosing each, and how many participants chose each. The correct alternative's probability is exactly the accuracy `xsl_run()` scores.
+- `uncfam()`, `uncfam_gamma()`, `uncfam_elimination()`, `uncfam_attention()` and `uncfam_sampling()` are now thin wrappers around `uncfam_general()`'s model, replacing about 450 lines of duplicated code. Their results are identical to the last bit, and draw for draw for `uncfam_sampling()`. This was checked on all 47 `xsl_datasets` conditions over two training blocks and with a start matrix, and a stored reference (`tests/testthat/fixtures/uncfam_family_reference.rds`) keeps it checked. Their parameters, names and the registry are unchanged.
+  - `uncfam_sampling()` now records performance after every training block (`control$reps`), like the rest of the family, rather than only after the last. It also now applies `control$test_noise`.
+  - `uncfam_general()` now declares support for `control$start_matrix`, which it already used.
 - `xsl_fit()`, `cross_validated_group_fits()`, `get_group_model_fit()` and `get_crossvalidated_model_fit()` gain `n_restarts` and `seed`. `n_restarts` keeps the best of several DEoptim runs, and `$restarts` reports every run's best SSE. Some models' objectives have poor basins that single runs often land in: about a third of single runs for `uncfam_predictive()`. The group and cross-validated helpers default to the model's registry setting: 5 restarts for `uncfam_predictive`, 3 for `tilles`, otherwise 1. `seed` makes fits reproducible
 - `update_params()` and the fitting functions accept `free`, the names of the parameters being fit, so any subset of a model's parameters can be fit with the rest fixed. Previously only the leading parameters could be fit. Fitted `bestmem` is now named by parameter. Every registry entry names its free parameters
 - `show_models()` now lists every model in the registry. This adds four variants used in the model comparison paper: `uncfam_novelty`, `uncfam_uncertainty_only`, `uncfam_strength` (familiarity only, `B = 0`) and `fazly_threshold`

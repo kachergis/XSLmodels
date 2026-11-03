@@ -3,6 +3,7 @@
 S3method(print,xslData)
 export(baseline)
 export(bayesian_decay)
+export(choice_probabilities)
 export(create_cooc_matrix)
 export(cross_validated_group_fits)
 export(decay)

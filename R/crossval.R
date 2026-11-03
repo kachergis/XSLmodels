@@ -51,6 +51,11 @@ get_train_test_split <- function(test_inds, conds) {
 #'   (in-sample), and `test_sse` (out-of-sample).
 #' - `params`: a matrix of fitted parameters, one row per fold.
 #' - `train_sse` / `test_sse`: numeric vectors of per-fold SSE.
+#' - With a likelihood objective (`control = xslControl(objective =
+#'   "binomial")` or `"multinomial"`), also `train_nll` / `test_nll`: per-fold
+#'   negative log-likelihoods, in-sample (what was minimized) and
+#'   out-of-sample. Summed over folds, `test_nll` scores every condition once,
+#'   at parameters fit without it.
 #' @export
 #'
 #' @examples
@@ -77,16 +82,27 @@ cross_validated_group_fits <- function(model, combined_data, lower, upper,
     fit <- xsl_fit(model, split_data$train, lower = lower, upper = upper,
                    control = control, deoptim_control = deoptim_control,
                    free = free, n_restarts = n_restarts)[[1]]
-    fitted_model <- update_params(model, fit$optim$bestmem, free)
-    test_run <- xsl_run(fitted_model, split_data$test, control = control)
-    list(params = fit$optim$bestmem, train_sse = fit$optim$bestval,
-         test_sse = test_run$sse)
+    set <- apply_free(model, control, fit$optim$bestmem, free %||% names(fit$optim$bestmem))
+    test_run <- xsl_run(set$model, split_data$test, control = set$control)
+    out <- list(params = fit$optim$bestmem, train_sse = fit$optim$bestval,
+                test_sse = test_run$sse)
+    if ((control$objective %||% "sse") != "sse") {
+      out$train_nll <- fit$optim$bestval
+      out$train_sse <- xsl_run(set$model, split_data$train, control = set$control)$sse
+      out$test_nll <- test_run$nll
+    }
+    out
   })
 
-  list(
+  out <- list(
     folds = fold_results,
     params = do.call(rbind, map(fold_results, "params")),
     train_sse = unlist(map(fold_results, "train_sse")),
     test_sse = unlist(map(fold_results, "test_sse"))
   )
+  if ((control$objective %||% "sse") != "sse") {
+    out$train_nll <- unlist(map(fold_results, "train_nll"))
+    out$test_nll <- unlist(map(fold_results, "test_nll"))
+  }
+  out
 }

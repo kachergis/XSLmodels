@@ -48,6 +48,10 @@ A list containing cross-validation results:
 (in-sample), and \code{test_sse} (out-of-sample).
 \item \code{params}: a matrix of fitted parameters, one row per fold.
 \item \code{train_sse} / \code{test_sse}: numeric vectors of per-fold SSE.
+\item With a likelihood objective (\code{control = xslControl(objective = "binomial")} or \code{"multinomial"}), also \code{train_nll} / \code{test_nll}: per-fold
+negative log-likelihoods, in-sample (what was minimized) and
+out-of-sample. Summed over folds, \code{test_nll} scores every condition once,
+at parameters fit without it.
 }
 }
 \description{

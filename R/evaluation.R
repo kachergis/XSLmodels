@@ -361,3 +361,144 @@ get_roc_max <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
   fscores <- get_roc(m, thresholds = thresholds, gold_lexicon = gold_lexicon)$fscore
   max(fscores[!is.na(fscores)])
 }
+
+
+# The alternatives and correct object for each test item, as xsl_run() scores
+# accuracy: a condition with a test offers each trial's listed objects;
+# otherwise every object is an alternative, and word i's correct referent is
+# the i-th object (get_perf()'s diagonal convention).
+item_alternatives <- function(m, data) {
+  if (length(data$test) == 0) {
+    return(list(alternatives = rep(list(colnames(m)), nrow(m)),
+                correct = colnames(m)[seq_len(nrow(m))]))
+  }
+  test <- labelled_test(data$test)
+  target <- if (is.null(test$correct)) test$words else test$correct
+  list(alternatives = test$objects, correct = vapply(target, `[[`, character(1), 1))
+}
+
+# ... plus the model's choice distribution over them: Luce choice with
+# exponent d, exactly as xsl_run() scores accuracy.
+item_choices <- function(m, data, d = NULL) {
+  ch <- item_alternatives(m, data)
+  ch$probs <- if (length(data$test) > 0) {
+    test <- labelled_test(data$test)
+    lapply(seq_along(ch$alternatives), \(i) predict_referent(m, test$words[[i]], ch$alternatives[[i]], d = d))
+  } else {
+    M <- pmax(m, 0) ^ (if (is.null(d)) 1 else d)
+    lapply(seq_len(nrow(m)), \(i) {
+      tot <- sum(M[i, ])
+      if (tot > 0) unname(M[i, ]) / tot else rep(1 / ncol(M), ncol(M))
+    })
+  }
+  ch
+}
+
+# Human response counts over each item's alternatives, from the data's
+# response_matrix (NULL if it has none).
+item_counts <- function(data, alternatives) {
+  rm <- data$response_matrix
+  if (is.null(rm)) return(NULL)
+  if (is.null(colnames(rm))) colnames(rm) <- as.character(sort(unique(unlist(data$train$objects))))
+  lapply(seq_along(alternatives), \(i) {
+    idx <- match(alternatives[[i]], colnames(rm))
+    if (anyNA(idx) || sum(rm[i, ]) != sum(rm[i, idx])) {
+      stop("condition '", data$label, "' item ", i, ": response_matrix has responses to objects ",
+           "that aren't among the item's test alternatives", call. = FALSE)
+    }
+    unname(rm[i, idx])
+  })
+}
+
+# Number correct and number of responses per test item: from the
+# response_matrix if there is one, otherwise from accuracy and n_subj.
+correct_counts <- function(data, alternatives, correct) {
+  counts <- item_counts(data, alternatives)
+  if (!is.null(counts)) {
+    return(list(n = vapply(counts, sum, numeric(1)),
+                correct = vapply(seq_along(counts), \(i) counts[[i]][match(correct[i], alternatives[[i]])], numeric(1))))
+  }
+  if (length(data$n_subj) == 0 || is.na(data$n_subj)) {
+    stop("condition '", data$label, "' has neither a response_matrix nor n_subj, ",
+         "so it has no likelihood", call. = FALSE)
+  }
+  list(n = rep(data$n_subj, length(data$accuracy)), correct = round(data$accuracy * data$n_subj))
+}
+
+# Lapse mixture: with probability `lapse` the learner guesses uniformly among
+# the item's alternatives.
+with_lapse <- function(p, lapse, k = length(p)) (1 - lapse) * p + lapse / k
+
+# Log-likelihood of one condition's human test responses under a model's
+# learned matrix m (whose accuracy predictions are `perf`).
+condition_loglik <- function(m, perf, data, objective, lapse, d = NULL) {
+  ch <- item_alternatives(m, data)
+  if (objective == "binomial") {
+    cnt <- correct_counts(data, ch$alternatives, ch$correct)
+    q <- with_lapse(perf, lapse, lengths(ch$alternatives))
+    return(sum(stats::dbinom(cnt$correct, cnt$n, q, log = TRUE)))
+  }
+  if (is.null(data$response_matrix)) {
+    stop("condition '", data$label, "' has no response_matrix, which the multinomial ",
+         "objective needs; use objective = \"binomial\"", call. = FALSE)
+  }
+  probs <- item_choices(m, data, d)$probs
+  counts <- item_counts(data, ch$alternatives)
+  sum(vapply(seq_along(probs), \(i) {
+    stats::dmultinom(counts[[i]], prob = with_lapse(probs[[i]], lapse), log = TRUE)
+  }, numeric(1)))
+}
+
+# Number of human responses a likelihood objective scores.
+n_responses <- function(data) {
+  if ("xslData" %in% class(data)) data <- list(data)
+  sum(vapply(data, \(d) {
+    if (!is.null(d$response_matrix)) sum(d$response_matrix) else d$n_subj * length(d$accuracy)
+  }, numeric(1)))
+}
+
+#' Choice probabilities for each test item, with human response counts
+#'
+#' For each test item, returns the alternatives offered, the correct object,
+#' the model's probability of choosing each alternative, and how many
+#' participants chose each one. This is the full choice distribution behind
+#' the accuracy that [xsl_run()] scores: the probability of the correct
+#' alternative is exactly that item's entry in `perf`. It is what a
+#' multinomial likelihood (`xslControl(objective = "multinomial")`) compares
+#' with the data, and it shows which wrong objects a model expects learners to
+#' choose.
+#'
+#' Items are scored as in [xsl_run()]: on a condition with a `test`, by Luce
+#' choice over each test trial's listed objects (see [mafc_test()]);
+#' otherwise among all objects, with word i's correct referent the i-th
+#' object (see [get_perf()]).
+#'
+#' @param m A word-by-object matrix, e.g. `xsl_run(mod, data)$fits[[1]]$matrix`.
+#' @param data The `xslData` condition `m` was learned from.
+#' @param d Optional choice exponent (a model's `ch_dec`; see [get_perf()]).
+#' @param lapse Lapse rate: the probability of guessing uniformly among the
+#'   alternatives, mixed into `p` (0, the default, leaves `p` as the model's
+#'   choice rule gives it).
+#'
+#' @return A tibble with one row per test item: `item`, `correct` (the
+#'   correct object's label), and list columns `alternatives` (object
+#'   labels), `p` (choice probabilities over `alternatives`) and `counts`
+#'   (participants choosing each alternative; `NULL` entries if `data` has no
+#'   `response_matrix`).
+#' @export
+#'
+#' @examples
+#' dat <- xsl_datasets[[1]]
+#' fit <- xsl_run(uncfam(X = .1, B = 3, C = .97), dat)$fits[[1]]
+#' ch <- choice_probabilities(fit$matrix, dat)
+#' ch$p[[1]]       # the model's choice distribution for item 1
+#' ch$counts[[1]]  # what participants chose
+choice_probabilities <- function(m, data, d = NULL, lapse = 0) {
+  stopifnot("xslData" %in% class(data), lapse >= 0, lapse <= 1)
+  ch <- item_choices(m, data, d)
+  counts <- item_counts(data, ch$alternatives)
+  tibble::tibble(item = seq_along(ch$correct), correct = ch$correct,
+                 alternatives = ch$alternatives,
+                 p = lapply(ch$probs, with_lapse, lapse = lapse),
+                 counts = if (is.null(counts)) vector("list", length(ch$correct)) else counts)
+}

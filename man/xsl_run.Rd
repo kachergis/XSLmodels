@@ -20,6 +20,14 @@ simulations for a stochastic model), \code{perf}, \code{sse}, \code{data}, \code
 (an \code{n_sim} x n-words matrix of each simulated participant's final
 per-word accuracy), and \code{sims} (the full per-simulation \code{xslFit} list,
 \code{NULL} unless \code{control} had \code{keep_sims = TRUE}).
+
+With a likelihood objective (\code{xslControl(objective = "binomial")} or
+\code{"multinomial"}), each fit also has \code{loglik}, the log-likelihood of that
+condition's human test responses, and the result has \code{loglik} (summed
+over conditions) and \code{nll} (its negative, which \code{\link[=xsl_fit]{xsl_fit()}} minimizes).
+Unlike \code{sse}, which averages conditions weighted by \code{n_subj}, the
+likelihood sums over every response, so larger conditions count for more
+in the same way.
 }
 \description{
 Run XSL model
