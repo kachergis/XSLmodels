@@ -1,0 +1,156 @@
+---
+title: "Nested comparisons with uncfam_general()"
+author: "George Kachergis"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+        fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{Nested comparisons with uncfam_general()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(XSLmodels)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  collapse = TRUE,
+  comment = "#>",
+  # DEoptim advises a population of at least 10 per parameter; the searches
+  # here are smaller to keep the vignette fast, so its warnings are hidden.
+  # Single-word, single-object training trials also trigger an R deprecation
+  # warning in the shared uncfam() arithmetic.
+  warning = FALSE
+)
+```
+
+The biased associative model of Kachergis, Yu & Shiffrin (2012), `uncfam()`,
+has several extensions in this package. `uncfam_general()` is one model with
+each extension as a parameter, so the variants are special cases of it:
+
+| `uncfam_general()` setting | Equivalent to | What it adds |
+|---|---|---|
+| defaults | `uncfam()` | attention to pairs by familiarity × uncertainty |
+| `B = 0` | `uncfam(B = 0)` | familiarity only |
+| `gamma = 0` | `uncfam(variant = "uncertainty-only")` | uncertainty only |
+| `uncertainty = "novelty"` | `uncfam(variant = "novelty")` | novelty in place of entropy |
+| `gamma` free | `uncfam_gamma()` | how strongly familiarity drives attention |
+| `eps` free | `uncfam_elimination()` | learning by elimination (mutual exclusivity) |
+| `kappa = 1` | `uncfam_attention()` | more learning on more uncertain trials |
+| `K` finite | `uncfam_sampling()` | attend to `K` sampled objects per word |
+| `rho > 0` | (none) | a short-term trace: recent pairings draw attention |
+
+These aren't approximations: `uncfam()` and the other variants are
+implemented as calls to the same model, and give identical results.
+
+```{r identical}
+d <- xsl_datasets[[1]]
+identical(xsl_run(uncfam(X = .2, B = 3, C = .97), d)$fits[[1]]$perf,
+          xsl_run(uncfam_general(X = .2, B = 3, C = .97), d)$fits[[1]]$perf)
+```
+
+Because the variants are nested, they can be compared directly. Does
+freeing a parameter improve the fit enough to justify it?
+
+# What the extensions do
+
+**Elimination** (`eps`). A pair gains weight to the extent that the trial's
+other words and objects are already accounted for by each other. Here word 2
+is learned first, then appears with novel word 1. Elimination says object 1
+must be word 1's:
+
+```{r elimination}
+elim_data <- xslData(train = list(words = list(2, 2, c(1, 2), c(1, 3)),
+                                  objects = list(2, 2, c(1, 2), c(1, 3))))
+sapply(c(eps_0 = 0, eps_2 = 2, eps_10 = 10), \(e)
+  xsl_run(uncfam_general(X = 1, B = 1, C = 1, eps = e), elim_data)$fits[[1]]$perf)
+```
+
+**Short-term trace** (`rho`, `Cs`). Every update also goes into a second
+matrix that decays quickly (by `Cs` per trial), and attention follows
+familiarity plus `rho` times this trace. Here word 1 meets object 1 twice,
+then object 2 twice, then both together. Without a trace the two objects end
+level; with one, the more recent pairing pulls ahead:
+
+```{r trace}
+trace_data <- xslData(train = list(words = list(1, 1, 1, 1, 1),
+                                   objects = list(1, 1, 2, 2, c(1, 2))))
+sapply(c(rho_0 = 0, rho_5 = 5), \(r)
+  xsl_run(uncfam_general(X = .5, B = 0, C = 1, rho = r, Cs = .5), trace_data)$fits[[1]]$matrix[1, ])
+```
+
+**Sampled attention** (`K`). With a finite `K`, each word attends to `K`
+objects drawn in proportion to familiarity × uncertainty, so the model is
+stochastic. `xsl_run()` averages `xslControl(n_sim = )` simulated learners:
+
+```{r sampling}
+set.seed(1)
+xsl_run(uncfam_general(X = .2, B = 3, C = .97, K = 1), d, xslControl(n_sim = 50))$sse
+```
+
+# A nested comparison
+
+Does freeing the familiarity exponent `gamma` improve on the original model?
+The comparison below fits both, by binomial likelihood, to two conditions:
+`212` (a 4AFC test) and `301` (24 words).
+
+Two precautions keep the comparison fair. First, the larger model's search
+starts from the smaller model's best fit (with `gamma = 1`), so it can't
+fit worse merely because its search got unlucky. Second, the search uses a
+fixed seed.
+
+```{r nested}
+labels <- vapply(xsl_datasets, `[[`, "", "label")
+ctrl <- xslControl(objective = "binomial", lapse = .02)
+
+fit_nested <- function(data, free, lower, upper, start = NULL) {
+  np <- 30
+  pop <- NULL
+  if (!is.null(start)) {
+    set.seed(2)
+    pop <- sapply(seq_along(lower), \(j) stats::runif(np, lower[j], upper[j]))
+    pop[1, ] <- start
+  }
+  xsl_fit(uncfam_general(X = .1, B = 1, C = 1), data, lower = lower, upper = upper,
+          free = free, control = ctrl, seed = 1,
+          deoptim_control = DEoptim::DEoptim.control(NP = np, itermax = 25, trace = FALSE,
+                                                     initialpop = pop))[[1]]
+}
+
+compare_gamma <- function(label) {
+  data <- xsl_datasets[[which(labels == label)]]
+  bam <- fit_nested(data, c("X", "B", "C"), c(.001, .1, .5), c(5, 15, 1))
+  gam <- fit_nested(data, c("X", "B", "C", "gamma"), c(.001, .1, .5, 0), c(5, 15, 1, 6),
+                    start = c(bam$optim$bestmem, gamma = 1))
+  lr <- 2 * (gam$loglik - bam$loglik)
+  data.frame(condition = label, gamma = gam$optim$bestmem[["gamma"]],
+             delta_AIC = gam$aic - bam$aic, LR = lr,
+             p = stats::pchisq(lr, df = 1, lower.tail = FALSE))
+}
+res <- do.call(rbind, lapply(c("212", "301"), compare_gamma))
+res
+```
+
+The two conditions pull `gamma` in opposite directions:
+
+- **In `212`, familiarity is amplified** (`gamma` = `r round(res$gamma[1], 1)`,
+  p = `r signif(res$p[1], 2)`). Pairs that are already familiar draw even more
+  attention.
+- **In `301`, it is nearly switched off** (`gamma` = `r round(res$gamma[2], 2)`).
+  Attention follows uncertainty alone. The improvement here is smaller
+  (p = `r signif(res$p[2], 2)`).
+
+A single `gamma` fit across many conditions would average these. Fitting the
+nested variants condition by condition can reveal such differences, where a
+single group fit hides them.
+
+Two caveats:
+
+- **The p-values are approximate.** The binomial treats every response as
+  independent, which overstates the evidence. And for parameters whose null
+  value sits on a bound, such as `eps = 0` or `kappa = 0`, the chi-square
+  p-value is conservative.
+- **Small conditions can't tell variants apart.** With only 8 to 24 test
+  items per condition, several parameters are weakly identified.

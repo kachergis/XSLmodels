@@ -327,6 +327,18 @@ get_model_registry_entry <- function(model_name) {
   registry[[model_name]]
 }
 
+#' A registry entry's free parameters and bounds, with the lapse rate added
+#' (in \[0, 1\]) when `fit_lapse`.
+#' @noRd
+registry_free <- function(entry, control, fit_lapse) {
+  if (!fit_lapse) return(entry[c("free", "lower", "upper")])
+  if ((control$objective %||% "sse") == "sse") {
+    stop("`fit_lapse = TRUE` needs a likelihood objective, e.g. ",
+         "control = xslControl(objective = \"binomial\")", call. = FALSE)
+  }
+  list(free = c(entry$free, "lapse"), lower = c(entry$lower, 0), upper = c(entry$upper, 1))
+}
+
 #' Get group model fit for a specific model
 #'
 #' Fits a model to all available datasets and returns the group-level fit.
@@ -345,6 +357,9 @@ get_model_registry_entry <- function(model_name) {
 #'   the model's registry default (5 for `uncfam_predictive`, 3 for `tilles`,
 #'   otherwise 1).
 #' @param seed Optional random seed for reproducible fits.
+#' @param fit_lapse With a likelihood objective (`control =
+#'   xslControl(objective = "binomial")` or `"multinomial"`), also fit the
+#'   lapse rate, in \[0, 1\].
 #'
 #' @return A list containing the fitted model results
 #' @export
@@ -360,17 +375,18 @@ get_group_model_fit <- function(model_name, datasets = NULL,
                                 control = xslControl(),
                                 deoptim_control = DEoptim::DEoptim.control(
                                   reltol = .001, NP = 100, itermax = 100),
-                                n_restarts = NULL, seed = NULL) {
+                                n_restarts = NULL, seed = NULL, fit_lapse = FALSE) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
 
   entry <- get_model_registry_entry(model_name)
   model <- entry$constructor()
+  fr <- registry_free(entry, control, fit_lapse)
 
-  result <- xsl_fit(model, datasets, lower = entry$lower, upper = entry$upper,
+  result <- xsl_fit(model, datasets, lower = fr$lower, upper = fr$upper,
                     control = control, deoptim_control = deoptim_control,
-                    free = entry$free, n_restarts = n_restarts %||% entry$n_restarts %||% 1,
+                    free = fr$free, n_restarts = n_restarts %||% entry$n_restarts %||% 1,
                     seed = seed)
 
   list(
@@ -399,6 +415,7 @@ get_group_model_fit <- function(model_name, datasets = NULL,
 #' @param n_restarts Number of DEoptim runs to keep the best of, per fold;
 #'   defaults to the model's registry default (see `get_group_model_fit()`).
 #' @param seed Optional random seed for reproducible folds and fits.
+#' @inheritParams get_group_model_fit
 #'
 #' @return A list containing cross-validation results (see
 #'   `cross_validated_group_fits()`)
@@ -414,19 +431,20 @@ get_crossvalidated_model_fit <- function(model_name, n_folds = 5, datasets = NUL
                                          control = xslControl(),
                                          deoptim_control = DEoptim::DEoptim.control(
                                            reltol = .001, NP = 100, itermax = 100),
-                                         n_restarts = NULL, seed = NULL) {
+                                         n_restarts = NULL, seed = NULL, fit_lapse = FALSE) {
   if (is.null(datasets)) {
     datasets <- xsl_datasets
   }
 
   entry <- get_model_registry_entry(model_name)
   model <- entry$constructor()
+  fr <- registry_free(entry, control, fit_lapse)
 
-  result <- cross_validated_group_fits(model, datasets, lower = entry$lower,
-                                       upper = entry$upper, n_folds = n_folds,
+  result <- cross_validated_group_fits(model, datasets, lower = fr$lower,
+                                       upper = fr$upper, n_folds = n_folds,
                                        control = control,
                                        deoptim_control = deoptim_control,
-                                       seed = seed, free = entry$free,
+                                       seed = seed, free = fr$free,
                                        n_restarts = n_restarts %||% entry$n_restarts %||% 1)
 
   list(

@@ -1,56 +1,6 @@
+# A nested special case of uncfam_general(): free familiarity exponent.
 uncfam_gamma_model <- function(params, data, control) {
-  X <- params[["X"]] # associative weight to distribute
-  B <- params[["B"]] # weighting of uncertainty vs. familiarity
-  C <- params[["C"]] # decay
-  gamma <- params[["gamma"]] # familiarity exponent
-
-  reps <- control[["reps"]]
-  start_matrix <- control[["start_matrix"]]
-  test_noise <- control[["test_noise"]]
-
-  voc <- sort(unique(unlist(data$words)))
-  ref <- sort(unique(unlist(data$objects[!is.na(data$objects)])))
-  voc_sz <- length(voc) # vocabulary size
-  ref_sz <- length(ref) # number of objects
-  keep_traj <- isTRUE(control[["keep_traj"]])
-  traj <- list()
-  if (!is.null(start_matrix)) {
-    m <- start_matrix
-  } else {
-    m <- matrix(0, voc_sz, ref_sz) # association matrix
-  }
-  colnames(m) <- ref
-  rownames(m) <- voc
-  perf <- matrix(0, reps, voc_sz) # a row for each block
-  # training
-  for (rep in 1:reps) { # for trajectory experiments, train multiple times
-    for (t in seq_along(data$words)) {
-
-      tr_w <- unlist(data$words[t])
-      tr_w <- tr_w[!is.na(tr_w)]
-      tr_w <- tr_w[tr_w != ""]
-      tr_o <- unlist(data$objects[t])
-      tr_o <- tr_o[!is.na(tr_o)]
-
-      m <- update_known(m, tr_w, tr_o) # what's been seen so far?
-      assocs <- m[tr_w, tr_o]
-
-      term_w <- if (length(tr_w) > 1) apply(m[tr_w, ], 1, shannon_entropy) else shannon_entropy(m[tr_w, ])
-      term_o <- apply(as.matrix(m[, tr_o]), 2, shannon_entropy)
-      terms <- exp(B * term_w) %*% t(exp(B * term_o))
-      terms <- (assocs ^ gamma) * terms # <- only change from uncfam_model: assocs^gamma, not assocs
-
-      m <- m * C # decay everything
-      # update associations on this trial
-      m[tr_w, tr_o] <- m[tr_w, tr_o] + (X * terms) / sum(terms)
-
-      index <- (rep - 1) * length(data$words) + t  # index for learning trajectory
-      if (keep_traj) traj[[index]] <- m
-    }
-    m_test <- m + test_noise # test noise constant k
-    perf[rep, ] <- get_perf(m_test)
-  }
-  xslFit(perf = perf, matrix = m, traj = traj)
+  uncfam_general_model(general_params(params, gamma = params[["gamma"]]), data, control)
 }
 
 #' Kachergis 2012 with a free familiarity exponent

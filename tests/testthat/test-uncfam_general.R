@@ -1,4 +1,32 @@
 # uncfam_general() must reproduce each nested uncfam-family model exactly.
+# Since uncfam(), uncfam_gamma(), uncfam_elimination(), uncfam_attention()
+# and uncfam_sampling() became wrappers around uncfam_general_model(), the
+# equivalence tests below check the wrappers' parameter mapping; the
+# reference test checks all of them against the matrices their original,
+# standalone implementations produced.
+
+test_that("the uncfam family reproduces its original standalone implementations", {
+  # fixtures/uncfam_family_reference.rds: matrices from the pre-wrapper
+  # implementations (XSLmodels 5af3a89), two training blocks, set.seed(9)
+  ref <- readRDS(test_path("fixtures", "uncfam_family_reference.rds"))
+  conds <- Filter(\(d) d$label %in% attr(ref, "labels"), xsl_datasets)
+  mods <- list(
+    uncfam = list(uncfam(X = .1, B = 3, C = .97), uncfam(X = 2, B = 14, C = .9)),
+    novelty = list(uncfam(X = .3, B = 2, C = .95, variant = "novelty")),
+    unc_only = list(uncfam(X = .3, B = 2, C = .95, variant = "uncertainty-only")),
+    strength = list(uncfam(X = .3, B = 0, C = .95)),
+    gamma = list(uncfam_gamma(X = .2, B = 3, C = .96, gamma = .4), uncfam_gamma(X = .2, B = 3, C = .96, gamma = 3)),
+    elim = list(uncfam_elimination(X = .2, B = 3, C = .96, eps = 2)),
+    attn = list(uncfam_attention(X = .2, B = 3, C = .96)),
+    samp = list(uncfam_sampling(X = .2, B = 3, C = .96, K = 1), uncfam_sampling(X = .2, B = 3, C = .96, K = 4)))
+  for (nm in names(mods)) for (j in seq_along(mods[[nm]])) for (k in seq_along(conds)) {
+    m <- mods[[nm]][[j]]
+    set.seed(9)
+    f <- suppressWarnings(m$model(m$params, positional_train(conds[[k]]$train)$train, xslControl(reps = 2)))
+    expect_equal(unname(f$matrix), ref[[nm]][[j]][[k]], tolerance = 1e-12,
+                 info = paste(nm, j, conds[[k]]$label))
+  }
+})
 
 dat <- get_example_ambiguous_condition()
 run <- function(mod, seed = NULL) {

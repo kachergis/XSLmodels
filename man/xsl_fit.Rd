@@ -35,7 +35,8 @@ separately.}
 
 \item{free}{Optional names of the parameters that \code{lower}/\code{upper} bound,
 in order (see \code{update_params()}); by default, the model's leading
-parameters.}
+parameters. With a likelihood objective, \code{"lapse"} fits the control's
+lapse rate along with the model's parameters (e.g. bounds 0 to 1).}
 
 \item{n_restarts}{Number of independent DEoptim runs per fit; the best
 (lowest SSE) is kept. Some models' objectives have poor local basins that
@@ -50,13 +51,19 @@ reproducible.}
 A list with one element per fit (one in total, or one per dataset
 with \code{by_data = TRUE}), each the \code{DEoptim} result of the best run, which
 includes the best parameters found (\code{optim$bestmem}, named) and their SSE
-(\code{optim$bestval}). With \code{n_restarts > 1}, \code{restarts} holds every run's
-best SSE.
+(\code{optim$bestval}; the negative log-likelihood with a likelihood
+objective). With \code{n_restarts > 1}, \code{restarts} holds every run's best
+value. With a likelihood objective, each fit also has \code{loglik}, \code{n_obs}
+(the number of human responses), \code{k} (the number of fitted parameters,
+including a fitted lapse), and \code{aic} and \code{bic}.
 }
 \description{
 Fits a model to provided data using the Differential Evolution optimization
-algorithm. It optimizes the model parameters to minimize the sum of squared
-errors (SSE) between the model's predictions and human accuracy data.
+algorithm. By default it optimizes the model parameters to minimize the sum
+of squared errors (SSE) between the model's predictions and human accuracy
+data; with \code{control = xslControl(objective = "binomial")} (or
+\code{"multinomial"}) it instead maximizes the likelihood of the human test
+responses (see \code{\link[=xslControl]{xslControl()}}).
 }
 \examples{
 fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = .8, upper = 1,
@@ -64,4 +71,12 @@ fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = .8, upper = 1,
                deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
 fit[[1]]$optim$bestmem
 fit[[1]]$restarts
+
+# fit by binomial likelihood, with the lapse rate as a free parameter
+fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = c(.8, 0), upper = c(1, .5),
+               free = c("C", "lapse"), control = xslControl(objective = "binomial"),
+               seed = 1,
+               deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
+fit[[1]]$optim$bestmem
+fit[[1]]$aic
 }

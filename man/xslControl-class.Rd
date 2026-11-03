@@ -13,7 +13,9 @@ xslControl(
   n_sim = 500,
   verbose = FALSE,
   keep_traj = FALSE,
-  keep_sims = FALSE
+  keep_sims = FALSE,
+  objective = c("sse", "binomial", "multinomial"),
+  lapse = 0.01
 )
 
 new_xslControl(x = list())
@@ -40,6 +42,31 @@ per-simulation \code{xslFit} objects (\code{fits[[i]]$sims}). Off by default;
 \code{fits[[i]]$responses} (an \code{n_sim} x n-words matrix of each simulated
 participant's final per-word accuracy) is always returned instead, at a
 fraction of the memory.}
+
+\item{objective}{What \code{\link[=xsl_fit]{xsl_fit()}} minimizes, and what \code{\link[=xsl_run]{xsl_run()}} scores:
+\itemize{
+\item \code{"sse"} (the default): the \code{n_subj}-weighted sum of squared errors
+between model and human accuracy per test item.
+\item \code{"binomial"}: the negative log-likelihood of how many participants got
+each test item right, given the model's probability of a correct
+choice. Counts come from the condition's \code{response_matrix}, or
+otherwise from \code{accuracy} and \code{n_subj}.
+\item \code{"multinomial"}: the negative log-likelihood of which object each
+participant chose on each test item, given the model's full choice
+distribution over the item's alternatives (see
+\code{\link[=choice_probabilities]{choice_probabilities()}}). Needs a \code{response_matrix}.
+}
+
+The likelihoods treat every response as an independent draw from the
+model's prediction, ignoring individual differences, so they overstate
+the evidence for one model over another; rankings are more trustworthy
+than the absolute size of AIC or likelihood-ratio differences.}
+
+\item{lapse}{For the likelihood objectives: the probability that a
+response is a uniform guess among the item's alternatives rather than the
+model's choice. Keeps the likelihood finite when a model is certain and a
+participant chooses otherwise. Fit it by naming \code{"lapse"} in
+\code{\link[=xsl_fit]{xsl_fit()}}'s \code{free}. Ignored by \code{"sse"}.}
 
 \item{x}{List with elements train, test, accuracy, n_subj, label, condition}
 }

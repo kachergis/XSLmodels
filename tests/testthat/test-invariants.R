@@ -33,8 +33,13 @@ test_that("every registered model gives valid predictions on every xsl_datasets 
   for (nm in names(registry)) {
     data <- if (nm %in% SLOW) representative[1:2] else xsl_datasets
     set.seed(1)
-    res <- xsl_run(registry[[nm]]$constructor(), data, control = xslControl(n_sim = 2))
-    for (f in res$fits) expect_valid_fit(f, paste(nm, f$data$label))
+    # the multinomial also checks every model's full choice distribution
+    res <- xsl_run(registry[[nm]]$constructor(), data,
+                   control = xslControl(n_sim = 2, objective = "multinomial"))
+    for (f in res$fits) {
+      expect_valid_fit(f, paste(nm, f$data$label))
+      expect_true(is.finite(f$loglik), info = paste(nm, f$data$label, "multinomial loglik finite"))
+    }
   }
 })
 

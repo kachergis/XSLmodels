@@ -183,6 +183,11 @@ fit_result[[1]]$optim$bestmem
 fit_result[[1]]$optim$bestval
 ```
 
+By default `xsl_fit()` minimizes SSE on accuracy. With
+`control = xslControl(objective = "binomial")` (or `"multinomial"`) it instead
+maximizes the likelihood of the human responses, and reports AIC and BIC; see
+`vignette("model-comparison")`.
+
 ## 9. Available models
 
 The package includes several types of models:
@@ -193,6 +198,7 @@ The package includes several types of models:
 - `uncfam_predictive()` - `uncfam()` with an added item-level prediction-error term
 - `uncfam_gamma()` - `uncfam()` with a free exponent on familiarity's contribution to attention
 - `uncfam_elimination()` - `uncfam()` with learning by elimination (mutual exclusivity)
+- `uncfam_general()` - one model nesting all of the above (and `uncfam_sampling()`) as special cases, for nested comparisons (see `vignette("nested-comparisons")`)
 - `fazly()` - Fazly et al. model
 - `rescorla_wagner()` - Rescorla-Wagner model
 - `bayesian_decay()` - Bayesian decay model
@@ -284,3 +290,13 @@ data.frame(
 
 A model that fits `xsl_datasets` well but does worse than `baseline()` on held-out
 data is likely overfitting the particular conditions it was fit to.
+
+# Further vignettes
+
+- `vignette("custom-models")`: writing your own model or dataset.
+- `vignette("model-comparison")`: comparing models by SSE, by choice-level
+  likelihood (binomial or multinomial) and by cross-validation.
+- `vignette("nested-comparisons")`: the `uncfam()` family as special cases of
+  `uncfam_general()`, and testing whether an extension earns its parameter.
+- `vignette("corpora")`: running models on naturalistic caregiver-speech
+  corpora.

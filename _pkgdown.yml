@@ -67,6 +67,7 @@ reference:
       - get_perf
       - mafc_test
       - predict_referent
+      - choice_probabilities
       - rsa_listener
       - get_tp
       - get_fscore

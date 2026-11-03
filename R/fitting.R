@@ -10,6 +10,14 @@
 #'   (an `n_sim` x n-words matrix of each simulated participant's final
 #'   per-word accuracy), and `sims` (the full per-simulation `xslFit` list,
 #'   `NULL` unless `control` had `keep_sims = TRUE`).
+#'
+#'   With a likelihood objective (`xslControl(objective = "binomial")` or
+#'   `"multinomial"`), each fit also has `loglik`, the log-likelihood of that
+#'   condition's human test responses, and the result has `loglik` (summed
+#'   over conditions) and `nll` (its negative, which [xsl_fit()] minimizes).
+#'   Unlike `sse`, which averages conditions weighted by `n_subj`, the
+#'   likelihood sums over every response, so larger conditions count for more
+#'   in the same way.
 #' @export
 xsl_run <- function(model, data, control = xslControl()) {
   stopifnot("xslMod" %in% class(model))
@@ -28,6 +36,7 @@ xsl_run <- function(model, data, control = xslControl()) {
   n_sim <- control$n_sim
   if (!model$stochastic) n_sim <- 1
   keep_sims <- isTRUE(control$keep_sims)
+  objective <- control$objective %||% "sse"
 
   fits <- map(data, function(dat) {
     # Models index their matrices by the raw word/object values (m[tr_w,
@@ -70,8 +79,13 @@ xsl_run <- function(model, data, control = xslControl()) {
       get_perf(mat, d = model_params[["ch_dec"]])
     }
     sse <- sum((perf - dat$accuracy) ^ 2)
-    list(sims = sims, responses = responses, perf = perf, matrix = mat,
-         sse = sse, data = dat)
+    out <- list(sims = sims, responses = responses, perf = perf, matrix = mat,
+                sse = sse, data = dat)
+    if (objective != "sse") {
+      out$loglik <- condition_loglik(mat, perf, dat, objective, control$lapse %||% 0,
+                                     d = model_params[["ch_dec"]])
+    }
+    out
   })
 
   sse_terms <- unlist(transpose(fits)$sse)
@@ -89,7 +103,29 @@ xsl_run <- function(model, data, control = xslControl()) {
     sum(sse_terms * subj, na.rm = TRUE) / sum(subj, na.rm = TRUE)
   }
 
-  list(fits = fits, sse = sse, unweighted_sse = unweighted_sse)
+  out <- list(fits = fits, sse = sse, unweighted_sse = unweighted_sse)
+  if (objective != "sse") {
+    out$loglik <- sum(vapply(fits, `[[`, numeric(1), "loglik"))
+    out$nll <- -out$loglik
+  }
+  out
+}
+
+# The value xsl_fit() minimizes: SSE, or the negative log-likelihood.
+objective_value <- function(run, control) {
+  if ((control$objective %||% "sse") == "sse") run$sse else run$nll
+}
+
+# Set the fitted values `params` (named by `free`) on the model, except a
+# free "lapse", which the model doesn't have, goes to the control.
+apply_free <- function(model, control, params, free) {
+  is_lapse <- free == "lapse" & !"lapse" %in% names(model$params)
+  if (any(is_lapse)) {
+    control$lapse <- params[[which(is_lapse)]]
+    params <- params[!is_lapse]
+    free <- free[!is_lapse]
+  }
+  list(model = update_params(model, params, free), control = control)
 }
 
 # Relabel a training set's words/objects as their positions in the sorted
@@ -163,8 +199,11 @@ labelled_test <- function(test) {
 #' Fit XSL model using differential evolution
 #'
 #' Fits a model to provided data using the Differential Evolution optimization
-#' algorithm. It optimizes the model parameters to minimize the sum of squared
-#' errors (SSE) between the model's predictions and human accuracy data.
+#' algorithm. By default it optimizes the model parameters to minimize the sum
+#' of squared errors (SSE) between the model's predictions and human accuracy
+#' data; with `control = xslControl(objective = "binomial")` (or
+#' `"multinomial"`) it instead maximizes the likelihood of the human test
+#' responses (see [xslControl()]).
 #'
 #' @inheritParams xsl_run
 #' @param lower Numeric vector of lower bounds for the model's parameters.
@@ -175,7 +214,8 @@ labelled_test <- function(test) {
 #' @param deoptim_control Control parameters passed to `DEoptim()`.
 #' @param free Optional names of the parameters that `lower`/`upper` bound,
 #'   in order (see `update_params()`); by default, the model's leading
-#'   parameters.
+#'   parameters. With a likelihood objective, `"lapse"` fits the control's
+#'   lapse rate along with the model's parameters (e.g. bounds 0 to 1).
 #' @param n_restarts Number of independent DEoptim runs per fit; the best
 #'   (lowest SSE) is kept. Some models' objectives have poor local basins that
 #'   a single run lands in a good fraction of the time (e.g.
@@ -187,8 +227,11 @@ labelled_test <- function(test) {
 #' @return A list with one element per fit (one in total, or one per dataset
 #'   with `by_data = TRUE`), each the `DEoptim` result of the best run, which
 #'   includes the best parameters found (`optim$bestmem`, named) and their SSE
-#'   (`optim$bestval`). With `n_restarts > 1`, `restarts` holds every run's
-#'   best SSE.
+#'   (`optim$bestval`; the negative log-likelihood with a likelihood
+#'   objective). With `n_restarts > 1`, `restarts` holds every run's best
+#'   value. With a likelihood objective, each fit also has `loglik`, `n_obs`
+#'   (the number of human responses), `k` (the number of fitted parameters,
+#'   including a fitted lapse), and `aic` and `bic`.
 #' @export
 #'
 #' @examples
@@ -197,6 +240,14 @@ labelled_test <- function(test) {
 #'                deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
 #' fit[[1]]$optim$bestmem
 #' fit[[1]]$restarts
+#'
+#' # fit by binomial likelihood, with the lapse rate as a free parameter
+#' fit <- xsl_fit(decay(C = .98), xsl_datasets[1:2], lower = c(.8, 0), upper = c(1, .5),
+#'                free = c("C", "lapse"), control = xslControl(objective = "binomial"),
+#'                seed = 1,
+#'                deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5, trace = FALSE))
+#' fit[[1]]$optim$bestmem
+#' fit[[1]]$aic
 xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
                     control = xslControl(),
                     deoptim_control = DEoptim::DEoptim.control(reltol = .001,
@@ -223,25 +274,32 @@ xsl_fit <- function(model, data, lower, upper, by_data = FALSE,
       # some models are numerically unstable for certain parameter draws
       # (e.g. producing NA associations); treat those as an infinitely bad
       # fit rather than letting one bad draw abort the whole optimization
-      sse <- tryCatch(
-        xsl_run(model = update_params(model, params, free), data = dat, control = control)$sse,
-        error = function(e) NA_real_
-      )
-      if (is.na(sse)) Inf else sse
+      val <- tryCatch({
+        set <- apply_free(model, control, params, free)
+        objective_value(xsl_run(model = set$model, data = dat, control = set$control), set$control)
+      }, error = function(e) NA_real_)
+      if (is.na(val)) Inf else val
     }
     if (length(lower) == 0) {
       # DEoptim segfaults when given zero-length bounds; a model with no
       # free parameters (e.g. baseline()) has nothing to optimize, so just
       # evaluate it once instead
-      list(optim = list(bestmem = numeric(0), bestval = run_wrapper(numeric(0))))
+      best <- list(optim = list(bestmem = numeric(0), bestval = run_wrapper(numeric(0))))
     } else {
       runs <- lapply(seq_len(n_restarts), \(i) DEoptim::DEoptim(run_wrapper, lower = lower, upper = upper, deoptim_control))
       vals <- vapply(runs, \(r) r$optim$bestval, numeric(1))
       best <- runs[[which.min(vals)]]
       names(best$optim$bestmem) <- free
       if (n_restarts > 1) best$restarts <- vals
-      best
     }
+    if ((control$objective %||% "sse") != "sse") {
+      best$loglik <- -best$optim$bestval
+      best$n_obs <- n_responses(dat)
+      best$k <- length(free)
+      best$aic <- 2 * best$k - 2 * best$loglik
+      best$bic <- log(best$n_obs) * best$k - 2 * best$loglik
+    }
+    best
   })
   if (any(!map_lgl(fits, \(f) is.finite(f$optim$bestval)))) {
     warning("every parameter evaluation failed for at least one fit (bestval = Inf); ",

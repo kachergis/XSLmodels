@@ -10,7 +10,8 @@ get_group_model_fit(
   control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
   n_restarts = NULL,
-  seed = NULL
+  seed = NULL,
+  fit_lapse = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ the model's registry default (5 for \code{uncfam_predictive}, 3 for \code{tilles
 otherwise 1).}
 
 \item{seed}{Optional random seed for reproducible fits.}
+
+\item{fit_lapse}{With a likelihood objective (\code{control = xslControl(objective = "binomial")} or \code{"multinomial"}), also fit the
+lapse rate, in [0, 1].}
 }
 \value{
 A list containing the fitted model results

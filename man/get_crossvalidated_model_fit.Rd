@@ -11,7 +11,8 @@ get_crossvalidated_model_fit(
   control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
   n_restarts = NULL,
-  seed = NULL
+  seed = NULL,
+  fit_lapse = FALSE
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ cross-validation of stochastic models substantially).}
 defaults to the model's registry default (see \code{get_group_model_fit()}).}
 
 \item{seed}{Optional random seed for reproducible folds and fits.}
+
+\item{fit_lapse}{With a likelihood objective (\code{control = xslControl(objective = "binomial")} or \code{"multinomial"}), also fit the
+lapse rate, in [0, 1].}
 }
 \value{
 A list containing cross-validation results (see
