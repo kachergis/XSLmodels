@@ -58,7 +58,9 @@ is fit (via <code><a href="xsl_fit.html">xsl_fit()</a></code>) to the other fold
 <span>  n_folds <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  datasets <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="xslControl-class.html">xslControl</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>reltol <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fl">100</span>, itermax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>reltol <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fl">100</span>, itermax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  n_restarts <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -88,6 +90,15 @@ cross-validation of stochastic models substantially).</p></dd>
 <dt id="arg-deoptim-control">deoptim_control<a class="anchor" aria-label="anchor" href="#arg-deoptim-control"></a></dt>
 <dd><p>Control parameters passed to <code>DEoptim()</code> (via
 <code><a href="cross_validated_group_fits.html">cross_validated_group_fits()</a></code>).</p></dd>
+
+
+<dt id="arg-n-restarts">n_restarts<a class="anchor" aria-label="anchor" href="#arg-n-restarts"></a></dt>
+<dd><p>Number of DEoptim runs to keep the best of, per fold;
+defaults to the model's registry default (see <code><a href="get_group_model_fit.html">get_group_model_fit()</a></code>).</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Optional random seed for reproducible folds and fits.</p></dd>
 
 </dl></div>
     <div class="section level2">

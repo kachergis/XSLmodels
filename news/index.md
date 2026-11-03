@@ -4,6 +4,30 @@
 
 ### New Features
 
+- [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md),
+  [`cross_validated_group_fits()`](https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.md),
+  [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)
+  and
+  [`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md)
+  gain `n_restarts` and `seed`. `n_restarts` keeps the best of several
+  DEoptim runs, and `$restarts` reports every run’s best SSE. Some
+  models’ objectives have poor basins that single runs often land in:
+  about a third of single runs for
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md).
+  The group and cross-validated helpers default to the model’s registry
+  setting: 5 restarts for `uncfam_predictive`, 3 for `tilles`,
+  otherwise 1. `seed` makes fits reproducible
+- [`update_params()`](https://www.kachergis.com/XSLmodels/reference/update_params.md)
+  and the fitting functions accept `free`, the names of the parameters
+  being fit, so any subset of a model’s parameters can be fit with the
+  rest fixed. Previously only the leading parameters could be fit.
+  Fitted `bestmem` is now named by parameter. Every registry entry names
+  its free parameters
+- [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)
+  now lists every model in the registry. This adds four variants used in
+  the model comparison paper: `uncfam_novelty`,
+  `uncfam_uncertainty_only`, `uncfam_strength` (familiarity only,
+  `B = 0`) and `fazly_threshold`
 - Added
   [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
   a single biased associative model that nests the
@@ -48,6 +72,36 @@
   matched to its raw data
 
 ### Bug Fixes
+
+- **The registry’s fitting bounds now match the model comparison
+  paper’s** (xsl-bakeoff `fits/v05/specs.R`), so
+  [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)
+  and
+  [`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md)
+  search the same space. **This changes their results.**
+
+  - The uncfam family: X in \[.001, 5\], B in \[.1, 15\] and C in \[.5,
+    1\]. Previously X was in \[.01, .5\] and B in \[.8, 1\], which
+    excluded
+    [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)’s
+    own optimum (B ~ 14 on `xsl_datasets`).
+  - [`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md):
+    lambda in \[1e-10, 2\], beta in \[2, 20000\].
+  - [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md):
+    each parameter in \[1e-5, 10\].
+  - [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md),
+    [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
+    and
+    [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md):
+    lower bounds just above 0.
+  - [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+    now fits `beta`, `C` and `lambda` with `alpha` fixed at 1, since
+    `alpha` and `beta` only enter as a product.
+
+- [`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)’s
+  registry bounds were attached to the wrong parameters. Its parameters
+  are ordered (C, X, B, K), but the bounds were written for (X, B, C,
+  K), so decay `C` was fit in \[.01, .5\]
 
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   no longer errors on training data with a single trial. Its trial loop

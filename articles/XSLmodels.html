@@ -305,14 +305,20 @@ work with models and datasets:</p>
 <code class="sourceCode R"><span><span class="co"># See what models are available</span></span>
 <span><span class="va">models</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_models.html">show_models</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">models</span></span>
-<span><span class="co">#&gt;  [1] "baseline"           "decay"              "uncfam"            </span></span>
-<span><span class="co">#&gt;  [4] "uncfam_general"     "uncfam_gamma"       "uncfam_elimination"</span></span>
-<span><span class="co">#&gt;  [7] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   </span></span>
-<span><span class="co">#&gt; [10] "multi_sampling"     "propose_but_verify" "pursuit"           </span></span>
-<span><span class="co">#&gt; [13] "fazly"              "guess_and_test"     "rescorla_wagner"   </span></span>
-<span><span class="co">#&gt; [16] "tilles"             "bayesian_decay"     "kalman_filter"     </span></span>
-<span><span class="co">#&gt; [19] "softmax_rl"         "fgt2009"            "fgt2009_rsa"       </span></span>
-<span><span class="co">#&gt; [22] "minerva2"           "todam"              "rem"</span></span>
+<span><span class="co">#&gt;  [1] "baseline"                "decay"                  </span></span>
+<span><span class="co">#&gt;  [3] "uncfam"                  "uncfam_novelty"         </span></span>
+<span><span class="co">#&gt;  [5] "uncfam_uncertainty_only" "uncfam_strength"        </span></span>
+<span><span class="co">#&gt;  [7] "uncfam_gamma"            "uncfam_general"         </span></span>
+<span><span class="co">#&gt;  [9] "uncfam_elimination"      "uncfam_attention"       </span></span>
+<span><span class="co">#&gt; [11] "uncfam_predictive"       "uncfam_sampling"        </span></span>
+<span><span class="co">#&gt; [13] "multi_sampling"          "propose_but_verify"     </span></span>
+<span><span class="co">#&gt; [15] "pursuit"                 "fazly"                  </span></span>
+<span><span class="co">#&gt; [17] "fazly_threshold"         "guess_and_test"         </span></span>
+<span><span class="co">#&gt; [19] "rescorla_wagner"         "tilles"                 </span></span>
+<span><span class="co">#&gt; [21] "bayesian_decay"          "kalman_filter"          </span></span>
+<span><span class="co">#&gt; [23] "softmax_rl"              "fgt2009"                </span></span>
+<span><span class="co">#&gt; [25] "fgt2009_rsa"             "minerva2"               </span></span>
+<span><span class="co">#&gt; [27] "todam"                   "rem"</span></span>
 <span></span>
 <span><span class="co"># See what datasets are available</span></span>
 <span><span class="va">datasets</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/show_datasets.html">show_datasets</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -435,7 +441,7 @@ existing models in the package.</p>
 <span><span class="co">#&gt; Iteration: 99 bestvalit: 0.310600 bestmemit:    0.979256</span></span>
 <span><span class="co">#&gt; Iteration: 100 bestvalit: 0.310600 bestmemit:    0.979256</span></span>
 <span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span></span>
-<span><span class="co">#&gt;      par1 </span></span>
+<span><span class="co">#&gt;         C </span></span>
 <span><span class="co">#&gt; 0.9792563</span></span>
 <span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestval</span></span>
 <span><span class="co">#&gt; [1] 0.3106</span></span></code></pre></div>

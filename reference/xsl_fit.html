@@ -57,7 +57,10 @@ errors (SSE) between the model's predictions and human accuracy data.</p>
 <span>  <span class="va">upper</span>,</span>
 <span>  by_data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="xslControl-class.html">xslControl</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>reltol <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fl">100</span>, itermax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>reltol <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fl">100</span>, itermax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  free <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_restarts <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -93,13 +96,47 @@ separately.</p></dd>
 <dt id="arg-deoptim-control">deoptim_control<a class="anchor" aria-label="anchor" href="#arg-deoptim-control"></a></dt>
 <dd><p>Control parameters passed to <code>DEoptim()</code>.</p></dd>
 
+
+<dt id="arg-free">free<a class="anchor" aria-label="anchor" href="#arg-free"></a></dt>
+<dd><p>Optional names of the parameters that <code>lower</code>/<code>upper</code> bound,
+in order (see <code><a href="update_params.html">update_params()</a></code>); by default, the model's leading
+parameters.</p></dd>
+
+
+<dt id="arg-n-restarts">n_restarts<a class="anchor" aria-label="anchor" href="#arg-n-restarts"></a></dt>
+<dd><p>Number of independent DEoptim runs per fit; the best
+(lowest SSE) is kept. Some models' objectives have poor local basins that
+a single run lands in a good fraction of the time (e.g.
+<code><a href="uncfam_predictive.html">uncfam_predictive()</a></code>), so a few restarts make fits far more reliable.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Optional random seed, set once before fitting, so DEoptim's
+random initial populations (and a stochastic model's simulations) are
+reproducible.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class <code>DEoptim</code> representing the fitting result, which
-includes the best set of parameters found and the corresponding SSE value.</p>
+    <p>A list with one element per fit (one in total, or one per dataset
+with <code>by_data = TRUE</code>), each the <code>DEoptim</code> result of the best run, which
+includes the best parameters found (<code>optim$bestmem</code>, named) and their SSE
+(<code>optim$bestval</code>). With <code>n_restarts &gt; 1</code>, <code>restarts</code> holds every run's
+best SSE.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">xsl_fit</span><span class="op">(</span><span class="fu"><a href="decay.html">decay</a></span><span class="op">(</span>C <span class="op">=</span> <span class="fl">.98</span><span class="op">)</span>, <span class="va">xsl_datasets</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, lower <span class="op">=</span> <span class="fl">.8</span>, upper <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>               n_restarts <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>               deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>NP <span class="op">=</span> <span class="fl">10</span>, itermax <span class="op">=</span> <span class="fl">5</span>, trace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestmem</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         C </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.9269144 </span>
+<span class="r-in"><span><span class="va">fit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">restarts</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2686 0.2686</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

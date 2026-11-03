@@ -251,14 +251,20 @@ with models and datasets:
 # See what models are available
 models <- show_models()
 models
-#>  [1] "baseline"           "decay"              "uncfam"            
-#>  [4] "uncfam_general"     "uncfam_gamma"       "uncfam_elimination"
-#>  [7] "uncfam_attention"   "uncfam_predictive"  "uncfam_sampling"   
-#> [10] "multi_sampling"     "propose_but_verify" "pursuit"           
-#> [13] "fazly"              "guess_and_test"     "rescorla_wagner"   
-#> [16] "tilles"             "bayesian_decay"     "kalman_filter"     
-#> [19] "softmax_rl"         "fgt2009"            "fgt2009_rsa"       
-#> [22] "minerva2"           "todam"              "rem"
+#>  [1] "baseline"                "decay"                  
+#>  [3] "uncfam"                  "uncfam_novelty"         
+#>  [5] "uncfam_uncertainty_only" "uncfam_strength"        
+#>  [7] "uncfam_gamma"            "uncfam_general"         
+#>  [9] "uncfam_elimination"      "uncfam_attention"       
+#> [11] "uncfam_predictive"       "uncfam_sampling"        
+#> [13] "multi_sampling"          "propose_but_verify"     
+#> [15] "pursuit"                 "fazly"                  
+#> [17] "fazly_threshold"         "guess_and_test"         
+#> [19] "rescorla_wagner"         "tilles"                 
+#> [21] "bayesian_decay"          "kalman_filter"          
+#> [23] "softmax_rl"              "fgt2009"                
+#> [25] "fgt2009_rsa"             "minerva2"               
+#> [27] "todam"                   "rem"
 
 # See what datasets are available
 datasets <- show_datasets()
@@ -383,7 +389,7 @@ fit_result <- xsl_fit(decay(C = .98), data = xsl_datasets[[1]],
 #> Iteration: 99 bestvalit: 0.310600 bestmemit:    0.979256
 #> Iteration: 100 bestvalit: 0.310600 bestmemit:    0.979256
 fit_result[[1]]$optim$bestmem
-#>      par1 
+#>         C 
 #> 0.9792563
 fit_result[[1]]$optim$bestval
 #> [1] 0.3106

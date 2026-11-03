@@ -64,7 +64,9 @@ out-of-sample SSE.</p>
 <span>  n_folds <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="xslControl-class.html">xslControl</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  deoptim_control <span class="op">=</span> <span class="fu">DEoptim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DEoptim/man/DEoptim.control.html" class="external-link">DEoptim.control</a></span><span class="op">(</span>reltol <span class="op">=</span> <span class="fl">0.001</span>, NP <span class="op">=</span> <span class="fl">100</span>, itermax <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
-<span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  free <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_restarts <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -105,7 +107,12 @@ cross-validation.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
-<dd><p>Optional random seed, for reproducible fold assignment.</p></dd>
+<dd><p>Optional random seed, for reproducible fold assignment and fits.</p></dd>
+
+
+<dt id="arg-free-n-restarts">free, n_restarts<a class="anchor" aria-label="anchor" href="#arg-free-n-restarts"></a></dt>
+<dd><p>Passed to <code><a href="xsl_fit.html">xsl_fit()</a></code>: which parameters the bounds
+are for, and how many DEoptim runs to keep the best of, per fold.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -136,7 +143,7 @@ cross-validation.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`1`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`1`$params</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      par1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         C </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.9898899 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`1`$train_sse</span>
@@ -148,7 +155,7 @@ cross-validation.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`2`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`2`$params</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      par1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         C </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.8895055 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $folds$`2`$train_sse</span>
@@ -160,7 +167,7 @@ cross-validation.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $params</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        par1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           C</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.9898899</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.8895055</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

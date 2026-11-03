@@ -16,7 +16,9 @@ get_crossvalidated_model_fit(
   n_folds = 5,
   datasets = NULL,
   control = xslControl(),
-  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
+  n_restarts = NULL,
+  seed = NULL
 )
 ```
 
@@ -47,6 +49,16 @@ get_crossvalidated_model_fit(
 
   Control parameters passed to `DEoptim()` (via
   [`cross_validated_group_fits()`](https://www.kachergis.com/XSLmodels/reference/cross_validated_group_fits.md)).
+
+- n_restarts:
+
+  Number of DEoptim runs to keep the best of, per fold; defaults to the
+  model's registry default (see
+  [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)).
+
+- seed:
+
+  Optional random seed for reproducible folds and fits.
 
 ## Value
 

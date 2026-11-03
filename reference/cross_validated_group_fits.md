@@ -18,7 +18,9 @@ cross_validated_group_fits(
   n_folds = 5,
   control = xslControl(),
   deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
-  seed = NULL
+  seed = NULL,
+  free = NULL,
+  n_restarts = 1
 )
 ```
 
@@ -60,7 +62,14 @@ cross_validated_group_fits(
 
 - seed:
 
-  Optional random seed, for reproducible fold assignment.
+  Optional random seed, for reproducible fold assignment and fits.
+
+- free, n_restarts:
+
+  Passed to
+  [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md):
+  which parameters the bounds are for, and how many DEoptim runs to keep
+  the best of, per fold.
 
 ## Value
 
@@ -94,7 +103,7 @@ cross_validated_group_fits(decay(C = 0.98), xsl_datasets[1:6],
 #> $folds
 #> $folds$`1`
 #> $folds$`1`$params
-#>      par1 
+#>         C 
 #> 0.9898899 
 #> 
 #> $folds$`1`$train_sse
@@ -106,7 +115,7 @@ cross_validated_group_fits(decay(C = 0.98), xsl_datasets[1:6],
 #> 
 #> $folds$`2`
 #> $folds$`2`$params
-#>      par1 
+#>         C 
 #> 0.8895055 
 #> 
 #> $folds$`2`$train_sse
@@ -118,7 +127,7 @@ cross_validated_group_fits(decay(C = 0.98), xsl_datasets[1:6],
 #> 
 #> 
 #> $params
-#>        par1
+#>           C
 #> 1 0.9898899
 #> 2 0.8895055
 #> 

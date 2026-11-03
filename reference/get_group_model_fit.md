@@ -11,7 +11,9 @@ get_group_model_fit(
   model_name,
   datasets = NULL,
   control = xslControl(),
-  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100)
+  deoptim_control = DEoptim::DEoptim.control(reltol = 0.001, NP = 100, itermax = 100),
+  n_restarts = NULL,
+  seed = NULL
 )
 ```
 
@@ -41,6 +43,16 @@ get_group_model_fit(
   Control parameters passed to `DEoptim()` (via
   [`xsl_fit()`](https://www.kachergis.com/XSLmodels/reference/xsl_fit.md)).
 
+- n_restarts:
+
+  Number of DEoptim runs to keep the best of; defaults to the model's
+  registry default (5 for `uncfam_predictive`, 3 for `tilles`, otherwise
+  1).
+
+- seed:
+
+  Optional random seed for reproducible fits.
+
 ## Value
 
 A list containing the fitted model results
@@ -55,9 +67,9 @@ group_fit <- get_group_model_fit(
   "uncfam", datasets = xsl_datasets[1:3],
   deoptim_control = DEoptim::DEoptim.control(NP = 10, itermax = 5))
 #> Warning: For many problems it is best to set 'NP' (in 'control') to be at least ten times the length of the parameter vector. 
-#> Iteration: 1 bestvalit: 0.226817 bestmemit:    0.066012    0.864247    0.985724
-#> Iteration: 2 bestvalit: 0.226648 bestmemit:    0.066012    0.837244    0.985724
-#> Iteration: 3 bestvalit: 0.226648 bestmemit:    0.066012    0.837244    0.985724
-#> Iteration: 4 bestvalit: 0.226648 bestmemit:    0.066012    0.837244    0.985724
-#> Iteration: 5 bestvalit: 0.226648 bestmemit:    0.066012    0.837244    0.985724
+#> Iteration: 1 bestvalit: 5.155958 bestmemit:    0.572436    4.886378    0.964311
+#> Iteration: 2 bestvalit: 5.155958 bestmemit:    0.572436    4.886378    0.964311
+#> Iteration: 3 bestvalit: 4.683360 bestmemit:    1.070998    3.482776    0.990162
+#> Iteration: 4 bestvalit: 3.017839 bestmemit:    0.400891    3.482776    0.990162
+#> Iteration: 5 bestvalit: 3.017839 bestmemit:    0.400891    3.482776    0.990162
 ```
