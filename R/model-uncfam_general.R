@@ -1,3 +1,13 @@
+# uncfam_general_model() parameters for a nested model: its X, B, C, with
+# every extension off unless overridden. uncfam(), uncfam_gamma(),
+# uncfam_elimination(), uncfam_attention() and uncfam_sampling() all run
+# through uncfam_general_model() this way.
+general_params <- function(params, gamma = 1, eps = 0, kappa = 0, K = Inf,
+                           uncertainty = "entropy") {
+  list(X = params[["X"]], B = params[["B"]], C = params[["C"]], gamma = gamma,
+       eps = eps, kappa = kappa, K = K, uncertainty = uncertainty, rho = 0, Cs = .5)
+}
+
 uncfam_general_model <- function(params, data, control) {
   X <- params[["X"]] # associative weight to distribute
   B <- params[["B"]] # weighting of uncertainty vs. familiarity (lambda)
@@ -219,6 +229,7 @@ uncfam_general <- function(X, B, C, gamma = 1, eps = 0, kappa = 0, K = Inf,
     model = uncfam_general_model,
     params = list(X = X, B = B, C = C, gamma = gamma, eps = eps, kappa = kappa,
                   K = K, uncertainty = uncertainty, rho = rho, Cs = Cs),
-    stochastic = !is.infinite(K)
+    stochastic = !is.infinite(K),
+    supports_start_matrix = TRUE
   )
 }

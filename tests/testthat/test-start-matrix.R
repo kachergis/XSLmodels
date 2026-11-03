@@ -10,7 +10,7 @@ test_that("models that support start_matrix use it, and a zero one changes nothi
   expect_setequal(supported, c(
     "baseline", "decay", "rescorla_wagner", "softmax_rl", "uncfam_sampling", "multi_sampling",
     "uncfam", "uncfam_novelty", "uncfam_uncertainty_only", "uncfam_strength",
-    "uncfam_attention", "uncfam_predictive", "uncfam_gamma", "uncfam_elimination",
+    "uncfam_attention", "uncfam_predictive", "uncfam_gamma", "uncfam_elimination", "uncfam_general",
     "propose_but_verify", "pursuit"
   ))
   zero <- matrix(0, 8, 8)
