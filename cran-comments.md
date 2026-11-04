@@ -4,12 +4,14 @@ This is a new release (first submission to CRAN).
 
 ## Test environments
 
-* local macOS (R 4.5.x), `devtools::check(cran = TRUE)`
-* win-builder (R-devel), via `devtools::check_win_devel()`
+* local macOS 14 (R 4.6.0), `R CMD check --as-cran` on the built tarball,
+  with the remote CRAN incoming checks enabled
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+* This is a new submission.
 
 ## Downstream dependencies
 
