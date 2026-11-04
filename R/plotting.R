@@ -21,13 +21,44 @@
 #' plot_training_trials(xsl_datasets[[1]]$train)
 #' }
 plot_training_trials <- function(train, filename = NULL) {
-  if (!requireNamespace("viridis", quietly = TRUE) ||
-        !requireNamespace("gganimate", quietly = TRUE)) {
+  if (!has_animation_packages()) {
     stop("Packages \"viridis\" and \"gganimate\" are required for ",
          "plot_training_trials(). Install them with ",
          "install.packages(c(\"viridis\", \"gganimate\")).", call. = FALSE)
   }
 
+  df <- training_cooccurrences(train)
+  p <- cooccurrence_animation(df)
+
+  # gganimate's renderer falls back to writing raw PNG frames into the
+  # current working directory when none of gifski/magick/av are installed;
+  # render inside a scratch dir so that can never happen regardless of which
+  # backend ends up in use.
+  old_wd <- setwd(tempdir())
+  on.exit(setwd(old_wd), add = TRUE)
+
+  if (is.null(filename)) {
+    show_animation(p)
+  } else {
+    gganimate::animate(p, format = "mp4",
+                       renderer = gganimate::ffmpeg_renderer(format = "mp4"))
+    setwd(old_wd)
+    gganimate::anim_save(filename)
+  }
+
+  df
+}
+
+# Printing a gganim renders every frame (a seam for tests to stub).
+show_animation <- function(p) print(p)
+
+has_animation_packages <- function() {
+  requireNamespace("viridis", quietly = TRUE) && requireNamespace("gganimate", quietly = TRUE)
+}
+
+# Cumulative word-object co-occurrence counts after each training trial, in
+# long format: one row per trial (0 = before training) x word x object.
+training_cooccurrences <- function(train) {
   words <- sort(unique(unlist(train$words)))
   objects <- sort(unique(unlist(train$objects)))
 
@@ -35,7 +66,7 @@ plot_training_trials <- function(train, filename = NULL) {
     m |>
       as_tibble() |>
       mutate(word = rownames(m), .before = everything()) |>
-      pivot_longer(-.data$word, names_to = "object", values_to = "coocs") |>
+      pivot_longer(-"word", names_to = "object", values_to = "coocs") |>
       mutate(trial = t)
   }
 
@@ -55,32 +86,18 @@ plot_training_trials <- function(train, filename = NULL) {
     tr_w <- as.character(tr_w)  # index by label, not position (#14)
     tr_o <- as.character(tr_o)
     m[tr_w, tr_o] <- m[tr_w, tr_o] + 1
-    df_t <- matrix_to_long(m, t)
-    df <- bind_rows(df, df_t)
+    df <- bind_rows(df, matrix_to_long(m, t))
   }
 
-  p <- ggplot(df, aes(x = .data$object, y = .data$word, fill = .data$coocs)) +
+  as_tibble(df)
+}
+
+# The animated heatmap of training_cooccurrences() output, one state per trial.
+cooccurrence_animation <- function(df) {
+  ggplot(df, aes(x = .data$object, y = .data$word, fill = .data$coocs)) +
     geom_tile(color = "white", linewidth = 0.1) +
     viridis::scale_fill_viridis(name = "Count", option = "magma") +
     coord_equal() +
     labs(x = "Object", y = "Word") +
     gganimate::transition_states(.data$trial)
-
-  # gganimate's renderer falls back to writing raw PNG frames into the
-  # current working directory when none of gifski/magick/av are installed;
-  # render inside a scratch dir so that can never happen regardless of which
-  # backend ends up in use.
-  old_wd <- setwd(tempdir())
-  on.exit(setwd(old_wd), add = TRUE)
-
-  if (is.null(filename)) {
-    print(p)
-  } else {
-    gganimate::animate(p, format = "mp4",
-                       renderer = gganimate::ffmpeg_renderer(format = "mp4"))
-    setwd(old_wd)
-    gganimate::anim_save(filename)
-  }
-
-  as_tibble(df)
 }
