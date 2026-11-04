@@ -230,8 +230,9 @@ get_tp <- function(m, gold_lexicon) {
   count <- 0
   if (length(gold_lexicon) > 0) {
     for (i in seq_along(gold_lexicon[["words"]])) {
-      word <- gold_lexicon[["words"]][i]
-      ref <- gold_lexicon[["objects"]][i]
+      # index by label, not position: lexicon ids are often numeric
+      word <- as.character(gold_lexicon[["words"]][i])
+      ref <- as.character(gold_lexicon[["objects"]][i])
       if (!(word %in% rownames(m)) || !(ref %in% colnames(m))) {
         next
       }
@@ -279,9 +280,9 @@ get_tp <- function(m, gold_lexicon) {
 get_fscore <- function(m, threshold, gold_lexicon = NULL) {
   tmat <- m >= threshold
   tp <- get_tp(tmat, gold_lexicon) # correct referents selected
-  words <- gold_lexicon[["words"]]
+  words <- as.character(gold_lexicon[["words"]])
   words <- words[words %in% rownames(tmat)]
-  objects <- gold_lexicon[["objects"]]
+  objects <- as.character(gold_lexicon[["objects"]])
   objects <- objects[objects %in% colnames(tmat)]
   if (!is.null(gold_lexicon)) {
     fp <- sum(tmat[words, objects]) - tp
@@ -330,6 +331,7 @@ get_fscore <- function(m, threshold, gold_lexicon = NULL) {
 get_roc <- function(m, thresholds = seq(0, 1, .01), gold_lexicon = NULL) {
   #mat <- mdat / max(unlist(mdat)) # normalize so max value(s) in entire matrix are 1
   mn <- m / rowSums(m) # row-normalize matrix (better for all models?)
+  mn[rowSums(m) == 0, ] <- 0 # a word with no associations selects nothing
   map(thresholds, \(t) get_fscore(mn, t, gold_lexicon)) |> list_rbind()
 }
 

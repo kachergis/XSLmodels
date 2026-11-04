@@ -17,3 +17,4 @@ examples.R
 tests/bakeoff_comparison
 datapage
 ^\.claude$
+^codecov\.yml$

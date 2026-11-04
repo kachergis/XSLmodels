@@ -84,3 +84,12 @@ test_that("models can be fit to a learning trajectory", {
   expect_true(is.finite(fit$optim$bestval))
   expect_equal(fit$n_obs, sum(vapply(kachergis_priming, \(x) 72 * x$n_subj, 1)))
 })
+
+test_that("xslData objects print a summary, with the blocks when there are several", {
+  single <- xsl_datasets[[1]]
+  out <- capture.output(print(single))
+  expect_match(out[1], single$label, fixed = TRUE)
+  expect_match(out, paste("training trials:", length(single$train$words)), all = FALSE)
+  expect_false(any(grepl("blocks", out)))
+  expect_match(capture.output(print(d)), "blocks: 4 \\(training repeated", all = FALSE)
+})

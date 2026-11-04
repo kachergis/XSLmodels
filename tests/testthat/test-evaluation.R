@@ -123,3 +123,116 @@ test_that("mafc_test() scores an explicit correct referent when given", {
   expect_error(validate_xslData(new_xslData(list(train = list(), test = list(words = list(1), objects = list(1), correct = list(1, 2)),
                                                   accuracy = numeric()))))
 })
+
+test_that("predict_referent() thresholds the lexicon before choice", {
+  m <- matrix(c(.6, .4, .2, .8), 2, byrow = TRUE, dimnames = list(1:2, 1:2))
+  expect_equal(predict_referent(m, 1, 1:2, threshold = .5), c(1, 0))
+  # nothing above threshold: the word carries no evidence, so the prior
+  expect_equal(predict_referent(m, 1, 1:2, threshold = .9, prior = c(1, 3)), c(.25, .75))
+  # a power choice rule sharpens the literal listener
+  expect_equal(predict_referent(m, 1, 1:2, d = 2), c(.36, .16) / .52)
+})
+
+test_that("the pragmatic listener handles a word with no associations", {
+  # word 2's row is empty, so it isn't among the speaker's candidate words;
+  # the listener falls back to the prior over the trial's objects
+  m <- matrix(c(1, 0, 0, 0), 2, byrow = TRUE, dimnames = list(1:2, c("a", "b")))
+  expect_equal(predict_referent(m, 2, c("a", "b"), pragmatic = TRUE), c(.5, .5))
+  expect_equal(predict_referent(m, 2, c("a", "b"), prior = c(1, 3), pragmatic = TRUE), c(.25, .75))
+})
+
+# a 3 x 3 lexicon whose labels aren't in positional order
+lex_m <- diag(3)
+dimnames(lex_m) <- list(c("3", "1", "2"), c("3", "1", "2"))
+lex_m["1", "2"] <- .5
+
+test_that("get_tp() sums the gold pairs' associations, by label", {
+  expect_equal(get_tp(lex_m, list(words = 1:3, objects = 1:3)), 3)
+  # numeric ids are labels, not positions: m[1, 2] is the "3"-"1" cell (0)
+  expect_equal(get_tp(lex_m, list(words = 1, objects = 2)), .5)
+  expect_equal(get_tp(lex_m, list(words = "1", objects = "2")), .5)
+  # pairs not in the matrix are skipped
+  expect_equal(get_tp(lex_m, list(words = c(1, 9), objects = c(1, 1))), 1)
+  # without a lexicon, every word whose label is also an object's is gold
+  expect_equal(get_tp(lex_m, NULL), 3)
+  expect_equal(get_tp(lex_m[, c("1", "2")], NULL), 2)
+})
+
+test_that("get_fscore() counts hits, false alarms and misses at a threshold", {
+  gold <- list(words = 1:3, objects = 1:3)
+  # at .4: the diagonal plus "1"-"2" -> 3 hits, 1 false alarm, no misses
+  f <- get_fscore(lex_m, .4, gold)
+  expect_equal(f$precision, 3 / 4)
+  expect_equal(f$recall, 1)
+  expect_equal(f$specificity, 5 / 6)
+  expect_equal(f$fscore, 2 * .75 / 1.75)
+  # at .6 the false alarm is gone
+  expect_equal(get_fscore(lex_m, .6, gold)$precision, 1)
+  # nothing selected: precision is undefined and the F-score is 0
+  none <- get_fscore(lex_m, 2, gold)
+  expect_equal(none$recall, 0)
+  expect_equal(none$fscore, 0)
+  # numeric ids as labels: a lexicon with only the "1"-"2" pair
+  one <- get_fscore(lex_m, .4, list(words = 1, objects = 2))
+  expect_equal(c(one$precision, one$recall), c(1, 1))
+  # no lexicon: the same as the identity lexicon here
+  expect_equal(get_fscore(lex_m, .4), f)
+})
+
+test_that("get_roc() and get_roc_max() sweep thresholds over the row-normalized matrix", {
+  roc <- get_roc(lex_m, thresholds = c(0, .5, 1))
+  expect_equal(roc$threshold, c(0, .5, 1))
+  expect_equal(roc$fscore[2], get_fscore(lex_m / rowSums(lex_m), .5)$fscore)
+  # at 0 every cell is selected: all hits, specificity 0
+  expect_equal(c(roc$recall[1], roc$specificity[1]), c(1, 0))
+  # a perfectly learned lexicon reaches an F-score of 1
+  expect_equal(get_roc_max(diag(4) |> `dimnames<-`(list(1:4, 1:4))), 1)
+  expect_lte(get_roc_max(lex_m), 1)
+  expect_gt(get_roc_max(lex_m), .8)
+})
+
+test_that("get_roc() treats a word with no associations as selecting nothing", {
+  # regression test: an all-zero row was NaN after row normalization, making
+  # every threshold's scores NA and get_roc_max() -Inf
+  z <- diag(3)
+  z[3, 3] <- 0
+  dimnames(z) <- list(1:3, 1:3)
+  roc <- get_roc(z, thresholds = .5)
+  expect_false(anyNA(roc))
+  expect_equal(c(roc$precision, roc$recall), c(1, 2 / 3))
+  expect_equal(get_roc_max(z), 2 * (2 / 3) / (1 + 2 / 3))
+})
+
+test_that("plot_roc() plots recall against the false-alarm rate", {
+  p <- plot_roc(lex_m, thresholds = c(0, .5, 1))
+  expect_s3_class(p, "ggplot")
+  expect_equal(nrow(p$data), 3)
+  b <- ggplot2::ggplot_build(p)$data[[1]]
+  expect_equal(sort(b$x), sort(1 - get_roc(lex_m, c(0, .5, 1))$specificity))
+})
+
+test_that("choice probabilities without a test give every object, at chance for an empty row", {
+  m <- matrix(c(2, 1, 1, 0, 0, 0), 2, byrow = TRUE, dimnames = list(1:2, 1:3))
+  d <- xslData(train = list(words = list(1:2), objects = list(1:3)), accuracy = c(.5, .5), n_subj = 4)
+  ch <- item_choices(m, d)
+  expect_equal(ch$correct, c("1", "2"))
+  expect_equal(ch$probs, list(c(.5, .25, .25), rep(1 / 3, 3)))
+  expect_equal(item_choices(m, d, d = 2)$probs[[1]], c(4, 1, 1) / 6)
+})
+
+test_that("response counts must fall among an item's test alternatives", {
+  d <- xslData(train = list(words = list(1:2), objects = list(1:2)),
+               test = list(words = list(1, 2), objects = list(1:2, 2)),
+               accuracy = c(.5, 1), n_subj = 2,
+               response_matrix = matrix(c(1, 1, 1, 1), 2, dimnames = list(1:2, 1:2)))
+  # item 2 offers only object 2, but one response chose object 1
+  m <- diag(2) |> `dimnames<-`(list(1:2, 1:2))
+  expect_error(choice_probabilities(m, d), "item 2: response_matrix has responses to objects")
+})
+
+test_that("n_responses() falls back to n_subj x items without a response_matrix", {
+  d1 <- xslData(train = list(words = list(1:2), objects = list(1:2)), accuracy = c(.5, .5), n_subj = 10)
+  d2 <- xsl_datasets[[1]]
+  expect_equal(n_responses(d1), 20)
+  expect_equal(n_responses(list(d1, d2)), 20 + sum(d2$response_matrix))
+})

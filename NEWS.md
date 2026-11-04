@@ -20,6 +20,8 @@
 - Every `xsl_datasets` condition now carries a `response_matrix`: for each test item, the number of participants choosing each object. This is the full confusion matrix behind `accuracy`, which it reproduces exactly, so models can be fit to which objects learners chose (e.g. by multinomial likelihood) rather than only to proportion correct. It is extracted from the raw response files (`data-raw/raw_responses.R`, `data-raw/fix_freqcd_add_responses.R`). `data-raw/extract_response_matrices.R` reports how each condition was matched to its raw data
 
 ## Bug Fixes
+- `get_tp()`, `get_fscore()`, and so `get_roc()`, `plot_roc()` and `get_roc_max()`, read a gold lexicon's numeric word and object ids as matrix positions rather than labels, scoring the wrong cells whenever a matrix's labels weren't 1..n in order (matrices from `xsl_run()` are, so its results were unaffected). They now index by label.
+- `get_roc()` returned NA at every threshold (and `get_roc_max()` `-Inf`, with a warning) for a matrix with any all-zero row, a word with no associations, which models such as `pursuit()` and `propose_but_verify()` often leave. Such a word now selects no referent.
 - **The registry's fitting bounds now match the model comparison paper's** (xsl-bakeoff `fits/v05/specs.R`), so `get_group_model_fit()` and `get_crossvalidated_model_fit()` search the same space. **This changes their results.**
   - The uncfam family: X in [.001, 5], B in [.1, 15] and C in [.5, 1]. Previously X was in [.01, .5] and B in [.8, 1], which excluded `uncfam()`'s own optimum (B ~ 14 on `xsl_datasets`).
   - `fazly()`: lambda in [1e-10, 2], beta in [2, 20000].

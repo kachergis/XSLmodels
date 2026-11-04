@@ -1,5 +1,6 @@
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/kachergis/XSLmodels/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/kachergis/XSLmodels/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/kachergis/XSLmodels/graph/badge.svg)](https://app.codecov.io/gh/kachergis/XSLmodels)
 <!-- badges: end -->
 
 # XSLmodels
