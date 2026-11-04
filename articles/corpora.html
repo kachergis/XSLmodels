@@ -313,10 +313,8 @@ thresholds:</p>
 <span>            strict     <span class="op">=</span> <span class="va">fm_corpus</span><span class="op">$</span><span class="va">gold_variants</span><span class="op">$</span><span class="va">strict</span>,</span>
 <span>            permissive <span class="op">=</span> <span class="va">fm_corpus</span><span class="op">$</span><span class="va">gold_variants</span><span class="op">$</span><span class="va">permissive</span><span class="op">)</span>,</span>
 <span>       <span class="kw">function</span><span class="op">(</span><span class="va">g</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/get_roc.html">get_roc_max</a></span><span class="op">(</span><span class="va">m_fm</span>, gold_lexicon <span class="op">=</span> <span class="va">g</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in max(fscores[!is.na(fscores)]): no non-missing arguments to max;</span></span>
-<span><span class="co">#&gt; returning -Inf</span></span>
 <span><span class="co">#&gt;    curated     strict permissive </span></span>
-<span><span class="co">#&gt;      0.268      0.191       -Inf</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.268      0.191      0.112</span></span></code></pre></div>
 <p>The permissive lexicon is larger and easier to hit some of, so
 absolute F-scores are not comparable across the three – pick one and use
 it consistently when comparing models.</p>

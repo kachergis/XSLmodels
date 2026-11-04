@@ -147,6 +147,29 @@
 
 ### Bug Fixes
 
+- [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md),
+  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md),
+  and so
+  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
+  [`plot_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  and
+  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
+  read a gold lexicon’s numeric word and object ids as matrix positions
+  rather than labels, scoring the wrong cells whenever a matrix’s labels
+  weren’t 1..n in order (matrices from
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  are, so its results were unaffected). They now index by label.
+
+- [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  returned NA at every threshold (and
+  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  `-Inf`, with a warning) for a matrix with any all-zero row, a word
+  with no associations, which models such as
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
+  and
+  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  often leave. Such a word now selects no referent.
+
 - **The registry’s fitting bounds now match the model comparison
   paper’s** (xsl-bakeoff `fits/v05/specs.R`), so
   [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)

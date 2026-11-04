@@ -276,10 +276,8 @@ sapply(list(curated    = fm_corpus$gold,
             strict     = fm_corpus$gold_variants$strict,
             permissive = fm_corpus$gold_variants$permissive),
        function(g) round(get_roc_max(m_fm, gold_lexicon = g), 3))
-#> Warning in max(fscores[!is.na(fscores)]): no non-missing arguments to max;
-#> returning -Inf
 #>    curated     strict permissive 
-#>      0.268      0.191       -Inf
+#>      0.268      0.191      0.112
 ```
 
 The permissive lexicon is larger and easier to hit some of, so absolute

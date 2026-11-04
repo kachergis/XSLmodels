@@ -78,7 +78,9 @@
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug Fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>
+<ul><li><p><code><a href="../reference/get_tp.html">get_tp()</a></code>, <code><a href="../reference/get_fscore.html">get_fscore()</a></code>, and so <code><a href="../reference/get_roc.html">get_roc()</a></code>, <code><a href="../reference/get_roc.html">plot_roc()</a></code> and <code><a href="../reference/get_roc.html">get_roc_max()</a></code>, read a gold lexicon’s numeric word and object ids as matrix positions rather than labels, scoring the wrong cells whenever a matrix’s labels weren’t 1..n in order (matrices from <code><a href="../reference/xsl_run.html">xsl_run()</a></code> are, so its results were unaffected). They now index by label.</p></li>
+<li><p><code><a href="../reference/get_roc.html">get_roc()</a></code> returned NA at every threshold (and <code><a href="../reference/get_roc.html">get_roc_max()</a></code> <code>-Inf</code>, with a warning) for a matrix with any all-zero row, a word with no associations, which models such as <code><a href="../reference/pursuit.html">pursuit()</a></code> and <code><a href="../reference/propose_but_verify.html">propose_but_verify()</a></code> often leave. Such a word now selects no referent.</p></li>
+<li>
 <p><strong>The registry’s fitting bounds now match the model comparison paper’s</strong> (xsl-bakeoff <code>fits/v05/specs.R</code>), so <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code> and <code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code> search the same space. <strong>This changes their results.</strong></p>
 <ul><li>The uncfam family: X in [.001, 5], B in [.1, 15] and C in [.5, 1]. Previously X was in [.01, .5] and B in [.8, 1], which excluded <code><a href="../reference/uncfam.html">uncfam()</a></code>’s own optimum (B ~ 14 on <code>xsl_datasets</code>).</li>
 <li>
