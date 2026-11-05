@@ -89,7 +89,7 @@ fazly_model <- function(params, data, control) {
   xslFit(perf = perf, matrix = probs, traj = traj)
 }
 
-#' Fazly et al. 2010 probablistic associative model
+#' Fazly et al. 2010 probabilistic associative model
 #'
 #' @param lambda Small smoothing factor (e.g. 1e-5)
 #' @param beta Upper bound on number of symbol types to expect (e.g. 8500)
@@ -110,7 +110,7 @@ fazly_model <- function(params, data, control) {
 fazly <- function(lambda, beta, alpha = 10, epsilon = 0.001, theta = NULL) {
   xslMod(
     name = "fazly",
-    description = "Fazly et al. 2010 probablistic associative model",
+    description = "Fazly et al. 2010 probabilistic associative model",
     model = fazly_model,
     params = list(lambda = lambda, beta = beta, alpha = alpha,
                   epsilon = epsilon, theta = theta),
