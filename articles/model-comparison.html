@@ -64,7 +64,7 @@
                         <h4 data-toc-skip class="author">George
 Kachergis</h4>
             
-            <h4 data-toc-skip class="date">2026-11-04</h4>
+            <h4 data-toc-skip class="date">2026-11-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/kachergis/XSLmodels/blob/master/vignettes/model-comparison.Rmd" class="external-link"><code>vignettes/model-comparison.Rmd</code></a></small>
       <div class="d-none name"><code>model-comparison.Rmd</code></div>
@@ -100,7 +100,7 @@ free parameters and bounds in the package’s registry (see
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sse_fits</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">models</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">sse_fits</span>, \<span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="va">f</span><span class="op">$</span><span class="va">fit_result</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">optim</span><span class="op">$</span><span class="va">bestval</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        baseline           decay          uncfam rescorla_wagner </span></span>
-<span><span class="co">#&gt;        1.830754        1.830830        0.729739        1.868670</span></span></code></pre></div>
+<span><span class="co">#&gt;        1.830754        1.830830        0.729739        1.884718</span></span></code></pre></div>
 <p>SSE says how close the predictions are, but it isn’t a likelihood, so
 it can’t weigh a better fit against extra parameters.</p>
 </div>
@@ -135,7 +135,7 @@ fit along with the model’s parameters (<code>fit_lapse = TRUE</code>, or
 <span><span class="co">#&gt; baseline        1 -1272.422 2546.844 2553.270 0.1308089</span></span>
 <span><span class="co">#&gt; decay           2 -1274.676 2553.352 2566.205 0.1352742</span></span>
 <span><span class="co">#&gt; uncfam          4  -492.257  992.514 1018.220 0.4548566</span></span>
-<span><span class="co">#&gt; rescorla_wagner 4 -1313.332 2634.665 2660.371 0.2055151</span></span></code></pre></div>
+<span><span class="co">#&gt; rescorla_wagner 4 -1290.376 2588.753 2614.458 0.1415091</span></span></code></pre></div>
 <p><code>k</code> counts the fitted lapse too, and the BIC’s sample size
 is the number of human responses (<code>n_obs</code>).</p>
 <p>The likelihoods treat each response as an independent draw from the

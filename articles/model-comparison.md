@@ -35,7 +35,7 @@ sse_fits <- lapply(models, \(m) get_group_model_fit(m, datasets = conds,
 names(sse_fits) <- models
 sapply(sse_fits, \(f) f$fit_result[[1]]$optim$bestval)
 #>        baseline           decay          uncfam rescorla_wagner 
-#>        1.830754        1.830830        0.729739        1.868670
+#>        1.830754        1.830830        0.729739        1.884718
 ```
 
 SSE says how close the predictions are, but it isn’t a likelihood, so it
@@ -75,7 +75,7 @@ ic(ll_fits)
 #> baseline        1 -1272.422 2546.844 2553.270 0.1308089
 #> decay           2 -1274.676 2553.352 2566.205 0.1352742
 #> uncfam          4  -492.257  992.514 1018.220 0.4548566
-#> rescorla_wagner 4 -1313.332 2634.665 2660.371 0.2055151
+#> rescorla_wagner 4 -1290.376 2588.753 2614.458 0.1415091
 ```
 
 `k` counts the fitted lapse too, and the BIC’s sample size is the number

@@ -155,7 +155,7 @@ sapply(assoc_models, function(mod) {
   round(get_roc_max(mm, gold_lexicon = rollins_corpus$gold), 3)
 })
 #>        baseline           decay rescorla_wagner           fazly 
-#>           0.377           0.343           0.378           0.450
+#>           0.377           0.343           0.385           0.450
 ```
 
 ## The intentional Bayesian model

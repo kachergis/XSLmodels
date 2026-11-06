@@ -147,6 +147,30 @@
 
 ### Bug Fixes
 
+- [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  applied each trial’s prediction errors to the wrong associations. The
+  errors, one per present object, were added to the trial’s word x
+  object submatrix as a vector, which R recycles down the columns, so
+  word i received the error for the trial’s i-th object, for every
+  object on the trial. Because training files list each trial’s words
+  and objects in matching order, each word got its own referent’s error
+  added equally to all the trial’s objects. Luce choice over its
+  associations was then exactly its co-occurrence proportion, which is
+  why
+  [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  predicted the same accuracies as
+  [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
+  in most designs. Each object’s error now goes to that object’s
+  associations, matching a cell-by-cell implementation of Rescorla &
+  Wagner (1972) (`tests/testthat/test-rescorla_wagner.R`), and cue
+  competition works (e.g. blocking). **This changes all
+  [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  results and fits.** Fit to `xsl_datasets`, the corrected model still
+  ends up close to
+  [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
+  (its learning rate goes to near 0, where it counts co-occurrences),
+  because it learns only about objects present on a trial.
+
 - [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md),
   [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md),
   and so
