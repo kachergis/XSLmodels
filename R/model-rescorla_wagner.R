@@ -31,17 +31,15 @@ rescorla_wagner_model <- function(params, data, control) {
       tr_o <- unlist(data$objects[t])
       tr_o <- tr_o[!is.na(tr_o)]
 
-      # if objects are cues that predict words, then we want colSums;
-      # if words are cues, use rowSums--but only of the currently-presented stimuli
-      if (length(tr_w) == 1) {
-        pred <- m[tr_w, tr_o] # should prediction be based on entire col of obj assocs?
-      } else if (length(tr_o) == 1) {
-        pred <- sum(m[tr_w, tr_o])
-      } else {
-        pred <- colSums(m[tr_w, tr_o])
-      }
-      delta <- alpha * beta * (lambda - pred)
-      m[tr_w, tr_o] <- m[tr_w, tr_o] + delta
+      # words are cues and objects outcomes: each present object's prediction
+      # is the summed association of the present words, and its prediction
+      # error goes to every present word's association with that object
+      pred <- colSums(m[tr_w, tr_o, drop = FALSE])
+      delta <- alpha * beta * (lambda - pred) # one error per object
+      # spread by column (object): adding the length-|tr_o| vector directly
+      # would recycle it down the columns, giving word i object i's error
+      m[tr_w, tr_o] <- m[tr_w, tr_o, drop = FALSE] +
+        matrix(delta, length(tr_w), length(tr_o), byrow = TRUE)
 
       m <- m * C
 
