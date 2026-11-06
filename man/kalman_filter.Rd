@@ -4,7 +4,14 @@
 \alias{kalman_filter}
 \title{Kalman filter associative model}
 \usage{
-kalman_filter(tau2, sigma2_obs, sigma2_0)
+kalman_filter(
+  tau2,
+  sigma2_obs,
+  sigma2_0,
+  covariance = c("independent", "full"),
+  outcomes = c("present", "all"),
+  phi = NULL
+)
 }
 \arguments{
 \item{tau2}{Process (diffusion) noise: how much uncertainty about every
@@ -15,32 +22,85 @@ co-occurrence observation is (larger = slower learning per trial)}
 
 \item{sigma2_0}{Initial (prior) uncertainty about every association,
 before any training}
+
+\item{covariance}{\code{"independent"} (the default): one filter per
+word-object pair. \code{"full"}: one filter per object, over all words, with
+a full covariance.}
+
+\item{outcomes}{\code{"present"} (the default) updates only the objects present
+on a trial; \code{"all"} also updates absent objects toward 0.}
+
+\item{phi}{Optional softmax inverse temperature for the choice rule.
+\code{NULL} (the default) uses Luce choice.}
 }
 \value{
 An object of class xslMod
 }
 \description{
 A Kalman-filter generalization of \code{\link[=rescorla_wagner]{rescorla_wagner()}}'s error-driven
-update rule (Dayan & Kakade, 2000; Kruschke, 2008; Gershman, 2015): each
-word-object association is tracked as a Gaussian belief (mean \code{mu} and
-variance \code{sigma2}), and each trial's update is scaled by that pair's own
-Kalman gain, \code{sigma2 / (sigma2 + sigma2_obs)}. This makes the effective
-learning rate adaptive rather than fixed -- large (fast learning) while
-an association is still uncertain, and automatically shrinking as
-confidence accumulates -- and it emerges from three interpretable
-parameters rather than being hand-set. Between observations, every
-association's variance grows by \code{tau2} (the model assumes true
-associations drift slowly over time), which keeps the model able to
-revise a belief rather than converging to a fixed point.
+update rule (Dayan & Kakade, 2001; Kruschke, 2008; Gershman, 2015): word-
+object associations are tracked as Gaussian beliefs, and each trial's
+update is scaled by a Kalman gain, \code{sigma2 / (sigma2 + sigma2_obs)}. This
+makes the effective learning rate adaptive rather than fixed -- large (fast
+learning) while an association is still uncertain, and automatically
+shrinking as confidence accumulates -- and it emerges from three
+interpretable parameters rather than being hand-set. Between observations,
+every association's variance grows by \code{tau2} (the model assumes true
+associations drift slowly over time), which keeps the model able to revise
+a belief rather than converging to a fixed point.
 }
 \details{
-Note that the three parameters share a scale redundancy: multiplying
-\code{tau2}, \code{sigma2_obs} and \code{sigma2_0} together by any constant leaves every
-Kalman gain -- and hence the learned matrix -- unchanged. Only two of the
-three are identifiable; when fitting, hold one fixed (conventionally
-\code{sigma2_obs}).
+By default (\code{covariance = "independent"}), every word-object association
+is its own one-dimensional filter that observes 1 whenever the pair
+co-occurs. Associations then don't interact: there is no competition
+between a trial's words, and an association is a saturating function of
+how often and how recently its pair co-occurred. With a small gain it is
+simply co-occurrence counting.
 }
+\section{Options}{
+
+\itemize{
+\item \code{covariance = "full"} is the Kalman filter of the associative-learning
+literature (Dayan & Kakade, 2001; Kruschke, 2008). Each object (outcome)
+has a weight vector over words with a full covariance matrix. The
+present words jointly predict the object (the sum of their weights), so
+they share one prediction error, and the gain is a vector over words.
+Words that appear together come to have negatively correlated weights,
+so later evidence about one revises the other: explaining away and
+backward blocking (retrospective revaluation), as when learning that one
+word on an earlier trial named an object implies the trial's other words
+did not. Memory and time grow with the square of the vocabulary.
+\item \code{outcomes = "all"} treats every object as an outcome on every trial,
+observing 1 if it is present and 0 if absent, as in the canonical
+filter, rather than updating only the objects present. Associations can
+then become negative, which Luce choice treats as 0; \code{phi} gives a
+choice rule defined for them.
+\item \code{phi} replaces Luce choice with a softmax choice rule with inverse
+temperature \code{phi} (see \code{\link[=softmax_weights]{softmax_weights()}}).
+}
+
+Note that the three noise parameters share a scale redundancy:
+multiplying \code{tau2}, \code{sigma2_obs} and \code{sigma2_0} together by any constant
+leaves every Kalman gain -- and hence the learned matrix -- unchanged. Only
+two of the three are identifiable; when fitting, hold one fixed
+(conventionally \code{sigma2_obs}).
+}
+
 \examples{
 mod <- kalman_filter(tau2 = .01, sigma2_obs = .5, sigma2_0 = 1)
 xsl_run(mod, get_example_ambiguous_condition())
+# the full-covariance filter, with absent objects as outcomes
+mod <- kalman_filter(tau2 = .001, sigma2_obs = 1, sigma2_0 = .5,
+                     covariance = "full", outcomes = "all")
+xsl_run(mod, get_example_ambiguous_condition())
+}
+\references{
+Dayan, P., & Kakade, S. (2001). Explaining away in weight space. In
+\emph{Advances in Neural Information Processing Systems 13} (pp. 451-457).
+
+Gershman, S. J. (2015). A unifying probabilistic view of associative
+learning. \emph{PLoS Computational Biology, 11}(11), e1004567.
+
+Kruschke, J. K. (2008). Bayesian approaches to associative learning: From
+passive to active learning. \emph{Learning & Behavior, 36}(3), 210-226.
 }

@@ -15,7 +15,9 @@ models, as accepted by \code{get_group_model_fit()} and
 \code{get_crossvalidated_model_fit()}. Most are the package's model functions;
 a few are variants of them used in the model comparison paper
 (\code{uncfam_novelty}, \code{uncfam_uncertainty_only}, \code{uncfam_strength},
-\code{fazly_threshold}).
+\code{fazly_threshold}) or with non-default options and a softmax choice rule
+(\code{rescorla_wagner_softmax}, \code{rescorla_wagner_discriminative},
+\code{kalman_filter_full}).
 }
 \examples{
 show_models()

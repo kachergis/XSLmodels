@@ -41,6 +41,48 @@ get_perf <- function(m, d = NULL) {
   ifelse(tot > 0, diag(m) / tot, 1 / ncol(m))
 }
 
+#' Softmax choice weights
+#'
+#' Transforms a word-by-object association matrix so that Luce choice over it
+#' (as in [get_perf()], [mafc_test()] and [choice_probabilities()]) is a
+#' softmax choice rule with inverse temperature `phi`: a word's probability of
+#' choosing object `o` among a set of alternatives is
+#' `exp(phi * m[w, o]) / sum(exp(phi * m[w, alternatives]))`. Unlike Luce
+#' choice, softmax is defined for negative associations (which error-driven
+#' models such as [rescorla_wagner()] and [kalman_filter()] can learn) and
+#' gives objects a word has never been paired with nonzero probability.
+#'
+#' [xsl_run()] applies it automatically to a model with a `phi` parameter
+#' (e.g. `rescorla_wagner(..., phi = 5)`), to the mean of the simulations'
+#' matrices.
+#'
+#' @param m A word-by-object association matrix.
+#' @param phi Inverse temperature (choice sensitivity), `phi >= 0`: 0 is
+#'   uniform guessing, and larger values choose the strongest association
+#'   more deterministically.
+#'
+#' @return A matrix of positive choice weights with `m`'s dimensions and
+#'   names. Each row is shifted by its maximum before exponentiating, which
+#'   leaves the choice probabilities unchanged and avoids overflow.
+#' @export
+#'
+#' @examples
+#' m <- matrix(c(1, -.5, 0, .2), 2, dimnames = list(1:2, 1:2))
+#' get_perf(softmax_weights(m, phi = 3))
+softmax_weights <- function(m, phi) {
+  stopifnot(is.numeric(phi), length(phi) == 1, phi >= 0)
+  out <- exp(phi * (m - apply(m, 1, max)))
+  dimnames(out) <- dimnames(m)
+  out
+}
+
+# The matrix xsl_run() scores: a model's mean association matrix, as softmax
+# weights if the model has an inverse temperature `phi`.
+choice_matrix <- function(mat, n_sim, params) {
+  phi <- params[["phi"]]
+  if (is.null(phi)) mat else softmax_weights(mat / n_sim, phi)
+}
+
 # power choice rule
 # diag(m ^ d / outer(ones, colSums(m ^ d)))
 # diag(m) ^ d / colSums(m ^ d)
@@ -478,6 +520,9 @@ n_responses <- function(data) {
 #' @param m A word-by-object matrix, e.g. `xsl_run(mod, data)$fits[[1]]$matrix`.
 #' @param data The `xslData` condition `m` was learned from.
 #' @param d Optional choice exponent (a model's `ch_dec`; see [get_perf()]).
+#' @param phi Optional softmax inverse temperature (a model's `phi`; see
+#'   [softmax_weights()]). For a stochastic model, pass the mean matrix,
+#'   `matrix / n_sim`, as [xsl_run()] scores it.
 #' @param lapse Lapse rate: the probability of guessing uniformly among the
 #'   alternatives, mixed into `p` (0, the default, leaves `p` as the model's
 #'   choice rule gives it).
@@ -498,8 +543,9 @@ n_responses <- function(data) {
 #' ch <- choice_probabilities(fit$matrix, dat)
 #' ch$p[[1]]       # the model's choice distribution for item 1
 #' ch$counts[[1]]  # what participants chose
-choice_probabilities <- function(m, data, d = NULL, lapse = 0, block = NULL) {
+choice_probabilities <- function(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL) {
   stopifnot("xslData" %in% class(data), lapse >= 0, lapse <= 1)
+  if (!is.null(phi)) m <- softmax_weights(m, phi)
   if (n_blocks(data) > 1) {
     if (is.null(block)) stop("`data` has ", n_blocks(data), " blocks; say which with `block`", call. = FALSE)
     data <- data_block(data, block)

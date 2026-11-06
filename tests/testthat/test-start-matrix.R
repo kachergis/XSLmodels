@@ -8,7 +8,7 @@ test_that("models that support start_matrix use it, and a zero one changes nothi
   reg <- xsl_model_registry()
   supported <- names(reg)[vapply(reg, \(e) isTRUE(e$constructor()$supports_start_matrix), logical(1))]
   expect_setequal(supported, c(
-    "baseline", "decay", "rescorla_wagner", "softmax_rl", "uncfam_sampling", "multi_sampling",
+    "baseline", "decay", "rescorla_wagner", "rescorla_wagner_softmax", "rescorla_wagner_discriminative", "softmax_rl", "uncfam_sampling", "multi_sampling",
     "uncfam", "uncfam_novelty", "uncfam_uncertainty_only", "uncfam_strength",
     "uncfam_attention", "uncfam_predictive", "uncfam_gamma", "uncfam_elimination", "uncfam_general",
     "propose_but_verify", "pursuit"

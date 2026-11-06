@@ -98,7 +98,9 @@ update_known <- function(m, tr_w, tr_o, startval = .01) {
 #' `get_crossvalidated_model_fit()`. Most are the package's model functions;
 #' a few are variants of them used in the model comparison paper
 #' (`uncfam_novelty`, `uncfam_uncertainty_only`, `uncfam_strength`,
-#' `fazly_threshold`).
+#' `fazly_threshold`) or with non-default options and a softmax choice rule
+#' (`rescorla_wagner_softmax`, `rescorla_wagner_discriminative`,
+#' `kalman_filter_full`).
 #'
 #' @return A character vector of model names
 #' @export
@@ -163,7 +165,10 @@ show_datasets <- function() {
 #'   Entries other than the package's model functions are paper variants with
 #'   a fixed parameter or a non-default option: `uncfam_novelty`,
 #'   `uncfam_uncertainty_only`, `uncfam_strength` (familiarity only, B = 0),
-#'   and `fazly_threshold`.
+#'   `fazly_threshold`, and the softmax error-driven variants
+#'   `rescorla_wagner_softmax`, `rescorla_wagner_discriminative` (absent
+#'   objects as outcomes) and `kalman_filter_full` (full covariance, absent
+#'   objects as outcomes).
 #' @noRd
 xsl_model_registry <- function() {
   # uncfam family: the paper's bounds for X, B, C
@@ -277,6 +282,24 @@ xsl_model_registry <- function() {
       # bound is 500; fits at 500, 2000 or 20000 are equally good). Treat a
       # fitted sigma2_obs as "large", not as an estimate.
       free = c("tau2", "sigma2_obs", "sigma2_0"), lower = c(1e-6, 0.01, 0.001), upper = c(1, 2000, 10)
+    ),
+    # The canonical error-driven variants, with a softmax choice rule. Under
+    # Luce choice the default models reduce to (near) co-occurrence counting
+    # on xsl_datasets; with softmax (phi) they fit about as well as uncfam().
+    # lambda and sigma2_obs are fixed (scale redundancies; see the models'
+    # docs), as is alpha (it only enters as alpha * beta).
+    rescorla_wagner_softmax = list(
+      constructor = function() rescorla_wagner(C = 0.98, alpha = 1, beta = 0.1, lambda = 1, phi = 5),
+      free = c("beta", "C", "phi"), lower = c(1e-4, 0.5, 0.1), upper = c(1, 1, 50)
+    ),
+    rescorla_wagner_discriminative = list(
+      constructor = function() rescorla_wagner(C = 0.98, alpha = 1, beta = 0.1, lambda = 1, outcomes = "all", phi = 5),
+      free = c("beta", "C", "phi"), lower = c(1e-4, 0.5, 0.1), upper = c(1, 1, 50)
+    ),
+    kalman_filter_full = list(
+      constructor = function() kalman_filter(tau2 = 0.001, sigma2_obs = 1, sigma2_0 = 0.5,
+                                             covariance = "full", outcomes = "all", phi = 5),
+      free = c("tau2", "sigma2_0", "phi"), lower = c(0, 0.001, 0.1), upper = c(1, 100, 50)
     ),
     softmax_rl = list(
       constructor = function() softmax_rl(alpha = 0.3, beta = 3),

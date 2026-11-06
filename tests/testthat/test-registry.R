@@ -6,9 +6,10 @@ small_de <- DEoptim::DEoptim.control(NP = 30, itermax = 2, trace = FALSE)
 test_that("update_params() sets named parameters with `free`, in the given order", {
   rw <- rescorla_wagner(C = .98, alpha = 1, beta = .5, lambda = 1)
   upd <- update_params(rw, c(.2, .95, .8), free = c("beta", "C", "lambda"))
-  expect_equal(upd$params, list(C = .95, alpha = 1, beta = .2, lambda = .8))
+  expect_equal(upd$params, list(C = .95, alpha = 1, beta = .2, lambda = .8, outcomes = "present", cues = "words"))
   # positional by default, as before
-  expect_equal(update_params(rw, c(.9, .5))$params, list(C = .9, alpha = .5, beta = .5, lambda = 1))
+  expect_equal(update_params(rw, c(.9, .5))$params,
+               list(C = .9, alpha = .5, beta = .5, lambda = 1, outcomes = "present", cues = "words"))
   expect_error(update_params(rw, 1, free = "nope"), "unknown parameter")
   expect_error(update_params(rw, c(1, 2), free = "beta"), "names 1 parameters")
 })
