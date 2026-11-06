@@ -4,7 +4,15 @@
 \alias{rescorla_wagner}
 \title{Rescorla-Wagner (1972) error-driven associative model}
 \usage{
-rescorla_wagner(C, alpha, beta, lambda)
+rescorla_wagner(
+  C,
+  alpha,
+  beta,
+  lambda,
+  outcomes = c("present", "all"),
+  cues = c("words", "objects"),
+  phi = NULL
+)
 }
 \arguments{
 \item{C}{Decay}
@@ -15,14 +23,79 @@ rescorla_wagner(C, alpha, beta, lambda)
 
 \item{lambda}{Maximum associative value that a CS can achieve - should be
 larger than learning rate}
+
+\item{outcomes}{\code{"present"} (the default) updates only the objects present
+on a trial; \code{"all"} also updates absent objects toward 0.}
+
+\item{cues}{\code{"words"} (the default): words predict objects. \code{"objects"}:
+objects predict words.}
+
+\item{phi}{Optional softmax inverse temperature for the choice rule.
+\code{NULL} (the default) uses Luce choice.}
 }
 \value{
 An object of class xslMod
 }
 \description{
-Rescorla-Wagner (1972) error-driven associative model
+On each trial, the words present are cues and the objects outcomes. Each
+outcome's prediction is the summed association of the present cues, and
+its prediction error (\code{lambda - prediction} if it is present, \code{0 - prediction} if absent) changes every present cue's association with it by
+\code{alpha * beta * lambda} times the error. Cues therefore compete to predict
+an outcome (e.g. blocking: a word paired with an object that another word
+already predicts learns little about it). All associations then decay by
+\code{C}.
 }
+\details{
+The defaults (\code{outcomes = "present"}, \code{cues = "words"}, Luce choice) are
+the model as originally applied to cross-situational learning, which learns
+only about the objects present on a trial. In designs where every pair
+recurs, it then stays close to counting co-occurrences.
+}
+\section{Options}{
+
+\itemize{
+\item \code{outcomes = "all"} follows Rescorla & Wagner (1972) in treating every
+possible outcome as present (target \code{lambda}) or absent (target 0) on
+every trial, so a word's associations with objects that are absent when
+it is heard weaken. This is discriminative learning (Ramscar et al.,
+2010; Baayen et al., 2011). Associations can then become negative, which
+Luce choice treats as 0; \code{phi} gives a choice rule defined for them.
+\item \code{cues = "objects"} reverses the direction of prediction: objects are cues
+and words outcomes, as in Ramscar et al.'s (2010) feature-label ordering
+account. The matrix keeps words as rows (\code{m[w, o]} is object \code{o}'s
+association with word \code{w}), and test choices are still made among a
+word's row. Cues now compete to predict words rather than objects, so
+the two directions learn different associations.
+\item \code{phi} replaces Luce choice with a softmax choice rule with inverse
+temperature \code{phi} (see \code{\link[=softmax_weights]{softmax_weights()}}), applied by \code{\link[=xsl_run]{xsl_run()}} and
+to the model's own \code{perf}.
+}
+
+Choice is invariant to the scale of the associations under Luce choice,
+and under softmax the scale trades off against \code{phi}, so \code{lambda} is not
+identifiable separately from \code{beta} (and \code{phi}): fix it (e.g. at 1) when
+fitting. Likewise \code{alpha} only enters as \code{alpha * beta}.
+}
+
 \examples{
 mod <- rescorla_wagner(C = 1, alpha = 1, beta = 0.1, lambda = 3)
 xsl_run(mod, get_example_ambiguous_condition())
+# discriminative learning, with a softmax choice rule
+mod <- rescorla_wagner(C = .98, alpha = 1, beta = .3, lambda = 1, outcomes = "all", phi = 5)
+xsl_run(mod, get_example_ambiguous_condition())
+}
+\references{
+Baayen, R. H., Milin, P., Durdevic, D. F., Hendrix, P., & Marelli, M.
+(2011). An amorphous model for morphological processing in visual
+comprehension based on naive discriminative learning. \emph{Psychological
+Review, 118}(3), 438-481.
+
+Ramscar, M., Yarlett, D., Dye, M., Denny, K., & Thorpe, K. (2010). The
+effects of feature-label-order and their implications for symbolic
+learning. \emph{Cognitive Science, 34}(6), 909-957.
+
+Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian
+conditioning: Variations in the effectiveness of reinforcement and
+nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), \emph{Classical
+conditioning II} (pp. 64-99). Appleton-Century-Crofts.
 }

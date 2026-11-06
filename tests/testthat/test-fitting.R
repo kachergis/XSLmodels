@@ -15,7 +15,7 @@ test_that("update_params ignores any names on the incoming vector", {
   incoming <- c(par1 = 0.9, par2 = 0.2, par3 = 0.5, par4 = 1.5)
   updated <- update_params(mod, incoming)
   expect_equal(names(updated$params), names(mod$params))
-  expect_equal(unname(unlist(updated$params)), unname(incoming))
+  expect_equal(unname(unlist(updated$params[1:4])), unname(incoming))
 })
 
 test_that("update_params errors on a length mismatch", {

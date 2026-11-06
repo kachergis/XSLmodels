@@ -1,12 +1,19 @@
 # XSLmodels 0.5.0
 
-This release adds choice-level likelihood fitting, multi-block (learning-trajectory) designs, the `kachergis_priming` trajectories, and `uncfam_general()`, which nests the `uncfam()` family. It also corrects several datasets and models, so **most results differ from 0.4.0**:
+This release adds choice-level likelihood fitting, multi-block (learning-trajectory) designs, the `kachergis_priming` trajectories, `uncfam_general()`, which nests the `uncfam()` family, canonical options for `rescorla_wagner()` and `kalman_filter()`, and a softmax choice rule for any model. It also corrects several datasets and models, so **most results differ from 0.4.0**:
 
 - Fits to `xsl_datasets` change for every model: its filtering, frequency / contextual-diversity and 4AFC conditions were corrected, two duplicate conditions were dropped, and the Suanda (2014) and Koehne (2013) condition means moved to held-out datasets (see Dataset changes). It now has 47 conditions, all with item-level accuracy and a `response_matrix`.
 - The registry's fitting bounds changed, so `get_group_model_fit()` and `get_crossvalidated_model_fit()` search a different space.
-- `tilles()` now follows Tilles & Fontanari (2013), and `bayesian_decay()` applies its choice exponent on conditions with a test.
+- `tilles()` now follows Tilles & Fontanari (2013), `rescorla_wagner()` applies each object's prediction error to that object (it had reduced to co-occurrence counting), and `bayesian_decay()` applies its choice exponent on conditions with a test.
 
 ## New features
+- `rescorla_wagner()` and `kalman_filter()` gain options that restore the canonical forms of these models. The defaults reproduce the current models exactly.
+  - `outcomes = "all"` (both models) treats every object as an outcome on every trial, with target 1 (or lambda) if present and 0 if absent, as in Rescorla & Wagner (1972). A word's associations with objects that are absent when it is heard then weaken: discriminative learning (Ramscar et al., 2010).
+  - `cues = "objects"` (`rescorla_wagner()`) reverses the direction of prediction, so objects predict words, as in Ramscar et al.'s (2010) feature-label ordering account.
+  - `covariance = "full"` (`kalman_filter()`) is the Kalman filter of the associative-learning literature (Dayan & Kakade, 2001; Kruschke, 2008). Each object has a weight vector over words with a full covariance, the present words share one prediction error, and co-present words' weights become negatively correlated, giving backward blocking and explaining away. The default filter is one independent filter per word-object pair, which can't make associations interact.
+  - `phi` (both models) replaces Luce choice with a softmax choice rule with inverse temperature `phi`. Softmax is defined for the negative associations these models can learn.
+- A softmax choice rule for any model: `xsl_run()` scores a model with a `phi` parameter by softmax over its (mean) associations, on every scoring path and in the likelihoods, as it already applies `ch_dec`. New `softmax_weights()` gives the weights, and `choice_probabilities()` gains `phi`.
+- Three new registry entries fit these variants with a softmax choice rule: `rescorla_wagner_softmax`, `rescorla_wagner_discriminative` (absent objects as outcomes) and `kalman_filter_full` (full covariance, absent objects as outcomes). Group-fit to `xsl_datasets`, each fits about as well as `uncfam()` (weighted SSE .57, .61 and .56, against .56 for `uncfam()` and 1.63 for `baseline()` and the defaults under Luce choice). Softmax alone brings `baseline()` to .88.
 - Models can be fit and scored by choice-level likelihood rather than by SSE on accuracy. `xslControl()` gains `objective` and `lapse`.
   - `objective = "binomial"` scores how many participants got each test item right.
   - `objective = "multinomial"` scores which object each participant chose, using the full confusion matrices in `response_matrix`.
@@ -43,6 +50,7 @@ This release adds choice-level likelihood fitting, multi-block (learning-traject
 - `mafc_test()` (and `xslData` test specifications) accept an optional `correct` element giving each test trial's correct object; it defaults to the tested word's own object, as before.
 
 ## Bug fixes
+- `rescorla_wagner()` applied each trial's prediction errors to the wrong associations. The errors, one per present object, were added to the trial's word x object submatrix as a vector, which R recycles down the columns, so word i received the error for the trial's i-th object, for every object on the trial. Because training files list each trial's words and objects in matching order, each word got its own referent's error added equally to all the trial's objects. Luce choice over its associations was then exactly its co-occurrence proportion, which is why `rescorla_wagner()` predicted the same accuracies as `baseline()` in most designs. Each object's error now goes to that object's associations, matching a cell-by-cell implementation of Rescorla & Wagner (1972) (`tests/testthat/test-rescorla_wagner.R`), and cue competition works (e.g. blocking). **This changes all `rescorla_wagner()` results and fits.** Fit to `xsl_datasets`, the corrected model still ends up close to `baseline()` (its learning rate goes to near 0, where it counts co-occurrences), because it learns only about objects present on a trial.
 - **The registry's fitting bounds now match the model comparison paper's** (xsl-bakeoff `fits/v05/specs.R`), so `get_group_model_fit()` and `get_crossvalidated_model_fit()` search the same space. **This changes their results.**.
   - The uncfam family: X in [.001, 5], B in [.1, 15] and C in [.5, 1]. Previously X was in [.01, .5] and B in [.8, 1], which excluded `uncfam()`'s own optimum (B ~ 14 on `xsl_datasets`).
   - `fazly()`: lambda in [1e-10, 2], beta in [2, 20000].

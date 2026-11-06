@@ -66,6 +66,7 @@ reference:
   - title: Evaluating model performance
     contents:
       - get_perf
+      - softmax_weights
       - mafc_test
       - predict_referent
       - choice_probabilities
