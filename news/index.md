@@ -4,6 +4,54 @@
 
 ### New Features
 
+- [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  and
+  [`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md)
+  gain options that restore the canonical forms of these models. The
+  defaults reproduce the current models exactly.
+  - `outcomes = "all"` (both models) treats every object as an outcome
+    on every trial, with target 1 (or lambda) if present and 0 if
+    absent, as in Rescorla & Wagner (1972). A word’s associations with
+    objects that are absent when it is heard then weaken: discriminative
+    learning (Ramscar et al., 2010).
+  - `cues = "objects"`
+    ([`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md))
+    reverses the direction of prediction, so objects predict words, as
+    in Ramscar et al.’s (2010) feature-label ordering account.
+  - `covariance = "full"`
+    ([`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md))
+    is the Kalman filter of the associative-learning literature (Dayan &
+    Kakade, 2001; Kruschke, 2008). Each object has a weight vector over
+    words with a full covariance, the present words share one prediction
+    error, and co-present words’ weights become negatively correlated,
+    giving backward blocking and explaining away. The default filter is
+    one independent filter per word-object pair, which can’t make
+    associations interact.
+  - `phi` (both models) replaces Luce choice with a softmax choice rule
+    with inverse temperature `phi`. Softmax is defined for the negative
+    associations these models can learn.
+- A softmax choice rule for any model:
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  scores a model with a `phi` parameter by softmax over its (mean)
+  associations, on every scoring path and in the likelihoods, as it
+  already applies `ch_dec`. New
+  [`softmax_weights()`](https://www.kachergis.com/XSLmodels/reference/softmax_weights.md)
+  gives the weights, and
+  [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
+  gains `phi`.
+- Three new registry entries fit these variants with a softmax choice
+  rule: `rescorla_wagner_softmax`, `rescorla_wagner_discriminative`
+  (absent objects as outcomes) and `kalman_filter_full` (full
+  covariance, absent objects as outcomes). Group-fit to `xsl_datasets`,
+  each fits about as well as
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  (weighted SSE .57, .61 and .56, against .56 for
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  and 1.63 for
+  [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
+  and the defaults under Luce choice). Softmax alone brings
+  [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
+  to .88.
 - Multi-block designs, in which the same training sequence is repeated
   with a test after each repetition (learning trajectories). An
   `xslData`‘s `accuracy` can now be a matrix with one row per block, and

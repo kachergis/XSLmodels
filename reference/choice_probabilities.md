@@ -13,7 +13,7 @@ shows which wrong objects a model expects learners to choose.
 ## Usage
 
 ``` r
-choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL)
+choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL)
 ```
 
 ## Arguments
@@ -42,6 +42,14 @@ choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL)
   For a multi-block condition, which block's responses to return (`m`
   should then be that block's matrix, e.g.
   `xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix`).
+
+- phi:
+
+  Optional softmax inverse temperature (a model's `phi`; see
+  [`softmax_weights()`](https://www.kachergis.com/XSLmodels/reference/softmax_weights.md)).
+  For a stochastic model, pass the mean matrix, `matrix / n_sim`, as
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  scores it.
 
 ## Value
 

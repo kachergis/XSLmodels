@@ -63,4 +63,10 @@ update_params(rw, c(.2, .95, .8), free = c("beta", "C", "lambda"))$params
 #> $lambda
 #> [1] 0.8
 #> 
+#> $outcomes
+#> [1] "present"
+#> 
+#> $cues
+#> [1] "words"
+#> 
 ```

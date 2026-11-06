@@ -68,7 +68,7 @@ choose.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">choice_probabilities</span><span class="op">(</span><span class="va">m</span>, <span class="va">data</span>, d <span class="op">=</span> <span class="cn">NULL</span>, lapse <span class="op">=</span> <span class="fl">0</span>, block <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">choice_probabilities</span><span class="op">(</span><span class="va">m</span>, <span class="va">data</span>, d <span class="op">=</span> <span class="cn">NULL</span>, lapse <span class="op">=</span> <span class="fl">0</span>, block <span class="op">=</span> <span class="cn">NULL</span>, phi <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -97,6 +97,12 @@ choice rule gives it).</p></dd>
 <dd><p>For a multi-block condition, which block's responses to
 return (<code>m</code> should then be that block's matrix, e.g.
 <code>xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix</code>).</p></dd>
+
+
+<dt id="arg-phi">phi<a class="anchor" aria-label="anchor" href="#arg-phi"></a></dt>
+<dd><p>Optional softmax inverse temperature (a model's <code>phi</code>; see
+<code><a href="softmax_weights.html">softmax_weights()</a></code>). For a stochastic model, pass the mean matrix,
+<code>matrix / n_sim</code>, as <code><a href="xsl_run.html">xsl_run()</a></code> scores it.</p></dd>
 
 </dl></div>
     <div class="section level2">

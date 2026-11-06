@@ -174,6 +174,8 @@ Cross-situational word learning models
 - [`get_perf()`](https://www.kachergis.com/XSLmodels/reference/get_perf.md)
   : Calculate Luce choice (proportion correct) for each item in a model
   knowledge matrix
+- [`softmax_weights()`](https://www.kachergis.com/XSLmodels/reference/softmax_weights.md)
+  : Softmax choice weights
 - [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
   : Evaluate m-alternative forced choice test
 - [`predict_referent()`](https://www.kachergis.com/XSLmodels/reference/predict_referent.md)

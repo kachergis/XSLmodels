@@ -4,12 +4,16 @@ models, as accepted by get_group_model_fit() and
 get_crossvalidated_model_fit(). Most are the package's model functions;
 a few are variants of them used in the model comparison paper
 (uncfam_novelty, uncfam_uncertainty_only, uncfam_strength,
-fazly_threshold)."><meta property="og:description" content="Returns the names of all available cross-situational word learning
+fazly_threshold) or with non-default options and a softmax choice rule
+(rescorla_wagner_softmax, rescorla_wagner_discriminative,
+kalman_filter_full)."><meta property="og:description" content="Returns the names of all available cross-situational word learning
 models, as accepted by get_group_model_fit() and
 get_crossvalidated_model_fit(). Most are the package's model functions;
 a few are variants of them used in the model comparison paper
 (uncfam_novelty, uncfam_uncertainty_only, uncfam_strength,
-fazly_threshold)."></head><body>
+fazly_threshold) or with non-default options and a softmax choice rule
+(rescorla_wagner_softmax, rescorla_wagner_discriminative,
+kalman_filter_full)."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -57,7 +61,9 @@ models, as accepted by <code><a href="get_group_model_fit.html">get_group_model_
 <code><a href="get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code>. Most are the package's model functions;
 a few are variants of them used in the model comparison paper
 (<code>uncfam_novelty</code>, <code>uncfam_uncertainty_only</code>, <code>uncfam_strength</code>,
-<code>fazly_threshold</code>).</p>
+<code>fazly_threshold</code>) or with non-default options and a softmax choice rule
+(<code>rescorla_wagner_softmax</code>, <code>rescorla_wagner_discriminative</code>,
+<code>kalman_filter_full</code>).</p>
     </div>
 
     <div class="section level2">
@@ -73,20 +79,22 @@ a few are variants of them used in the model comparison paper
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">show_models</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "baseline"                "decay"                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "uncfam"                  "uncfam_novelty"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "uncfam_uncertainty_only" "uncfam_strength"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "uncfam_gamma"            "uncfam_general"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "uncfam_elimination"      "uncfam_attention"       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "uncfam_predictive"       "uncfam_sampling"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "multi_sampling"          "propose_but_verify"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "pursuit"                 "fazly"                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "fazly_threshold"         "guess_and_test"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "rescorla_wagner"         "tilles"                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "bayesian_decay"          "kalman_filter"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [23] "softmax_rl"              "fgt2009"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "fgt2009_rsa"             "minerva2"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [27] "todam"                   "rem"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "baseline"                       "decay"                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "uncfam"                         "uncfam_novelty"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "uncfam_uncertainty_only"        "uncfam_strength"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "uncfam_gamma"                   "uncfam_general"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "uncfam_elimination"             "uncfam_attention"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "uncfam_predictive"              "uncfam_sampling"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "multi_sampling"                 "propose_but_verify"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "pursuit"                        "fazly"                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "fazly_threshold"                "guess_and_test"                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "rescorla_wagner"                "tilles"                        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "bayesian_decay"                 "kalman_filter"                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [23] "rescorla_wagner_softmax"        "rescorla_wagner_discriminative"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "kalman_filter_full"             "softmax_rl"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [27] "fgt2009"                        "fgt2009_rsa"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [29] "minerva2"                       "todam"                         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] "rem"                           </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
