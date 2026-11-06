@@ -7,7 +7,7 @@ Authors@R:
       person("Mika", "Braginsky", , "mika.br@gmail.com", role = c("aut"),
            comment = c(ORCID = "0000-0001-9039-3220")),
       person("Michael C.", "Frank", , "mcfrank@stanford.edu", role = c("aut"),
-           comment = c(affiliation = "Stanford University")))
+           comment = c(ORCID = "0000-0002-7551-4378", affiliation = "Stanford University")))
 Maintainer: George Kachergis <george.kachergis@gmail.com>
 Description: A collection of cognitive models of cross-situational word
   learning, together with methods and datasets for fitting and
