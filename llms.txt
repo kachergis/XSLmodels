@@ -71,7 +71,7 @@ Cross-situational word learning models
 - [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
   : Stevens et al. 2014 pursuit model
 - [`fazly()`](https://www.kachergis.com/XSLmodels/reference/fazly.md) :
-  Fazly et al. 2010 probablistic associative model
+  Fazly et al. 2010 probabilistic associative model
 - [`guess_and_test()`](https://www.kachergis.com/XSLmodels/reference/guess_and_test.md)
   : Guess and test model
 - [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)

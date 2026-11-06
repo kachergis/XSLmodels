@@ -1,8 +1,39 @@
 # Changelog
 
-## XSLmodels (development version)
+## XSLmodels 0.5.0
 
-### New Features
+This release adds choice-level likelihood fitting, multi-block
+(learning-trajectory) designs, the `kachergis_priming` trajectories,
+[`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
+which nests the
+[`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+family, canonical options for
+[`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+and
+[`kalman_filter()`](https://www.kachergis.com/XSLmodels/reference/kalman_filter.md),
+and a softmax choice rule for any model. It also corrects several
+datasets and models, so **most results differ from 0.4.0**:
+
+- Fits to `xsl_datasets` change for every model: its filtering,
+  frequency / contextual-diversity and 4AFC conditions were corrected,
+  two duplicate conditions were dropped, and the Suanda (2014) and
+  Koehne (2013) condition means moved to held-out datasets (see Dataset
+  changes). It now has 47 conditions, all with item-level accuracy and a
+  `response_matrix`.
+- The registry’s fitting bounds changed, so
+  [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)
+  and
+  [`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md)
+  search a different space.
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  now follows Tilles & Fontanari (2013),
+  [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
+  applies each object’s prediction error to that object (it had reduced
+  to co-occurrence counting), and
+  [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)
+  applies its choice exponent on conditions with a test.
+
+### New features
 
 - [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
   and
@@ -52,27 +83,6 @@
   and the defaults under Luce choice). Softmax alone brings
   [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
   to .88.
-- Multi-block designs, in which the same training sequence is repeated
-  with a test after each repetition (learning trajectories). An
-  `xslData`‘s `accuracy` can now be a matrix with one row per block, and
-  its `response_matrix` a list with one matrix per block.
-  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
-  scores block `b` on a run trained on `b` repetitions of the sequence.
-  This works for every model, including batch models and those without a
-  `reps` loop, and with test specifications and both likelihood
-  objectives. For every deterministic model with a `reps` loop, the
-  result is exactly what continuous training records after each block.
-  The fit’s `perf` has one row per block, `sse` and `loglik` sum over
-  blocks, and `blocks` holds each block’s fit.
-  [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
-  gains `block`. Each block is a separate run, so for stochastic models
-  the blocks’ predictions come from independent simulated learners
-- New dataset `kachergis_priming`: three 4-block learning trajectories
-  (164 participants), each studying one sequence four times with an
-  18AFC test after each block. Two of the sequences are `xsl_datasets`
-  conditions (`3_x8_369_4x4`, `freq369-3x3loCD`), with different
-  participants; the third is the original 4x4 sequence. Registered in
-  `xsl_holdout_datasets`. See `data-raw/add_kachergis_priming.R`
 - Models can be fit and scored by choice-level likelihood rather than by
   SSE on accuracy.
   [`xslControl()`](https://www.kachergis.com/XSLmodels/reference/xslControl-class.md)
@@ -104,6 +114,69 @@
   The correct alternative’s probability is exactly the accuracy
   [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
   scores.
+- Multi-block designs, in which the same training sequence is repeated
+  with a test after each repetition (learning trajectories). An
+  `xslData`‘s `accuracy` can now be a matrix with one row per block, and
+  its `response_matrix` a list with one matrix per block.
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  scores block `b` on a run trained on `b` repetitions of the sequence.
+  This works for every model, including batch models and those without a
+  `reps` loop, and with test specifications and both likelihood
+  objectives. For every deterministic model with a `reps` loop, the
+  result is exactly what continuous training records after each block.
+  The fit’s `perf` has one row per block, `sse` and `loglik` sum over
+  blocks, and `blocks` holds each block’s fit.
+  [`choice_probabilities()`](https://www.kachergis.com/XSLmodels/reference/choice_probabilities.md)
+  gains `block`. Each block is a separate run, so for stochastic models
+  the blocks’ predictions come from independent simulated learners.
+- New dataset `kachergis_priming`: three 4-block learning trajectories
+  (164 participants), each studying one sequence four times with an
+  18AFC test after each block. Two of the sequences are `xsl_datasets`
+  conditions (`3_x8_369_4x4`, `freq369-3x3loCD`), with different
+  participants; the third is the original 4x4 sequence. Registered in
+  `xsl_holdout_datasets`. See `data-raw/add_kachergis_priming.R`.
+- Every `xsl_datasets` condition now carries a `response_matrix`: for
+  each test item, the number of participants choosing each object. This
+  is the full confusion matrix behind `accuracy`, which it reproduces
+  exactly, so models can be fit to which objects learners chose (e.g. by
+  multinomial likelihood) rather than only to proportion correct. It is
+  extracted from the raw response files (`data-raw/raw_responses.R`,
+  `data-raw/fix_freqcd_add_responses.R`).
+  `data-raw/extract_response_matrices.R` reports how each condition was
+  matched to its raw data.
+- Added
+  [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
+  a single biased associative model that nests the
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
+  family, so variants can be compared as nested models (fix or free
+  parameters) rather than as separate functions. A pair’s share of the
+  trial’s weight is `M^gamma * exp(B * (U(w) + U(o)))` (normalized over
+  the trial), plus `eps` times elimination support, and the trial’s
+  weight is scaled by `(relative object entropy)^kappa`; finite `K`
+  replaces deterministic allocation with sampled attention. Its defaults
+  reproduce
+  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md).
+  Setting `gamma = 0`, `uncertainty = "novelty"`, a free `gamma`, a free
+  `eps`, `kappa = 1` or a finite `K` reproduces, respectively,
+  `uncfam(variant = "uncertainty-only")`, `uncfam(variant = "novelty")`,
+  [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
+  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
+  [`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md)
+  and
+  [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md).
+  Each reproduces the original exactly (to the last bit, and draw for
+  draw for sampling) on all 47 `xsl_datasets` conditions; this is
+  checked in `tests/testthat/test-uncfam_general.R`.
+  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
+  is not nested, since its prediction-error update is unnormalized.
+  Registered in
+  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)/`xsl_model_registry()`,
+  fitting `X, B, C, gamma, eps, kappa` with `K = Inf`. It also has an
+  optional short-term trace: with `rho > 0`, every update also goes into
+  a second matrix that decays by `Cs` per trial, and familiarity becomes
+  `(M + rho * S)^gamma`, so recently strengthened pairings draw extra
+  attention. Uncertainty, elimination and test performance still use
+  `M`, and `rho = 0` (the default) is unchanged.
 - [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md),
   [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
   [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
@@ -138,62 +211,96 @@
   [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md).
   The group and cross-validated helpers default to the model’s registry
   setting: 5 restarts for `uncfam_predictive`, 3 for `tilles`,
-  otherwise 1. `seed` makes fits reproducible
+  otherwise 1. `seed` makes fits reproducible.
 - [`update_params()`](https://www.kachergis.com/XSLmodels/reference/update_params.md)
   and the fitting functions accept `free`, the names of the parameters
   being fit, so any subset of a model’s parameters can be fit with the
   rest fixed. Previously only the leading parameters could be fit.
   Fitted `bestmem` is now named by parameter. Every registry entry names
-  its free parameters
+  its free parameters.
 - [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)
   now lists every model in the registry. This adds four variants used in
   the model comparison paper: `uncfam_novelty`,
   `uncfam_uncertainty_only`, `uncfam_strength` (familiarity only,
-  `B = 0`) and `fazly_threshold`
-- Added
-  [`uncfam_general()`](https://www.kachergis.com/XSLmodels/reference/uncfam_general.md),
-  a single biased associative model that nests the
-  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md)
-  family, so variants can be compared as nested models (fix or free
-  parameters) rather than as separate functions. A pair’s share of the
-  trial’s weight is `M^gamma * exp(B * (U(w) + U(o)))` (normalized over
-  the trial), plus `eps` times elimination support, and the trial’s
-  weight is scaled by `(relative object entropy)^kappa`; finite `K`
-  replaces deterministic allocation with sampled attention. Its defaults
-  reproduce
-  [`uncfam()`](https://www.kachergis.com/XSLmodels/reference/uncfam.md).
-  Setting `gamma = 0`, `uncertainty = "novelty"`, a free `gamma`, a free
-  `eps`, `kappa = 1` or a finite `K` reproduces, respectively,
-  `uncfam(variant = "uncertainty-only")`, `uncfam(variant = "novelty")`,
-  [`uncfam_gamma()`](https://www.kachergis.com/XSLmodels/reference/uncfam_gamma.md),
-  [`uncfam_elimination()`](https://www.kachergis.com/XSLmodels/reference/uncfam_elimination.md),
-  [`uncfam_attention()`](https://www.kachergis.com/XSLmodels/reference/uncfam_attention.md)
-  and
-  [`uncfam_sampling()`](https://www.kachergis.com/XSLmodels/reference/uncfam_sampling.md).
-  Each reproduces the original exactly (to the last bit, and draw for
-  draw for sampling) on all 47 `xsl_datasets` conditions; this is
-  checked in `tests/testthat/test-uncfam_general.R`.
-  [`uncfam_predictive()`](https://www.kachergis.com/XSLmodels/reference/uncfam_predictive.md)
-  is not nested, since its prediction-error update is unnormalized.
-  Registered in
-  [`show_models()`](https://www.kachergis.com/XSLmodels/reference/show_models.md)/`xsl_model_registry()`,
-  fitting `X, B, C, gamma, eps, kappa` with `K = Inf`. It also has an
-  optional short-term trace: with `rho > 0`, every update also goes into
-  a second matrix that decays by `Cs` per trial, and familiarity becomes
-  `(M + rho * S)^gamma`, so recently strengthened pairings draw extra
-  attention. Uncertainty, elimination and test performance still use
-  `M`, and `rho = 0` (the default) is unchanged
-- Every `xsl_datasets` condition now carries a `response_matrix`: for
-  each test item, the number of participants choosing each object. This
-  is the full confusion matrix behind `accuracy`, which it reproduces
-  exactly, so models can be fit to which objects learners chose (e.g. by
-  multinomial likelihood) rather than only to proportion correct. It is
-  extracted from the raw response files (`data-raw/raw_responses.R`,
-  `data-raw/fix_freqcd_add_responses.R`).
-  `data-raw/extract_response_matrices.R` reports how each condition was
-  matched to its raw data
+  `B = 0`) and `fazly_threshold`.
 
-### Bug Fixes
+### Dataset changes
+
+- The 12 filtering conditions in `xsl_datasets` (`filt*E_*L`; Kachergis,
+  Yu, & Shiffrin, 2012) were scored wrongly, and held only half their
+  tests. Each word co-occurs in training with both its own object and
+  its partner’s object (e.g. w1 with o1 and o7). It was tested twice,
+  once with the partner object absent (AtoA, measuring w1-o1) and once
+  with its own object absent (AtoB, measuring w1-o7). `xsl_datasets`
+  held only the AtoA accuracies, scored as a choice among all 12
+  objects, so a model’s association with the absent partner object
+  counted against it, and `filt0E_*` (symmetric pairs) was capped at .5.
+  Each condition now has 24 test items scored by
+  [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md):
+  the 12 AtoA items, then the 12 AtoB items. In the raw data, no
+  participant ever chose the absent object on either test. Two
+  participants in each `*_6L` condition had test codes shifted by 6, and
+  are now excluded (`n_subj` 27 -\> 23; the stored 27 was a per-word
+  count inflated by the miscoding), which changes those conditions’ AtoA
+  accuracies slightly. **This changes all fits involving these
+  conditions.** See `data-raw/fix_filtering_tests.R` and
+  [`?xsl_datasets`](https://www.kachergis.com/XSLmodels/reference/xsl_datasets.md).
+- The frequency / contextual-diversity conditions in `xsl_datasets` are
+  rebuilt from the original analysis data
+  (`data-raw/data/freqCD_item_data.Rdata`), giving exact accuracies and
+  correct sample sizes. **This changes fits involving these
+  conditions.**.
+  - The stored accuracies were right, but `n_subj` had been attached to
+    the wrong conditions. It is now 104 (was 26) for `freq369-3x3hiCD`,
+    66 (62) for `freq369_36mx`, 40 (66) for `freq369_39mx` and 62 (40)
+    for `cont_div6-12`.
+  - `3_x8_369_4x4` and `freq369-3x3loCD` had been pooled with the first
+    test block of the “priming” experiments. Those participants trained
+    on the same sequences but were tested four times, and the pooled
+    values could not be reproduced. Both conditions now hold only their
+    original experiments: `n_subj` 30 (was 74) and 34 (was 102), with
+    item accuracies changing by up to .27 and .51.
+  - Two duplicate conditions are dropped, leaving 54 conditions (was 56;
+    47 after the move below):
+    - `orig_3x3` was condition `224` (same training, identical
+      accuracies from the same 36 participants) with `n_subj` 104.
+    - `orig_4x4`’s 26 original participants are a subset of condition
+      `223`’s 77, and its training sequence differs from `223`’s only in
+      words 4 and 16 trading places between trials 11 and 24.
+  - See `data-raw/fix_freqcd_add_responses.R`.
+- Two 4AFC conditions in `xsl_datasets` listed test alternatives that
+  participants were not shown. **This changes fits of every model
+  involving conditions 211 and 214.** See `data-raw/fix_4afc_tests.R`.
+  - `214` (3x4 6/8 4AFC): 175 of its 648 human responses, on all 18
+    words, were to objects not among the listed alternatives. All of
+    them are among condition `213`’s alternatives for the same word (and
+    no other condition’s), so 214’s participants were evidently tested
+    with 213’s displays. 214’s `test` is now 213’s. Its `accuracy` and
+    `response_matrix` are unchanged.
+  - `211` (1x3 6/18 4AFC), word 17: the alternatives listed object 17
+    twice and omitted foil 2, which participants chose; now
+    `c(17, 16, 5, 2)`.
+  - Every human response in `xsl_datasets` is now to one of its item’s
+    listed alternatives (checked in `tests/testthat/test-data.R`).
+- The Suanda, Mugwanya & Namy (2014) and Koehne, Trueswell &
+  Gleitman (2013) conditions moved from `xsl_datasets` to new standalone
+  held-out datasets, `suanda2014` and `koehne2013`, registered in
+  `xsl_holdout_datasets`, as in the original CogSci bake-off. Only their
+  condition-level mean accuracies are available, so they can’t inform
+  item-level group or cross-validated fits; they’re for testing
+  generalization of mean accuracy. `xsl_datasets` now has 47 conditions,
+  all with item-level accuracy and a `response_matrix`. See
+  `data-raw/move_condition_means_to_holdout.R`.
+- `xslData`‘s validator now expects one `accuracy` value (and one
+  `response_matrix` row) per test item, i.e. per test trial when `test`
+  is given, rather than per word. The filtering conditions’ 24-item
+  tests failed the old check.
+- [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
+  (and `xslData` test specifications) accept an optional `correct`
+  element giving each test trial’s correct object; it defaults to the
+  tested word’s own object, as before.
+
+### Bug fixes
 
 - [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
   applied each trial’s prediction errors to the wrong associations. The
@@ -218,37 +325,12 @@
   [`baseline()`](https://www.kachergis.com/XSLmodels/reference/baseline.md)
   (its learning rate goes to near 0, where it counts co-occurrences),
   because it learns only about objects present on a trial.
-
-- [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md),
-  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md),
-  and so
-  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
-  [`plot_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
-  and
-  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
-  read a gold lexicon’s numeric word and object ids as matrix positions
-  rather than labels, scoring the wrong cells whenever a matrix’s labels
-  weren’t 1..n in order (matrices from
-  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
-  are, so its results were unaffected). They now index by label.
-
-- [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
-  returned NA at every threshold (and
-  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
-  `-Inf`, with a warning) for a matrix with any all-zero row, a word
-  with no associations, which models such as
-  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
-  and
-  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
-  often leave. Such a word now selects no referent.
-
 - **The registry’s fitting bounds now match the model comparison
   paper’s** (xsl-bakeoff `fits/v05/specs.R`), so
   [`get_group_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_group_model_fit.md)
   and
   [`get_crossvalidated_model_fit()`](https://www.kachergis.com/XSLmodels/reference/get_crossvalidated_model_fit.md)
-  search the same space. **This changes their results.**
-
+  search the same space. **This changes their results.**.
   - The uncfam family: X in \[.001, 5\], B in \[.1, 15\] and C in \[.5,
     1\]. Previously X was in \[.01, .5\] and B in \[.8, 1\], which
     excluded
@@ -266,18 +348,10 @@
   - [`rescorla_wagner()`](https://www.kachergis.com/XSLmodels/reference/rescorla_wagner.md)
     now fits `beta`, `C` and `lambda` with `alpha` fixed at 1, since
     `alpha` and `beta` only enter as a product.
-
 - [`multi_sampling()`](https://www.kachergis.com/XSLmodels/reference/multi_sampling.md)’s
   registry bounds were attached to the wrong parameters. Its parameters
   are ordered (C, X, B, K), but the bounds were written for (X, B, C,
-  K), so decay `C` was fit in \[.01, .5\]
-
-- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
-  no longer errors on training data with a single trial. Its trial loop
-  was `for (t in 2:length(data$words))`, which for one trial is `2:1` =
-  `c(2, 1)` and indexed a nonexistent second trial. Results with two or
-  more trials are unchanged
-
+  K), so decay `C` was fit in \[.01, .5\].
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   now follows Tilles & Fontanari (2013) in three places where it
   departed from the paper. It matches an independent, literal
@@ -286,8 +360,7 @@
   `xsl_datasets` conditions, including at the parameter bounds. **This
   changes all
   [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
-  results and fits.**
-
+  results and fits.**.
   - Eq 7’s `alpha` is recomputed before every trial for every word seen
     so far, as the paper’s procedure (p. 4) specifies. Words absent from
     a trial use it in eqs 12-13. They used to keep the `alpha` from the
@@ -315,7 +388,6 @@
     changes by up to .135 for a word. Refitting with v05’s settings
     gives SSE .6061 at x = .124, b = .129, `alpha_0` = .979, the same as
     with only the eq 7 fix (.6060).
-
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)’s
   eq 7 now normalizes the entropy of a word’s associations to \[0, 1\],
   as Tilles & Fontanari (2013) specify, by dividing
@@ -339,7 +411,6 @@
   to .6399. Refitting gives .6060 at almost the same parameters (x =
   .129, b = .126, `alpha_0` = .979). When only one object has been seen,
   eq 7’s normalized entropy is now 0 instead of 0/0.
-
 - [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
   no longer returns NaN, or fails with “missing value where TRUE/FALSE
   needed” inside
@@ -371,7 +442,11 @@
   as infinitely bad. The normalization itself is corrected in the entry
   above, so small `alpha_0` no longer causes this; the checks remain for
   parameters outside \[0, 1\] and for the boundary cases.
-
+- [`tilles()`](https://www.kachergis.com/XSLmodels/reference/tilles.md)
+  no longer errors on training data with a single trial. Its trial loop
+  was `for (t in 2:length(data$words))`, which for one trial is `2:1` =
+  `c(2, 1)` and indexed a nonexistent second trial. Results with two or
+  more trials are unchanged.
 - [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)’s
   choice exponent `ch_dec` was ignored on conditions with a `test` (the
   4AFC conditions 211-214 and the 12 filtering conditions):
@@ -391,87 +466,27 @@
   [`bayesian_decay()`](https://www.kachergis.com/XSLmodels/reference/bayesian_decay.md)
   fits involving any of these 16 conditions.** Models without `ch_dec`
   are unchanged, bit for bit.
-
-- Two 4AFC conditions in `xsl_datasets` listed test alternatives that
-  participants were not shown. **This changes fits of every model
-  involving conditions 211 and 214.** See `data-raw/fix_4afc_tests.R`
-
-  - `214` (3x4 6/8 4AFC): 175 of its 648 human responses, on all 18
-    words, were to objects not among the listed alternatives. All of
-    them are among condition `213`’s alternatives for the same word (and
-    no other condition’s), so 214’s participants were evidently tested
-    with 213’s displays. 214’s `test` is now 213’s. Its `accuracy` and
-    `response_matrix` are unchanged.
-  - `211` (1x3 6/18 4AFC), word 17: the alternatives listed object 17
-    twice and omitted foil 2, which participants chose; now
-    `c(17, 16, 5, 2)`.
-  - Every human response in `xsl_datasets` is now to one of its item’s
-    listed alternatives (checked in `tests/testthat/test-data.R`).
-
-- The frequency / contextual-diversity conditions in `xsl_datasets` are
-  rebuilt from the original analysis data
-  (`data-raw/data/freqCD_item_data.Rdata`), giving exact accuracies and
-  correct sample sizes. **This changes fits involving these
-  conditions.**
-
-  - The stored accuracies were right, but `n_subj` had been attached to
-    the wrong conditions. It is now 104 (was 26) for `freq369-3x3hiCD`,
-    66 (62) for `freq369_36mx`, 40 (66) for `freq369_39mx` and 62 (40)
-    for `cont_div6-12`.
-  - `3_x8_369_4x4` and `freq369-3x3loCD` had been pooled with the first
-    test block of the “priming” experiments. Those participants trained
-    on the same sequences but were tested four times, and the pooled
-    values could not be reproduced. Both conditions now hold only their
-    original experiments: `n_subj` 30 (was 74) and 34 (was 102), with
-    item accuracies changing by up to .27 and .51.
-  - Two duplicate conditions are dropped, leaving 54 conditions (was 56;
-    47 after the move below):
-    - `orig_3x3` was condition `224` (same training, identical
-      accuracies from the same 36 participants) with `n_subj` 104.
-    - `orig_4x4`’s 26 original participants are a subset of condition
-      `223`’s 77, and its training sequence differs from `223`’s only in
-      words 4 and 16 trading places between trials 11 and 24.
-  - See `data-raw/fix_freqcd_add_responses.R`.
-
-- The Suanda, Mugwanya & Namy (2014) and Koehne, Trueswell &
-  Gleitman (2013) conditions moved from `xsl_datasets` to new standalone
-  held-out datasets, `suanda2014` and `koehne2013`, registered in
-  `xsl_holdout_datasets`, as in the original CogSci bake-off. Only their
-  condition-level mean accuracies are available, so they can’t inform
-  item-level group or cross-validated fits; they’re for testing
-  generalization of mean accuracy. `xsl_datasets` now has 47 conditions,
-  all with item-level accuracy and a `response_matrix`. See
-  `data-raw/move_condition_means_to_holdout.R`
-
-- `xslData`‘s validator now expects one `accuracy` value (and one
-  `response_matrix` row) per test item, i.e. per test trial when `test`
-  is given, rather than per word. The filtering conditions’ 24-item
-  tests failed the old check.
-
-- The 12 filtering conditions in `xsl_datasets` (`filt*E_*L`; Kachergis,
-  Yu, & Shiffrin, 2012) were scored wrongly, and held only half their
-  tests. Each word co-occurs in training with both its own object and
-  its partner’s object (e.g. w1 with o1 and o7). It was tested twice,
-  once with the partner object absent (AtoA, measuring w1-o1) and once
-  with its own object absent (AtoB, measuring w1-o7). `xsl_datasets`
-  held only the AtoA accuracies, scored as a choice among all 12
-  objects, so a model’s association with the absent partner object
-  counted against it, and `filt0E_*` (symmetric pairs) was capped at .5.
-  Each condition now has 24 test items scored by
-  [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md):
-  the 12 AtoA items, then the 12 AtoB items. In the raw data, no
-  participant ever chose the absent object on either test. Two
-  participants in each `*_6L` condition had test codes shifted by 6, and
-  are now excluded (`n_subj` 27 -\> 23; the stored 27 was a per-word
-  count inflated by the miscoding), which changes those conditions’ AtoA
-  accuracies slightly. **This changes all fits involving these
-  conditions.** See `data-raw/fix_filtering_tests.R` and
-  [`?xsl_datasets`](https://www.kachergis.com/XSLmodels/reference/xsl_datasets.md)
-
-- [`mafc_test()`](https://www.kachergis.com/XSLmodels/reference/mafc_test.md)
-  (and `xslData` test specifications) accept an optional `correct`
-  element giving each test trial’s correct object; it defaults to the
-  tested word’s own object, as before
+- [`get_tp()`](https://www.kachergis.com/XSLmodels/reference/get_tp.md),
+  [`get_fscore()`](https://www.kachergis.com/XSLmodels/reference/get_fscore.md),
+  and so
+  [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
+  [`plot_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  and
+  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md),
+  read a gold lexicon’s numeric word and object ids as matrix positions
+  rather than labels, scoring the wrong cells whenever a matrix’s labels
+  weren’t 1..n in order (matrices from
+  [`xsl_run()`](https://www.kachergis.com/XSLmodels/reference/xsl_run.md)
+  are, so its results were unaffected). They now index by label.
+- [`get_roc()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  returned NA at every threshold (and
+  [`get_roc_max()`](https://www.kachergis.com/XSLmodels/reference/get_roc.md)
+  `-Inf`, with a warning) for a matrix with any all-zero row, a word
+  with no associations, which models such as
+  [`pursuit()`](https://www.kachergis.com/XSLmodels/reference/pursuit.md)
+  and
+  [`propose_but_verify()`](https://www.kachergis.com/XSLmodels/reference/propose_but_verify.md)
+  often leave. Such a word now selects no referent.
 
 ## XSLmodels 0.4.0
 

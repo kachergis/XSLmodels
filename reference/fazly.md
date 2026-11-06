@@ -1,6 +1,6 @@
-# Fazly et al. 2010 probablistic associative model
+# Fazly et al. 2010 probabilistic associative model
 
-Fazly et al. 2010 probablistic associative model
+Fazly et al. 2010 probabilistic associative model
 
 ## Usage
 
