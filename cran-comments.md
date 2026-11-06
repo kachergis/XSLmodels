@@ -1,21 +1,24 @@
 ## Submission
 
-This is a new release (first submission to CRAN).
+This is an update (0.4.0 -> 0.5.0). It adds choice-level likelihood fitting,
+multi-block (learning-trajectory) designs, a new dataset and a softmax choice
+rule, and corrects several datasets and model implementations; see NEWS.md.
 
 ## Test environments
 
 * local macOS 14 (R 4.6.0), `R CMD check --as-cran` on the built tarball,
   with the remote CRAN incoming checks enabled
+* win-builder (R-devel)
+* GitHub Actions: macOS (release), Windows (release), Ubuntu (devel,
+  release, oldrel-1)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* This is a new submission.
+## Reverse dependencies
 
-## Downstream dependencies
-
-None (first submission; no reverse dependencies).
+There are currently no reverse dependencies.
 
 ## Additional notes
 

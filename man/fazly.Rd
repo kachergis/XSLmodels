@@ -2,7 +2,7 @@
 % Please edit documentation in R/model-fazly.R
 \name{fazly}
 \alias{fazly}
-\title{Fazly et al. 2010 probablistic associative model}
+\title{Fazly et al. 2010 probabilistic associative model}
 \usage{
 fazly(lambda, beta, alpha = 10, epsilon = 0.001, theta = NULL)
 }
@@ -22,7 +22,7 @@ fazly(lambda, beta, alpha = 10, epsilon = 0.001, theta = NULL)
 An object of class xslMod
 }
 \description{
-Fazly et al. 2010 probablistic associative model
+Fazly et al. 2010 probabilistic associative model
 }
 \examples{
 mod <- fazly(lambda = 1e-5, beta = 8500)
