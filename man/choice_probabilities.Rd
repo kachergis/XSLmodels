@@ -4,7 +4,7 @@
 \alias{choice_probabilities}
 \title{Choice probabilities for each test item, with human response counts}
 \usage{
-choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL)
+choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL)
 }
 \arguments{
 \item{m}{A word-by-object matrix, e.g. \code{xsl_run(mod, data)$fits[[1]]$matrix}.}
@@ -20,6 +20,10 @@ choice rule gives it).}
 \item{block}{For a multi-block condition, which block's responses to
 return (\code{m} should then be that block's matrix, e.g.
 \code{xsl_run(mod, data)$fits[[1]]$blocks[[block]]$matrix}).}
+
+\item{phi}{Optional softmax inverse temperature (a model's \code{phi}; see
+\code{\link[=softmax_weights]{softmax_weights()}}). For a stochastic model, pass the mean matrix,
+\code{matrix / n_sim}, as \code{\link[=xsl_run]{xsl_run()}} scores it.}
 }
 \value{
 A tibble with one row per test item: \code{item}, \code{correct} (the
