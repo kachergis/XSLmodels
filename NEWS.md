@@ -1,3 +1,5 @@
+# XSLmodels (development version)
+
 # XSLmodels 0.5.0
 
 This release adds choice-level likelihood fitting, multi-block (learning-trajectory) designs, the `kachergis_priming` trajectories, `uncfam_general()`, which nests the `uncfam()` family, canonical options for `rescorla_wagner()` and `kalman_filter()`, and a softmax choice rule for any model. It also corrects several datasets and models, so **most results differ from 0.4.0**:
