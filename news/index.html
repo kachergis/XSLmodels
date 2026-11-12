@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">XSLmodels</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,10 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.5.0" id="xslmodels-050">XSLmodels 0.5.0<a class="anchor" aria-label="anchor" href="#xslmodels-050"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="xslmodels-development-version">XSLmodels (development version)<a class="anchor" aria-label="anchor" href="#xslmodels-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="xslmodels-050">XSLmodels 0.5.0<a class="anchor" aria-label="anchor" href="#xslmodels-050"></a></h2><p class="text-muted">CRAN release: 2026-11-10</p>
 <p>This release adds choice-level likelihood fitting, multi-block (learning-trajectory) designs, the <code>kachergis_priming</code> trajectories, <code><a href="../reference/uncfam_general.html">uncfam_general()</a></code>, which nests the <code><a href="../reference/uncfam.html">uncfam()</a></code> family, canonical options for <code><a href="../reference/rescorla_wagner.html">rescorla_wagner()</a></code> and <code><a href="../reference/kalman_filter.html">kalman_filter()</a></code>, and a softmax choice rule for any model. It also corrects several datasets and models, so <strong>most results differ from 0.4.0</strong>:</p>
 <ul><li>Fits to <code>xsl_datasets</code> change for every model: its filtering, frequency / contextual-diversity and 4AFC conditions were corrected, two duplicate conditions were dropped, and the Suanda (2014) and Koehne (2013) condition means moved to held-out datasets (see Dataset changes). It now has 47 conditions, all with item-level accuracy and a <code>response_matrix</code>.</li>
 <li>The registry’s fitting bounds changed, so <code><a href="../reference/get_group_model_fit.html">get_group_model_fit()</a></code> and <code><a href="../reference/get_crossvalidated_model_fit.html">get_crossvalidated_model_fit()</a></code> search a different space.</li>

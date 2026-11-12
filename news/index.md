@@ -1,6 +1,10 @@
 # Changelog
 
+## XSLmodels (development version)
+
 ## XSLmodels 0.5.0
+
+CRAN release: 2026-11-10
 
 This release adds choice-level likelihood fitting, multi-block
 (learning-trajectory) designs, the `kachergis_priming` trajectories,
