@@ -13,7 +13,9 @@ predict_referent(
   threshold = NULL,
   rsa_alpha = 3,
   depth = 1,
-  d = NULL
+  d = NULL,
+  rule = c("luce", "remember_guess"),
+  mu = 0
 )
 }
 \arguments{
@@ -49,6 +51,12 @@ choice, as in \code{\link[=get_perf]{get_perf()}}. \code{NULL} (the default) lea
 \code{\link[=xsl_run]{xsl_run()}} passes a model's \code{ch_dec} parameter here, so that
 \code{\link[=bayesian_decay]{bayesian_decay()}} scores test trials with the same decision rule it uses
 elsewhere.}
+
+\item{rule}{The literal listener's choice rule: \code{"luce"} (Bayes' rule on
+the word's row, the default), or \code{"remember_guess"} (see
+\code{\link[=remember_guess]{remember_guess()}}). Not available with \code{pragmatic = TRUE}.}
+
+\item{mu}{Mutual-exclusivity strength for \code{rule = "remember_guess"}.}
 }
 \value{
 A numeric vector of probabilities over \code{objects}, in the given

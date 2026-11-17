@@ -5,7 +5,7 @@
 \alias{xsl_holdout_datasets}
 \title{Registry of datasets held out from xsl_datasets}
 \format{
-An object of class \code{list} of length 10.
+An object of class \code{list} of length 11.
 }
 \usage{
 xsl_holdout_datasets

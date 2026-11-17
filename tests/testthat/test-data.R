@@ -68,7 +68,7 @@ test_that("benitez2020 is a standalone dataset with real per-word accuracy, not 
 test_that("xsl_holdout_datasets registers every standalone dataset", {
   expect_true(all(c("benitez2020", "kachergis_initial_accuracy", "vlach_debrock2017",
                     "kachergis2012_highlighting", "gangwani2011_category",
-                    "rollins_corpus", "fm_corpus") %in% names(xsl_holdout_datasets)))
+                    "rollins_corpus", "fm_corpus", "yurovsky_frank2015") %in% names(xsl_holdout_datasets)))
   for (entry in xsl_holdout_datasets) {
     expect_type(entry$scorable, "logical")
     expect_type(entry$scoring, "character")

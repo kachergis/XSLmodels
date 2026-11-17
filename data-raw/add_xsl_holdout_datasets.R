@@ -56,6 +56,11 @@ xsl_holdout_datasets <- list(
     scoring = "score_gangwani2011_category() in tests/bakeoff_comparison/gangwani2011_category_fit.R",
     note = "15 x 12 (word x object) association matrix -- non-square, breaks diagonal scoring for the category-label words."
   ),
+  yurovsky_frank2015 = list(
+    scorable = FALSE,
+    scoring = "yf2015_fit() / yf2015_predict() (closed-form condition-level models; binomial likelihood of participants' choices), or yf2015_paradigm() for the trial-level yf2015() model",
+    note = "Response-contingent design (Same/Switch tests depend on each participant's exposure-trial guess) with interleaved tests at fixed intervals: no xslData representation. Trial-level tibbles, not xslData."
+  ),
   rollins_corpus = list(
     scorable = FALSE,
     scoring = "get_fscore() / get_roc() / get_roc_max() against $gold (no human accuracy data at all, a naturalistic corpus)",

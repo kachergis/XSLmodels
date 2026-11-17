@@ -11,6 +11,12 @@
 #'   elements represent correct associations, and off-diagonal elements
 #'   represent incorrect associations.
 #' @param d Exponent for exponentiated choice rule
+#' @param rule The choice rule: `"luce"` (the default), or `"remember_guess"`,
+#'   under which a learner recalls a word's referent from memory or else
+#'   guesses (see [remember_guess()]).
+#' @param mu Mutual-exclusivity strength for `rule = "remember_guess"`: guesses
+#'   avoid objects associated with other words (see [remember_guess()]). 0,
+#'   the default, guesses uniformly.
 #'
 #' @return A named numeric vector where each element corresponds to an item in
 #'   the matrix. The value of each element represents the proportion of correct
@@ -30,13 +36,17 @@
 #' x <- xsl_run(baseline(), get_example_ambiguous_condition())
 #' mat <- x$fits[[1]]$matrix
 #' get_perf(mat)
-get_perf <- function(m, d = NULL) {
-  # if (is.null(d)) return(diag(m) / rowSums(m))
-  # ones <- rep(1, ncol(m))
-  # md <- m ^ d / outer(ones, colSums(m ^ d))
-  # diag(md)
+get_perf <- function(m, d = NULL, rule = c("luce", "remember_guess"), mu = 0) {
+  rule <- match.arg(rule)
   if (is.null(d)) d <- 1
   m <- pmax(m, 0) ^ d
+  if (rule == "remember_guess") {
+    out <- vapply(seq_len(nrow(m)), \(i) {
+      if (i > ncol(m)) return(0)
+      remember_guess(m, i, seq_len(ncol(m)), mu = mu)[i]
+    }, numeric(1))
+    return(stats::setNames(out, rownames(m)))
+  }
   tot <- rowSums(m)
   ifelse(tot > 0, diag(m) / tot, 1 / ncol(m))
 }
@@ -76,11 +86,120 @@ softmax_weights <- function(m, phi) {
   out
 }
 
-# The matrix xsl_run() scores: a model's mean association matrix, as softmax
-# weights if the model has an inverse temperature `phi`.
+# The matrix xsl_run() scores: a model's association matrix summed over its
+# simulations, as softmax weights of the mean if the model has an inverse
+# temperature `phi`. Luce choice is scale-free, so the sum serves; the
+# remember-or-guess rule reads strengths as probabilities, so it gets the mean.
 choice_matrix <- function(mat, n_sim, params) {
   phi <- params[["phi"]]
-  if (is.null(phi)) mat else softmax_weights(mat / n_sim, phi)
+  if (!is.null(phi)) return(softmax_weights(mat / n_sim, phi))
+  if (choice_rule(params) == "remember_guess") mat / n_sim else mat
+}
+
+# A model's choice rule and its arguments, as xsl_run() scores it. `mu` is
+# read only under the remember-or-guess rule (other models use the name).
+choice_rule <- function(params) params[["choice_rule"]] %||% "luce"
+choice_args <- function(params) {
+  rule <- choice_rule(params)
+  list(d = params[["ch_dec"]], rule = rule,
+       mu = if (rule == "remember_guess") params[["mu"]] %||% 0 else 0)
+}
+
+#' Remember-or-guess choice rule
+#'
+#' The choice rule of Yurovsky & Frank (2015): a learner hearing word `w`
+#' recalls one of its remembered referents, or else guesses among the objects
+#' on offer. Reading the association strengths `r_o = m[w, o]` of the
+#' alternatives as the probabilities of recalling each one, the probability of
+#' choosing object `o` among `k` alternatives is
+#' \deqn{P(o) = r_o + (1 - \textstyle\sum r) \, g_o}
+#' when \eqn{\sum r \le 1}, where \eqn{g} is the guessing distribution, and
+#' \eqn{P(o) = r_o / \sum r} (Luce choice) when the strengths sum to more than
+#' 1. The two agree at \eqn{\sum r = 1}. With one remembered object and
+#' uniform guessing this is \eqn{M + (1 - M) / k}, the paper's Eq. 5.
+#'
+#' Unlike Luce choice, the rule depends on how many alternatives there are, so
+#' it is not a transformation of the matrix (as [softmax_weights()] is), and
+#' it is not scale-free: strengths are probabilities.
+#'
+#' **Mutual exclusivity.** Guesses are uniform by default. With `mu > 0` they
+#' avoid objects associated with other words: \eqn{g_o \propto \exp(-\mu
+#' c_o)}, where \eqn{c_o} is object `o`'s summed strength with every word but
+#' `w`. A novel word (not a row of `m`) has nothing to recall, so it is a pure
+#' guess: chance with `mu = 0`, and below chance for objects already named
+#' with `mu > 0`.
+#'
+#' A model uses this rule in [xsl_run()], [get_perf()], [mafc_test()] and
+#' [choice_probabilities()] when its parameters include `choice_rule =
+#' "remember_guess"` (and optionally `mu`), as [yf2015()]'s do. For a
+#' stochastic model `xsl_run()` applies it to the mean of the simulations'
+#' matrices; that is the mean of the simulated learners' choice probabilities
+#' as long as no learner's strengths sum to more than 1 and `mu = 0`, where
+#' the rule is linear.
+#'
+#' @param m A word-by-object matrix of association strengths (negative
+#'   entries are treated as 0).
+#' @param word The word: a row name of `m`, or a row index. A value not in `m`
+#'   is a novel word.
+#' @param objects The alternatives: column names of `m`, or column indices.
+#'   An entry not in `m` is a novel object (strength 0 with every word).
+#' @param mu Mutual-exclusivity strength, `mu >= 0`.
+#' @param prior Optional weights over `objects` scaling the guessing
+#'   distribution; an object with weight 0 is never chosen.
+#'
+#' @return A numeric vector of choice probabilities over `objects`, summing to
+#'   1.
+#' @references Yurovsky, D., & Frank, M. C. (2015). An integrative account of
+#'   constraints on cross-situational learning. *Cognition*, 145, 53-62.
+#'   \doi{10.1016/j.cognition.2015.07.013}
+#' @seealso [predict_referent()], whose `rule` argument uses it.
+#' @export
+#'
+#' @examples
+#' m <- matrix(c(.6, .1, 0, 0, 0, .5), 2, byrow = TRUE,
+#'             dimnames = list(c("A", "B"), c("a1", "a2", "b1")))
+#' remember_guess(m, "A", c("a1", "a2"))          # .6 + .3 / 2 for a1
+#' remember_guess(m, "A", c("a2", "x", "y"))      # a2 vs. two novel objects
+#' remember_guess(m, "C", c("b1", "x"), mu = 2)   # a novel word avoids b1
+remember_guess <- function(m, word, objects, mu = 0, prior = NULL) {
+  stopifnot(is.numeric(mu), length(mu) == 1, mu >= 0)
+  M <- pmax(m, 0)
+  k <- length(objects)
+  if (k == 0) stop("`objects` must be non-empty", call. = FALSE)
+  pr <- if (is.null(prior)) rep(1, k) else as.numeric(prior)
+  if (length(pr) != k || any(pr < 0) || sum(pr) <= 0) {
+    stop("`prior` must be ", k, " non-negative weights with a positive sum", call. = FALSE)
+  }
+  oi <- resolve_index(objects, colnames(M), ncol(M))
+  sub <- matrix(0, nrow(M), k)
+  sub[, !is.na(oi)] <- M[, oi[!is.na(oi)], drop = FALSE]
+  wi <- resolve_index(word, rownames(M), nrow(M))
+  if (length(wi) != 1) stop("`word` must be a single word", call. = FALSE)
+  r <- if (is.na(wi)) numeric(k) else sub[wi, ] * (pr > 0)
+  g <- pr
+  if (mu > 0) {
+    comp <- colSums(sub) - (if (is.na(wi)) 0 else sub[wi, ])
+    g <- g * exp(-mu * (comp - min(comp)))  # shifted: same proportions, no underflow to all 0
+  }
+  rg_probs(r, g)
+}
+
+# The remember-or-guess rule on strengths r and guessing weights g.
+rg_probs <- function(r, g) {
+  s <- sum(r)
+  if (s >= 1) return(r / s)
+  r + (1 - s) * g / sum(g)
+}
+
+# Row or column positions of `x` (labels, or integer positions) in a matrix
+# dimension with names `nms` and size `n`; NA where absent.
+resolve_index <- function(x, nms, n) {
+  if (is.numeric(x)) {
+    idx <- as.integer(round(x))
+    idx[idx < 1 | idx > n] <- NA_integer_
+    return(idx)
+  }
+  match(as.character(x), nms)
 }
 
 # power choice rule
@@ -149,6 +268,10 @@ choice_matrix <- function(mat, n_sim, params) {
 #'   elsewhere.
 #' @param rsa_alpha,depth Speaker rationality and recursion depth for the RSA
 #'   listener (only used when `pragmatic = TRUE`).
+#' @param rule The literal listener's choice rule: `"luce"` (Bayes' rule on
+#'   the word's row, the default), or `"remember_guess"` (see
+#'   [remember_guess()]). Not available with `pragmatic = TRUE`.
+#' @param mu Mutual-exclusivity strength for `rule = "remember_guess"`.
 #'
 #' @return A numeric vector of probabilities over `objects`, in the given
 #'   order, summing to 1.
@@ -160,23 +283,22 @@ choice_matrix <- function(mat, n_sim, params) {
 #' predict_referent(m, 1, c(1, 2, 3), prior = c(1, 0, 1)) # object 2 unavailable
 predict_referent <- function(m, word, objects, prior = NULL,
                              pragmatic = FALSE, threshold = NULL,
-                             rsa_alpha = 3, depth = 1, d = NULL) {
+                             rsa_alpha = 3, depth = 1, d = NULL,
+                             rule = c("luce", "remember_guess"), mu = 0) {
+  rule <- match.arg(rule)
   M <- pmax(m, 0)
   if (!is.null(threshold)) M <- (M >= threshold) * 1
   if (!is.null(d)) M <- M ^ d
+  if (rule == "remember_guess") {
+    if (pragmatic) stop("`rule = \"remember_guess\"` has no pragmatic listener", call. = FALSE)
+    return(remember_guess(M, word, objects, mu = mu, prior = prior))
+  }
   wn <- rownames(M)
   on <- colnames(M)
   W <- nrow(M)
   O <- ncol(M)
 
-  resolve <- function(x, nms, n) {
-    if (is.numeric(x)) {
-      idx <- as.integer(round(x))
-      idx[idx < 1 | idx > n] <- NA_integer_
-      return(idx)
-    }
-    match(as.character(x), nms)
-  }
+  resolve <- resolve_index
 
   P <- length(objects)
   if (P == 0) stop("`objects` must be non-empty")
@@ -223,7 +345,8 @@ predict_referent <- function(m, word, objects, prior = NULL,
 #'   `correct` (the correct referent on each trial; defaults to the word's own
 #'   id).
 #' @param ... Further arguments passed to [predict_referent()] (e.g.
-#'   `pragmatic`, `threshold`, or `d`, the exponent of a power choice rule).
+#'   `pragmatic`, `threshold`, `d`, the exponent of a power choice rule, or
+#'   `rule = "remember_guess"`).
 #'
 #' @return A vector with the probability of choosing the correct object, given
 #'   each word.
@@ -421,13 +544,17 @@ item_alternatives <- function(m, data) {
   list(alternatives = test$objects, correct = vapply(target, `[[`, character(1), 1))
 }
 
-# ... plus the model's choice distribution over them: Luce choice with
-# exponent d, exactly as xsl_run() scores accuracy.
-item_choices <- function(m, data, d = NULL) {
+# ... plus the model's choice distribution over them, by its choice rule (Luce
+# choice with exponent d by default), exactly as xsl_run() scores accuracy.
+item_choices <- function(m, data, d = NULL, rule = "luce", mu = 0) {
   ch <- item_alternatives(m, data)
   ch$probs <- if (length(data$test) > 0) {
     test <- labelled_test(data$test)
-    lapply(seq_along(ch$alternatives), \(i) predict_referent(m, test$words[[i]], ch$alternatives[[i]], d = d))
+    lapply(seq_along(ch$alternatives), \(i) {
+      predict_referent(m, test$words[[i]], ch$alternatives[[i]], d = d, rule = rule, mu = mu)
+    })
+  } else if (rule != "luce") {
+    lapply(seq_len(nrow(m)), \(i) predict_referent(m, i, seq_len(ncol(m)), d = d, rule = rule, mu = mu))
   } else {
     M <- pmax(m, 0) ^ (if (is.null(d)) 1 else d)
     lapply(seq_len(nrow(m)), \(i) {
@@ -475,7 +602,7 @@ with_lapse <- function(p, lapse, k = length(p)) (1 - lapse) * p + lapse / k
 
 # Log-likelihood of one condition's human test responses under a model's
 # learned matrix m (whose accuracy predictions are `perf`).
-condition_loglik <- function(m, perf, data, objective, lapse, d = NULL) {
+condition_loglik <- function(m, perf, data, objective, lapse, d = NULL, rule = "luce", mu = 0) {
   ch <- item_alternatives(m, data)
   if (objective == "binomial") {
     cnt <- correct_counts(data, ch$alternatives, ch$correct)
@@ -486,7 +613,7 @@ condition_loglik <- function(m, perf, data, objective, lapse, d = NULL) {
     stop("condition '", data$label, "' has no response_matrix, which the multinomial ",
          "objective needs; use objective = \"binomial\"", call. = FALSE)
   }
-  probs <- item_choices(m, data, d)$probs
+  probs <- item_choices(m, data, d, rule, mu)$probs
   counts <- item_counts(data, ch$alternatives)
   sum(vapply(seq_along(probs), \(i) {
     stats::dmultinom(counts[[i]], prob = with_lapse(probs[[i]], lapse), log = TRUE)
@@ -523,6 +650,9 @@ n_responses <- function(data) {
 #' @param phi Optional softmax inverse temperature (a model's `phi`; see
 #'   [softmax_weights()]). For a stochastic model, pass the mean matrix,
 #'   `matrix / n_sim`, as [xsl_run()] scores it.
+#' @param rule,mu The choice rule and its mutual-exclusivity strength (a
+#'   model's `choice_rule` and `mu`; see [remember_guess()]). For a
+#'   stochastic model with `rule = "remember_guess"`, pass the mean matrix.
 #' @param lapse Lapse rate: the probability of guessing uniformly among the
 #'   alternatives, mixed into `p` (0, the default, leaves `p` as the model's
 #'   choice rule gives it).
@@ -543,14 +673,16 @@ n_responses <- function(data) {
 #' ch <- choice_probabilities(fit$matrix, dat)
 #' ch$p[[1]]       # the model's choice distribution for item 1
 #' ch$counts[[1]]  # what participants chose
-choice_probabilities <- function(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL) {
+choice_probabilities <- function(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL,
+                                 rule = c("luce", "remember_guess"), mu = 0) {
+  rule <- match.arg(rule)
   stopifnot("xslData" %in% class(data), lapse >= 0, lapse <= 1)
   if (!is.null(phi)) m <- softmax_weights(m, phi)
   if (n_blocks(data) > 1) {
     if (is.null(block)) stop("`data` has ", n_blocks(data), " blocks; say which with `block`", call. = FALSE)
     data <- data_block(data, block)
   }
-  ch <- item_choices(m, data, d)
+  ch <- item_choices(m, data, d, rule, mu)
   counts <- item_counts(data, ch$alternatives)
   tibble::tibble(item = seq_along(ch$correct), correct = ch$correct,
                  alternatives = ch$alternatives,

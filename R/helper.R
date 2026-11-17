@@ -301,6 +301,17 @@ xsl_model_registry <- function() {
                                              covariance = "full", outcomes = "all", phi = 5),
       free = c("tau2", "sigma2_0", "phi"), lower = c(0, 0.001, 0.1), upper = c(1, 100, 50)
     ),
+    # yf2015() in its deterministic mean-field mode (fast and smooth); sigma
+    # is identified only through words' repeated occurrences, and lambda and
+    # gamma trade off when every word is tested after training (see ?yf2015)
+    yf2015 = list(
+      constructor = function() yf2015(sigma = 0.5, lambda = 0.2, gamma = 1.5, sampling = FALSE),
+      free = c("sigma", "lambda", "gamma"), lower = c(0, 0, 0.01), upper = c(1, 3, 5)
+    ),
+    yf2015_me = list(
+      constructor = function() yf2015(sigma = 0.5, lambda = 0.2, gamma = 1.5, mu = 1, sampling = FALSE),
+      free = c("sigma", "lambda", "gamma", "mu"), lower = c(0, 0, 0.01, 0), upper = c(1, 3, 5, 10)
+    ),
     softmax_rl = list(
       constructor = function() softmax_rl(alpha = 0.3, beta = 3),
       # a beta upper bound of 20 was railed against; 100 leaves room

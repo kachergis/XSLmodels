@@ -4,7 +4,16 @@
 \alias{choice_probabilities}
 \title{Choice probabilities for each test item, with human response counts}
 \usage{
-choice_probabilities(m, data, d = NULL, lapse = 0, block = NULL, phi = NULL)
+choice_probabilities(
+  m,
+  data,
+  d = NULL,
+  lapse = 0,
+  block = NULL,
+  phi = NULL,
+  rule = c("luce", "remember_guess"),
+  mu = 0
+)
 }
 \arguments{
 \item{m}{A word-by-object matrix, e.g. \code{xsl_run(mod, data)$fits[[1]]$matrix}.}
@@ -24,6 +33,10 @@ return (\code{m} should then be that block's matrix, e.g.
 \item{phi}{Optional softmax inverse temperature (a model's \code{phi}; see
 \code{\link[=softmax_weights]{softmax_weights()}}). For a stochastic model, pass the mean matrix,
 \code{matrix / n_sim}, as \code{\link[=xsl_run]{xsl_run()}} scores it.}
+
+\item{rule, mu}{The choice rule and its mutual-exclusivity strength (a
+model's \code{choice_rule} and \code{mu}; see \code{\link[=remember_guess]{remember_guess()}}). For a
+stochastic model with \code{rule = "remember_guess"}, pass the mean matrix.}
 }
 \value{
 A tibble with one row per test item: \code{item}, \code{correct} (the

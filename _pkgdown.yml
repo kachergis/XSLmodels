@@ -27,6 +27,10 @@ reference:
       - softmax_rl
       - fgt2009
       - fgt2009_rsa
+      - yf2015
+      - yf2015_paradigm
+      - yf2015_predict
+      - yf2015_fit
       - minerva2
       - todam
       - rem
@@ -51,6 +55,7 @@ reference:
       - benitez2020
       - suanda2014
       - koehne2013
+      - yurovsky_frank2015
       - xsl_holdout_datasets
       - rollins_corpus
       - fm_corpus
@@ -67,6 +72,7 @@ reference:
     contents:
       - get_perf
       - softmax_weights
+      - remember_guess
       - mafc_test
       - predict_referent
       - choice_probabilities
