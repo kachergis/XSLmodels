@@ -16,7 +16,8 @@ trial), \code{objects} (the candidate referents on each trial), and optionally
 id).}
 
 \item{...}{Further arguments passed to \code{\link[=predict_referent]{predict_referent()}} (e.g.
-\code{pragmatic}, \code{threshold}, or \code{d}, the exponent of a power choice rule).}
+\code{pragmatic}, \code{threshold}, \code{d}, the exponent of a power choice rule, or
+\code{rule = "remember_guess"}).}
 }
 \value{
 A vector with the probability of choosing the correct object, given

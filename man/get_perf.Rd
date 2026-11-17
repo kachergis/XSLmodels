@@ -5,7 +5,7 @@
 \title{Calculate Luce choice (proportion correct) for each item in a model knowledge
 matrix}
 \usage{
-get_perf(m, d = NULL)
+get_perf(m, d = NULL, rule = c("luce", "remember_guess"), mu = 0)
 }
 \arguments{
 \item{m}{A square matrix representing the model's knowledge, where rows
@@ -14,6 +14,14 @@ elements represent correct associations, and off-diagonal elements
 represent incorrect associations.}
 
 \item{d}{Exponent for exponentiated choice rule}
+
+\item{rule}{The choice rule: \code{"luce"} (the default), or \code{"remember_guess"},
+under which a learner recalls a word's referent from memory or else
+guesses (see \code{\link[=remember_guess]{remember_guess()}}).}
+
+\item{mu}{Mutual-exclusivity strength for \code{rule = "remember_guess"}: guesses
+avoid objects associated with other words (see \code{\link[=remember_guess]{remember_guess()}}). 0,
+the default, guesses uniformly.}
 }
 \value{
 A named numeric vector where each element corresponds to an item in

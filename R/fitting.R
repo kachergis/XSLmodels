@@ -87,19 +87,21 @@ xsl_run <- function(model, data, control = xslControl()) {
     # referent is the object with the same label, which is only the same
     # *position* when the word and object label sets line up
     # both scoring paths apply the model's choice rule: softmax with inverse
-    # temperature phi (if any, via choice_matrix()) and exponent ch_dec (if any)
+    # temperature phi (if any, via choice_matrix()), exponent ch_dec (if any),
+    # and Luce or remember-or-guess choice (choice_rule, with mu)
     scored <- choice_matrix(mat, n_sim, model_params)
+    ca <- choice_args(model_params)
     perf <- if (length(dat$test) > 0) {
-      mafc_test(scored, labelled_test(dat$test), d = model_params[["ch_dec"]])
+      mafc_test(scored, labelled_test(dat$test), d = ca$d, rule = ca$rule, mu = ca$mu)
     } else {
-      get_perf(scored, d = model_params[["ch_dec"]])
+      get_perf(scored, d = ca$d, rule = ca$rule, mu = ca$mu)
     }
     sse <- sum((perf - dat$accuracy) ^ 2)
     out <- list(sims = sims, responses = responses, perf = perf, matrix = mat,
                 sse = sse, data = dat)
     if (objective != "sse") {
       out$loglik <- condition_loglik(scored, perf, dat, objective, control$lapse %||% 0,
-                                     d = model_params[["ch_dec"]])
+                                     d = ca$d, rule = ca$rule, mu = ca$mu)
     }
     out
   }
